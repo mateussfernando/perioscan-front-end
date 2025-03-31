@@ -1,1 +1,1 @@
-# odontoscan-front-end
+# template-next-ts
