@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import "./reset.css";
 import "./globals.css";
+import { AuthProvider } from "../services/AuthContext";  // Importe o AuthProvider
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,12 +25,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-br">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+    <AuthProvider>  {/* Envolvendo o conteúdo com AuthProvider */}
+      <html lang="pt-br">
+        <head>
+          {/* Coloque os metadados ou outras tags de cabeçalho aqui */}
+        </head>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          {children}  {/* O conteúdo da página será injetado aqui */}
+        </body>
+      </html>
+    </AuthProvider>
   );
 }
