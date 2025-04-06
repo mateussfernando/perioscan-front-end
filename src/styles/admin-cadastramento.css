@@ -1,0 +1,126 @@
+/* Reset e estilos globais */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+}
+
+.admincadastramento-pagina {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+
+}
+
+.admincadastramento-header {
+  width: 100%;
+  height: 70px;
+  background-color: #2b426e;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+}
+
+.admincadastramento-conteudo-principal {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.admincadastramento-titulo {
+  text-align: center;
+  color: #000000;
+  font-size: 15px;
+  margin-bottom: 120px;
+}
+
+.admincadastramento-formulario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.admincadastramento-grupo-formulario {
+  display: flex;
+  flex-direction: column;
+}
+
+.admincadastramento-grupo-formulario label {
+  font-weight: 600;
+  color: #2a3b5b;
+  margin-bottom: 6px;
+}
+
+.admincadastramento-grupo-formulario input[type="text"],
+.admincadastramento-grupo-formulario input[type="email"],
+.admincadastramento-grupo-formulario input[type="date"] {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9fafc;
+}
+
+.admincadastramento-container-senha {
+  display: flex;
+  gap: 10px;
+}
+
+.admincadastramento-container-senha input {
+  flex: 1;
+}
+
+.admincadastramento-container-senha button {
+  padding: 10px 12px;
+  border: none;
+  background-color: #e1e6ef;
+  color: #2b426e;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.admincadastramento-opcoes-cargo {
+  display: flex;
+  gap: 20px;
+  margin-top: 5px;
+}
+
+.admincadastramento-radio-cargo {
+  accent-color: #2b426e;
+}
+
+/* Botões de ação */
+.admincadastramento-acoes-formulario {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.admincadastramento-acoes-formulario button {
+  flex: 1;
+  padding: 14px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
