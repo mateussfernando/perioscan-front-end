@@ -18,7 +18,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        "https://perioscan-back-end-fhhq.onrender.com/api/auth/login",
+        "https://perioscan-back-end.onrender.com/api/auth/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
