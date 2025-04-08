@@ -1,0 +1,1 @@
+// pages/admincadastramento.js
