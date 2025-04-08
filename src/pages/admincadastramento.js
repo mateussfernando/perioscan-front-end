@@ -1,6 +1,7 @@
 // pages/admincadastramento.tsx
 import "../styles/admin-cadastramento.css";
 import { useState } from "react";
+import Layout from "../app/layout.js"
 
 export default function AdminCadastramento() {
   const [dadosFormulario, setDadosFormulario] = useState({
@@ -33,7 +34,8 @@ export default function AdminCadastramento() {
   };
 
   return (
-    <main>
+    <div>
+      <Layout></Layout>
       <div className="admincadastramento-pagina">
         <div className="admincadastramento-conteudo-principal">
           <h1 className="admincadastramento-titulo">Cadastro de Usuário</h1>
@@ -130,6 +132,6 @@ export default function AdminCadastramento() {
           </form>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
