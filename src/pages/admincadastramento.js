@@ -1,9 +1,10 @@
 // pages/admincadastramento.tsx
 import "../styles/admin-cadastramento.css";
 import { useState } from "react";
-import Navbar from "@/components/navasidebar";
+import AsideNavbar from "@/components/AsideNavBar";
 
 export default function AdminCadastramento() {
+  // Estado para armazenar os dados do formulário
   const [dadosFormulario, setDadosFormulario] = useState({
     nomeCompleto: "",
     email: "",
@@ -14,36 +15,45 @@ export default function AdminCadastramento() {
     cargo: "",
   });
 
-  const gerarSenhaAleatoria = () => {
+  // Gera uma senha numérica aleatória com 11 dígitos
+  function gerarSenhaAleatoria() {
     let senha = "";
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 11; i++) {
       senha += Math.floor(Math.random() * 10);
     }
     setDadosFormulario({ ...dadosFormulario, senha });
-  };
+  }
 
-  const manipularMudanca = (evento) => {
+  // Manipula mudanças nos campos do formulário
+  function manipularMudanca(evento) {
     const { name, value } = evento.target;
     setDadosFormulario({ ...dadosFormulario, [name]: value });
-  };
+  }
 
-  const manipularEnvio = (evento) => {
+  // Processa o envio do formulário
+  function manipularEnvio(evento) {
     evento.preventDefault();
     console.log("Dados do formulário:", dadosFormulario);
     alert("Usuário cadastrado com sucesso!");
-  };
+    // Aqui normalmente faria uma chamada API para cadastrar o usuário
+  }
 
   return (
     <div>
-      <Navbar></Navbar>
+      {/* Barra lateral de navegação */}
+      <AsideNavbar></AsideNavbar>
+
+      {/* Conteúdo principal da página */}
       <div className="admincadastramento-pagina">
         <div className="admincadastramento-conteudo-principal">
           <h1 className="admincadastramento-titulo">Cadastro de Usuário</h1>
 
+          {/* Formulário de cadastro */}
           <form
             onSubmit={manipularEnvio}
             className="admincadastramento-formulario"
           >
+            {/* Campo: Nome Completo */}
             <div className="admincadastramento-grupo-formulario">
               <label htmlFor="nomeCompleto">Nome Completo:</label>
               <input
@@ -56,6 +66,7 @@ export default function AdminCadastramento() {
               />
             </div>
 
+            {/* Campo: E-mail */}
             <div className="admincadastramento-grupo-formulario">
               <label htmlFor="email">E-mail:</label>
               <input
@@ -68,6 +79,7 @@ export default function AdminCadastramento() {
               />
             </div>
 
+            {/* Campo: Senha com gerador */}
             <div className="admincadastramento-grupo-formulario">
               <label htmlFor="senha">Senha:</label>
               <div className="admincadastramento-container-senha">
@@ -78,7 +90,7 @@ export default function AdminCadastramento() {
                   value={dadosFormulario.senha}
                   onChange={manipularMudanca}
                   required
-                  readOnly
+                  readOnly // Campo somente leitura para senha gerada
                 />
                 <button type="button" onClick={gerarSenhaAleatoria}>
                   Gerar Senha
@@ -86,6 +98,7 @@ export default function AdminCadastramento() {
               </div>
             </div>
 
+            {/* Campo: CPF */}
             <div className="admincadastramento-grupo-formulario">
               <label htmlFor="cpf">CPF:</label>
               <input
@@ -95,10 +108,11 @@ export default function AdminCadastramento() {
                 value={dadosFormulario.cpf}
                 onChange={manipularMudanca}
                 required
-                placeholder="000.000.000-00"
+                placeholder="000.000.000-00" 
               />
             </div>
 
+            {/* Campo: Cargo (radio buttons) */}
             <div className="admincadastramento-grupo-formulario">
               <label>Cargo:</label>
               <div className="admincadastramento-opcoes-cargo">
@@ -126,6 +140,7 @@ export default function AdminCadastramento() {
               </div>
             </div>
 
+            {/* Botão de Cadastrar */}
             <div className="admincadastramento-acoes-formulario">
               <button type="submit">Cadastrar Usuário</button>
             </div>

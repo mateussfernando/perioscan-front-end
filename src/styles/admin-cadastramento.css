@@ -14,7 +14,7 @@ html, body {
 }
 
 .admincadastramento-pagina {
-  min-height: 100vh;
+  max-width: 80vh;
   display: flex;
   flex-direction: column;
   background-color: #fff;
