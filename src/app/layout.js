@@ -9,22 +9,43 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">
       <body>
-        <LayoutWithConditionalNavbar>{children}</LayoutWithConditionalNavbar>
+        <LayoutComNavegaçãoCondicional>{children}</LayoutComNavegaçãoCondicional>
       </body>
     </html>
   );
 }
 
-function LayoutWithConditionalNavbar({ children }) {
+function LayoutComNavegaçãoCondicional({ children }) {
   const pathname = usePathname();
 
-  // Rotas onde a navbar não deve aparecer
-  const hideNavbarOn = ["/", "/login"];
-  const shouldHideNavbar = hideNavbarOn.includes(pathname);
+  // Função que verifica se a navbar deve aparecer
+  const deveExibirNavegação = () => {
+    // Especificando a página onde a navbar deve aparecer
+    const exibirEm = ["/admincadastramento"];
+    return exibirEm.includes(pathname);
+  };
+
+  // Função que verifica se a navbar não deve aparecer
+  const deveOcultarNavegação = () => {
+    // Especificando as páginas onde a navbar deve ser oculta
+    const ocultarEm = ["/"];
+    return ocultarEm.includes(pathname);
+  };
+
+  // Determinar se a navbar deve ser renderizada
+  let mostrarNavbar;
+  if (deveOcultarNavegação()) {
+    mostrarNavbar = false;
+  } else if (deveExibirNavegação()) {
+    mostrarNavbar = true;
+  } else {
+    // Comportamento padrão quando não está em páginas de ocultar nem de exibir
+    mostrarNavbar = true;
+  }
 
   return (
     <>
-      {!shouldHideNavbar && <Navbar />}
+      {mostrarNavbar && <Navbar />}
       <main>{children}</main>
     </>
   );
