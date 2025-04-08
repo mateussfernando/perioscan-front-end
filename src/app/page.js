@@ -6,13 +6,20 @@ import "../styles/auth-login.css";
 
 export default function Home() {
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const [password, setPassword] = useState(""); // Alterado de senha para password
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    // Validação básica no cliente
+    if (!email || !password) {
+      setErro("Por favor, preencha todos os campos");
+      return;
+    }
+    
     setLoading(true);
     setErro("");
 
@@ -21,31 +28,45 @@ export default function Home() {
         "https://perioscan-back-end-fhhq.onrender.com/api/auth/login",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, senha }),
+          headers: { 
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ 
+            email: email.trim(),
+            password: password // Usando o nome correto que o backend espera
+          })
         }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new erro(data.message || "Credenciais inválidas");
+        throw new Error(data.message || "Credenciais inválidas");
       }
 
-      // Armazena os dados CORRETAMENTE (acessando data.user)
+      // Verifica se os dados necessários estão presentes na resposta
+      if (!data.token || !data.user) {
+        throw new Error("Dados de autenticação incompletos");
+      }
+
+      // Armazenamento seguro (considerar usar context/state management no futuro)
       localStorage.setItem("token", data.token);
-      localStorage.setItem("userId", data.user.id); // Adicionado ID
+      localStorage.setItem("userId", data.user.id);
       localStorage.setItem("name", data.user.name);
       localStorage.setItem("role", data.user.role);
 
-      // Redireciona baseado no role
-      if (data.user.role === "admin") {
-        router.push("/admincadastramento");
-      } else {
-        router.push("/casos"); // Para "assistente" ou "perito"
-      }
+      // Redirecionamento baseado no role
+      router.push(data.user.role === "admin" 
+        ? "/admincadastramento" 
+        : "/casos");
+      
     } catch (err) {
-      seterro(err instanceof erro ? err.message : "Erro no servidor");
+      console.error("Erro no login:", err);
+      setErro(
+        err.message.includes("Failed to fetch") 
+          ? "Não foi possível conectar ao servidor" 
+          : err.message
+      );
     } finally {
       setLoading(false);
     }
@@ -84,11 +105,11 @@ export default function Home() {
 
           <div className="authlogin-grupo-formulario">
             <input
-              id="senha"
-              type="senha"
+              id="password" // Alterado para manter consistência
+              type="password"
               required
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="authlogin-entrada-formulario"
               placeholder="Senha"
             />
