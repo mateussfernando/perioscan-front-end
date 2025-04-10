@@ -105,7 +105,7 @@ export default function Home() {
 
           <div className="authlogin-grupo-formulario">
             <input
-              id="password" // Alterado para manter consistência
+              id="password" 
               type="password"
               required
               value={password}

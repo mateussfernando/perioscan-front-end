@@ -15,7 +15,7 @@ export default function AsideNavBar() {
 
   // Itens de navegação para cada tipo de usuário
   const itensAdmin = [
-    { rotulo: "Dashboard", caminho: "/dashboard" },
+    { rotulo: "Dashboard", caminho: "/adminDashboard" },
     { rotulo: "Adicionar", caminho: "/admincadastramento" },
     { rotulo: "Relatórios", caminho: "/relatorios" },
     { rotulo: "Gerenciamento", caminho: "/gerenciamento" },
