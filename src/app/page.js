@@ -2,9 +2,9 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import "../styles/auth-login.css";
+import "../styles/login.css";
 
-export default function Home() {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState(""); // Alterado de senha para password
   const [erro, setErro] = useState("");
