@@ -1,172 +1,221 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-.main-container{
+.main-container {
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
     display: flex;
-    flex-direction: row;
 }
 
- /* Cabecalho do dashboard */
-.header-dashboard{
-    display:flex;
+/* Cabecalho do dashboard */
+.header-dashboard {
+    display: flex;
     flex-direction: row;
     background-color: white;
     width: 100%;
-    height: 200px;
+    height: 100px;
     align-items: center;
-    padding-left: 20px;
-   
-
-    /* Estilizações do texto princiapl do header */
+    justify-content: space-between;
+    padding: 0 2.5%;
     font-family: "Lato", sans-serif;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     color: black;
-    
-}
-.header-icons-dashboard{
-    display: flex;
-    justify-content: flex-end;
-    width: 60%;
-    gap: 20px;
-    
 }
 
-/* Container que emgloba dashboard com o header */
-.container-dashboard{
-    width: 100vw;
-    height: 100vh;
+.header-icons-dashboard {
+    display: flex;
+    gap: 20px;
+}
+
+/* Container que engloba dashboard com o header */
+.container-dashboard {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    margin-left: 200px;
-    
+    overflow-x: hidden;
 }
-
 
 /* Container e estilização dos Cards */
-.container-cards{
+.container-cards {
     background: #F0F0F0;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-    gap: 100px;
+    gap: 20px;
+    padding: 20px 0;
 }
-.card{
-    width: 550px;
+
+.card {
+    flex: 1 1 400px;
+    max-width: 550px;
+    min-width: 300px;
     height: 180px;
     border: rgba(0, 0, 0, 0.226) 1px solid;
     border-radius: 5px;
     padding: 20px;
-    margin: 25px;
     background-color: white;
     color: black;
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
     display: flex;
     flex-direction: column;
-    
-    
 }
-.card:hover{
-    transform: scale();
+
+.card:hover {
+    transform: scale(1.02);
     transition: 200ms ease-in;
 }
 
 /* Boxes dentro do card */
-.title-card{
+.title-card {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
-.card-text{
+.card-text {
     display: flex;
     flex-direction: column;
     padding: 15px 0px 0px 0px;
     justify-content: center;
     gap: 5px;
-
-
 }
 
-
 /* Estilizações nos textos do card */
-.card-text > h4{
+.card-text > h4 {
     font-family: "Inter", sans-serif;
     font-size: 32px;
     font-weight: 400;
 }
-.card-text > p{
+
+.card-text > p {
     font-family: "Lato", sans-serif;
     font-size: 18px;
     font-weight: 400;
 }
 
-.card > span{
+.card > span {
     font-family: "Lato", sans-serif;
     font-size: 20px;
     font-weight: 400;
 }
 
-.title-card > span{
+.title-card > span {
     font-family: "Lato", sans-serif;
     font-size: 20px;
     font-weight: 400;
 }
 
-                                                    /* Card de casos */
-
-/* Visao geral dos cards */
-
-.card-case-dashboard{
+/* Card de casos */
+.card-case-dashboard {
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: #F0F0F0;
-    
+    padding: 20px 0;
+    width: 100%;
 }
 
-.container-case-dashboard{
+.container-case-dashboard {
     background-color: white;
     display: flex;
     flex-direction: row;
     border: 1px solid rgba(128, 128, 128, 0.541);
     border-radius: 10px;
     height: 100px;
-    width: 90%;
+    width: 100%;
+    max-width: 1200px;
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    margin-top: 25px;
-    margin-bottom: 20px;
-  
-  
+    margin: 10px 0;
 }
-.container-case-dashboard > h3{
+
+.container-case-dashboard > h3 {
     font-size: 28px;
     font-weight: bold;
     font-family: "Lato", sans-serif;
 }
-.button-case-dashboard{
+
+.button-case-dashboard {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
     gap: 15px;
+    align-items: center;
 }
 
-.button-case-dashboard > p{
-    padding-top: 2px;
+.button-case-dashboard > p {
     font-size: 18px;
     font-family: "Lato", sans-serif;
     cursor: pointer;
 }
-.button-case-dashboard-img{
-    cursor: pointer;
 
+.button-case-dashboard-img {
+    cursor: pointer;
+}
+
+/* Media Queries */
+@media (max-width: 1200px) {
+    .container-cards {
+        gap: 15px;
+    }
+    
+    .card {
+        flex: 1 1 350px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-dashboard {
+        flex-direction: column;
+        height: auto;
+        padding: 20px;
+        gap: 15px;
+    }
+    
+    .header-icons-dashboard {
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .container-case-dashboard {
+        flex-direction: column;
+        height: auto;
+        padding: 15px;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .container-case-dashboard > h3 {
+        font-size: 22px;
+    }
+    
+    .button-case-dashboard {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+    
+    .card-text > h4 {
+        font-size: 28px;
+    }
+    
+    .card-text > p {
+        font-size: 16px;
+    }
+    
+    .title-card > span {
+        font-size: 18px;
+    }
 }
