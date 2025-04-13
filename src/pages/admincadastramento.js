@@ -1,7 +1,7 @@
 // pages/admincadastramento.tsx
 import "../styles/admin-cadastramento.css";
 import { useState } from "react";
-import AsideNavbar from "@/components/AsideNavBar";
+import AsideNavbar from "../components/AsideNavBar";
 
 export default function AdminCadastramento() {
   // Estado para armazenar os dados do formulário

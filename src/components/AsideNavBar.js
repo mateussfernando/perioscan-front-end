@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { UserCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import "../styles/AsideNavBar.css"
+import "../styles/aside-navbar.css"
 
 export default function AsideNavBar() {
   const caminhoAtual = usePathname();
