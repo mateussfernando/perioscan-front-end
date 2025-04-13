@@ -39,7 +39,7 @@ export default function AdminCadastramento() {
   }
 
   return (
-    <div>
+    <div className="main-container-admincadastramento">
       {/* Barra lateral de navegação */}
       <AsideNavbar></AsideNavbar>
 
