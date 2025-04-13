@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import "../../styles/auth-login.css";
+import "../styles/auth-login.css";
 
 export default function Home() {
   const [email, setEmail] = useState("");
