@@ -1,0 +1,111 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.main-conteiner-casos{
+    width: 100%;
+    height: 10%;
+    display: flex;
+    flex-direction: row;
+}
+.container-casos{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+.header-casos{
+    display: flex;
+    flex-direction: row;
+    background-color: white;
+    width: 100%;
+    height: 100px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5%;
+    font-family: "Lato", sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+    color: black;
+}
+.input-casos{
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    gap: 15px;
+    
+}
+.input-casos > input{
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid black;
+    outline: none;
+}
+.top-bar-casos {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+  }
+  
+  .btn-novo-caso {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .tabela-container {
+    overflow-x: auto;
+  }
+  
+  .tabela-casos {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tabela-casos th,
+  .tabela-casos td {
+    padding: 14px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .tabela-casos th {
+    background-color: #000;
+    color: white;
+    font-weight: 600;
+  }
+  
+  .status {
+    background-color: #c0a484;
+    color: white;
+    font-weight: bold;
+    border-radius: 6px;
+    padding: 6px 8px;
+    display: inline-block;
+  }
+  
+  @media (max-width: 768px) {
+    .btn-novo-caso {
+      width: 100%;
+    }
+  
+    .input-casos input {
+      width: 100px;
+    }
+  
+    .tabela-casos th,
+    .tabela-casos td {
+      font-size: 12px;
+      padding: 10px;
+    }
+  }
+  

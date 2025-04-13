@@ -31,11 +31,32 @@ export default function AdminCadastramento() {
   }
 
   // Processa o envio do formulário
-  function manipularEnvio(evento) {
+  async function manipularEnvio(evento) {
     evento.preventDefault();
-    console.log("Dados do formulário:", dadosFormulario);
-    alert("Usuário cadastrado com sucesso!");
-    // Aqui normalmente faria uma chamada API para cadastrar o usuário
+    
+    try {
+      const response = await fetch('https://perioscan-back-end-fhhq.onrender.com/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: dadosFormulario.email,
+          senha: dadosFormulario.senha
+        })
+      });
+  
+      if (!response.ok) throw new Error('Erro no login');
+      
+      const { token } = await response.json();
+      localStorage.setItem('authToken', token);
+      alert("Login realizado com sucesso!");
+      window.location.href = '/casos'; // Redireciona para a página de casos
+      
+    } catch (error) {
+      console.error("Erro no login:", error);
+      alert("Falha no login: " + error.message);
+    }
   }
 
   return (

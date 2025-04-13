@@ -18,8 +18,12 @@ export default function AsideNavBar() {
   const itensAdmin = [
     { rotulo: "Dashboard", caminho: "/adminDashboard" },
     { rotulo: "Adicionar", caminho: "/admincadastramento" },
+    { rotulo: "Casos", caminho: "/casos" },
     { rotulo: "Relatórios", caminho: "/relatorios" },
     { rotulo: "Gerenciamento", caminho: "/gerenciamento" },
+    
+
+
   ];
 
   const itensAssistente = [
