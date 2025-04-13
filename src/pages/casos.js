@@ -3,8 +3,8 @@
 import "../styles/casos.css";
 import AsideNavbar from "@/components/AsideNavBar";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Search, Eye } from "lucide-react";
 
 export default function MainCasos() {
   const [casos, setCasos] = useState([]);
@@ -13,7 +13,7 @@ export default function MainCasos() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     
     if (!token) {
       router.push('/login');
@@ -34,7 +34,7 @@ export default function MainCasos() {
         console.log("Resposta recebida:", response);
   
         if (response.status === 401) {
-          localStorage.removeItem('authToken');
+          localStorage.removeItem('token');
           router.push('/login');
           return;
         }
@@ -50,11 +50,19 @@ export default function MainCasos() {
         }
   
         const textData = await response.text();
-        const data = textData ? JSON.parse(textData) : [];
-  
-        console.log("Dados recebidos:", data);
+        console.log("Resposta em texto:", textData);
         
-        setCasos(Array.isArray(data) ? data : []);
+        const responseObject = textData ? JSON.parse(textData) : {};
+        console.log("Dados recebidos:", responseObject);
+
+        // Verifica se a resposta tem a propriedade 'data' e é um array
+        if (responseObject.success && Array.isArray(responseObject.data)) {
+          setCasos(responseObject.data);
+        } else {
+          console.error("Formato de resposta inesperado:", responseObject);
+          setCasos([]);
+        }
+  
         setError(null);
   
       } catch (error) {
@@ -78,6 +86,35 @@ export default function MainCasos() {
       month: '2-digit',
       year: 'numeric'
     });
+  };
+
+  // Função para visualizar detalhes de um caso
+  const verDetalhesCaso = (casoId) => {
+    // Navegar para a página de detalhes do caso
+    router.push(`/casos/${casoId}`);
+  };
+
+  // Função para obter a classe CSS baseada no status
+  const getStatusClassName = (status) => {
+    if (!status) return "status-desconhecido";
+    
+    // Normalize o status para minúsculas e sem espaços
+    const normalizedStatus = status.toLowerCase().replace(/\s+/g, '-');
+    
+    switch (normalizedStatus) {
+      case 'em-andamento':
+        return "status-em-andamento";
+      case 'finalizado':
+        return "status-finalizado";
+      case 'pendente':
+        return "status-pendente";
+      case 'arquivado':
+        return "status-arquivado";
+      case 'cancelado':
+        return "status-cancelado";
+      default:
+        return "status-outro";
+    }
   };
 
   return (
@@ -107,33 +144,43 @@ export default function MainCasos() {
                 <th>Data fechamento</th>
                 <th>Criado por:</th>
                 <th>Status</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="6">Carregando casos...</td>
+                  <td colSpan="7">Carregando casos...</td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan="6">Erro ao carregar casos: {error}</td>
+                  <td colSpan="7">Erro ao carregar casos: {error}</td>
                 </tr>
               ) : casos.length === 0 ? (
                 <tr>
-                  <td colSpan="6">Nenhum caso encontrado.</td>
+                  <td colSpan="7">Nenhum caso encontrado.</td>
                 </tr>
               ) : (
                 casos.map((caso) => (
-                  <tr key={caso.id}>
+                  <tr key={caso._id}>
                     <td>{caso.title || "--"}</td>
                     <td>{caso.location || "--"}</td>
                     <td>{formatarData(caso.openDate)}</td>
                     <td>{formatarData(caso.closeDate)}</td>
-                    <td>{caso.createdBy || "--"}</td>
+                    <td>{caso.createdBy?.name || "--"}</td>
                     <td>
-                      <span className={`status ${caso.status?.replace(/\s+/g, '-') || ''}`}>
+                      <span className={`status ${getStatusClassName(caso.status)}`}>
                         {caso.status || "--"}
                       </span>
+                    </td>
+                    <td>
+                      <button 
+                        className="btn-ver-caso"
+                        onClick={() => verDetalhesCaso(caso._id)}
+                        title="Ver detalhes do caso"
+                      >
+                        <Eye size={18} />
+                      </button>
                     </td>
                   </tr>
                 ))

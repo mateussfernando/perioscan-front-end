@@ -1,111 +1,194 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body{
+  background-color: #F0F0F0;
 }
 .main-conteiner-casos{
-    width: 100%;
-    height: 10%;
-    display: flex;
-    flex-direction: row;
+  width: 100%;
+  height: 10%;
+  display: flex;
+  flex-direction: row;
 }
 .container-casos{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
 }
 .header-casos{
-    display: flex;
-    flex-direction: row;
-    background-color: white;
-    width: 100%;
-    height: 100px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2.5%;
-    font-family: "Lato", sans-serif;
-    font-size: 22px;
-    font-weight: bold;
-    color: black;
+  display: flex;
+  flex-direction: row;
+  background-color: white;
+  width: 100%;
+  height: 100px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5%;
+  font-family: "Lato", sans-serif;
+  font-size: 22px;
+  font-weight: bold;
+  color: black;
 }
 .input-casos{
-    display: flex;
-    align-items: center;
-    padding: 5px;
-    gap: 15px;
-    
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  gap: 15px;
+  
 }
 .input-casos > input{
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid black;
-    outline: none;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid black;
+  outline: none;
 }
 .top-bar-casos {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 10px;
-  }
-  
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  padding: 0 2.5%;
+}
+
+.btn-novo-caso {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  width: 200px;
+  margin-top: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-novo-caso:hover {
+  background-color: #333;
+}
+
+.tabela-container {
+  overflow-x: auto;
+  padding: 0 2.5%;
+  margin-bottom: 30px;
+}
+
+.tabela-casos {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.tabela-casos th,
+.tabela-casos td {
+  padding: 14px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabela-casos th {
+  background-color: #000;
+  color: white;
+  font-weight: 600;
+}
+
+.tabela-casos tr:hover {
+  background-color: #f5f5f5;
+}
+
+.status {
+  font-weight: bold;
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: inline-block;
+  width: 90%;
+  max-width: 120px;
+}
+
+/* Classes de status com cores diferentes */
+.status-em-andamento {
+  background-color: #B99F81;
+  color: white;
+}
+
+.status-finalizado {
+  background-color: #62725C;
+  color: white;
+}
+
+.status-pendente {
+  background-color: #f39c12;
+  color: white;
+}
+
+.status-arquivado {
+  background-color: 969696;
+  color: white;
+}
+
+.status-cancelado {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.status-outro {
+  background-color: #9b59b6;
+  color: white;
+}
+
+.status-desconhecido {
+  background-color: #95a5a6;
+  color: white;
+}
+
+/* Botão de ver detalhes */
+.btn-ver-caso {
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-ver-caso:hover {
+  background-color: #333;
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
   .btn-novo-caso {
-    background-color: black;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    font-size: 16px;
-    border-radius: 8px;
-    cursor: pointer;
+      width: 100%;
   }
-  
-  .tabela-container {
-    overflow-x: auto;
+
+  .input-casos input {
+      width: 100px;
   }
-  
-  .tabela-casos {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
+
   .tabela-casos th,
   .tabela-casos td {
-    padding: 14px;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .tabela-casos th {
-    background-color: #000;
-    color: white;
-    font-weight: 600;
-  }
-  
-  .status {
-    background-color: #c0a484;
-    color: white;
-    font-weight: bold;
-    border-radius: 6px;
-    padding: 6px 8px;
-    display: inline-block;
-  }
-  
-  @media (max-width: 768px) {
-    .btn-novo-caso {
-      width: 100%;
-    }
-  
-    .input-casos input {
-      width: 100px;
-    }
-  
-    .tabela-casos th,
-    .tabela-casos td {
       font-size: 12px;
       padding: 10px;
-    }
   }
-  
+
+  .status {
+      width: 100%;
+      padding: 4px 6px;
+      font-size: 10px;
+  }
+
+  .btn-ver-caso {
+      width: 30px;
+      height: 30px;
+  }
+}
