@@ -37,6 +37,7 @@ export default function AdminDashboard(){
                             <span>Em andamento</span>
                             <Image
                             src="/images/logos/Icon-casos-EmAndamento.png"
+                            alt="Icone de casos em andamento"
                             width={28}
                             height={28}
                             />
@@ -51,6 +52,7 @@ export default function AdminDashboard(){
                             <span>Arquivados</span>
                             <Image
                             src="/images/logos/Icon-casos-Arquivado.png"
+                            alt="Icone de casos arquivados"
                             width={28}
                             height={28}
                             />
@@ -66,6 +68,7 @@ export default function AdminDashboard(){
                             <span>Finalizados</span>
                             <Image
                             src="/images/logos/Icon-casos-Finalizado.png"
+                            alt="Icone de casos finalizados"
                             width={28}
                             height={28}
                             />
@@ -80,6 +83,7 @@ export default function AdminDashboard(){
                             <span>Número de usuários</span>
                             <Image
                             src="/images/logos/Icon-User.png"
+                            alt="Icone de User"
                             width={28}
                             height={28}
                             />
@@ -98,6 +102,7 @@ export default function AdminDashboard(){
                             <p>Ver todos</p>
                             <Image
                             src="/images/logos/Icon-Arrow-Right.png"
+                            alt="Icone de seta para direita"
                             width={30}
                             height={30}
                             className="button-case-dashboard-img"
@@ -111,6 +116,7 @@ export default function AdminDashboard(){
                             <p>Ver todos</p>
                             <Image
                             src="/images/logos/Icon-Arrow-Right.png"
+                            alt="Icone de seta para direita"
                             width={30}
                             height={30}
                             className="button-case-dashboard-img"
