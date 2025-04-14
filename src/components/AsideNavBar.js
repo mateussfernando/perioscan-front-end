@@ -7,12 +7,12 @@ import { useEffect, useState } from "react";
 import "../styles/aside-navbar.css";
 
 export default function AsideNavBar() {
-  const caminhoAtual = usePathname();
-  const navegador = useRouter();
+  const caminhoAtual = usePathname()
+  const navegador = useRouter()
   const [dadosUsuario, setDadosUsuario] = useState({
     nome: "",
     perfil: "",
-  });
+  })
 
   const itensAdmin = [
     {
@@ -79,24 +79,24 @@ export default function AsideNavBar() {
   ];
 
   useEffect(() => {
-    const nome = localStorage.getItem("name") || "";
-    const perfil = localStorage.getItem("role") || "";
-    setDadosUsuario({ nome, perfil });
-  }, []);
+    const nome = localStorage.getItem("name") || ""
+    const perfil = localStorage.getItem("role") || ""
+    setDadosUsuario({ nome, perfil })
+  }, [])
 
   function fazerLogout() {
-    localStorage.clear();
-    navegador.push("/");
+    localStorage.clear()
+    navegador.push("/")
   }
 
   function obterItensNavegacao() {
-    const perfil = dadosUsuario.perfil.toLowerCase();
+    const perfil = dadosUsuario.perfil.toLowerCase()
 
     if (perfil === "admin") return itensAdmin;
     if (perfil === "assistente") return itensAssistente;
     if (perfil === "perito") return itensPerito;
 
-    return [];
+    return []
   }
 
   function formatarPerfil(perfil) {
@@ -111,12 +111,7 @@ export default function AsideNavBar() {
     <aside className="barra-navegacao">
       <div className="conteudo-barra">
         <div className="logo-barra">
-          <Image
-            src="/images/logos/logo-perio-scan.png"
-            alt="Logo PerioScan"
-            width={40}
-            height={40}
-          />
+          <Image src="/images/logos/logo-perio-scan.png" alt="Logo PerioScan" width={40} height={40} />
           <span>PerioScan</span>
         </div>
 
@@ -168,5 +163,5 @@ export default function AsideNavBar() {
         </button>
       </div>
     </aside>
-  );
+  )
 }
