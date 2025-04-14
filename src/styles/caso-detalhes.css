@@ -1,0 +1,391 @@
+/* Estilos para a página de detalhes do caso */
+.main-container-caso-detalhes {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  background-color: #f5f7fa;
+}
+
+.container-caso-detalhes {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+/* Card Principal */
+.caso-card {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.caso-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: white;
+}
+
+.caso-card-header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-editar, .btn-voltar {
+  padding: 5px 10px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+}
+
+.btn-voltar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.caso-content {
+  display: flex;
+  min-height: 500px;
+}
+
+/* Coluna de Informações */
+.info-coluna {
+  width: 40%;
+  border-right: 1px solid #e0e0e0;
+  padding: 0;
+  background-color: #f8f8f8;
+}
+
+.info-section, .evidencias-section, .observacao-section {
+  padding: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.info-section h2, .evidencias-section h2, .observacao-section h2, .descricao-coluna h2 {
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.info-item {
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.info-item strong {
+  font-weight: 600;
+  margin-right: 5px;
+}
+
+/* Classes de status */
+.status-em-andamento, .status-finalizado, .status-pendente,
+.status-arquivado, .status-cancelado, .status-outro, .status-desconhecido {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-em-andamento {
+  background-color: #b99f81;
+  color: white;
+}
+
+.status-finalizado {
+  background-color: #62725c;
+  color: white;
+}
+
+.status-pendente {
+  background-color: #f39c12;
+  color: white;
+}
+
+.status-arquivado {
+  background-color: #969696;
+  color: white;
+}
+
+.status-cancelado {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.status-outro {
+  background-color: #9b59b6;
+  color: white;
+}
+
+.status-desconhecido {
+  background-color: #95a5a6;
+  color: white;
+}
+
+/* Tabela de Evidências */
+.evidencias-tabela {
+  margin-bottom: 15px;
+}
+
+.evidencias-tabela table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.evidencias-tabela th, .evidencias-tabela td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.evidencias-tabela th {
+  font-weight: 600;
+  color: #555;
+  background-color: #f0f0f0;
+}
+
+.evidencia-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.evidencia-row:hover {
+  background-color: #f2f2f2;
+}
+
+.icon-cell {
+  text-align: center;
+  color: #666;
+}
+
+.loading-evidencias {
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+  padding: 10px;
+  font-style: italic;
+}
+
+.no-evidencias {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.btn-adicionar {
+  width: 100%;
+  padding: 8px;
+  background-color: #000;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-adicionar:hover {
+  background-color: #333;
+}
+
+/* Seção de Observação */
+.observacao-box {
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 13px;
+  color: #444;
+}
+
+/* Coluna de Descrição */
+.descricao-coluna {
+  width: 60%;
+  padding: 15px;
+  background-color: #f0f0f0;
+}
+
+.descricao-content {
+  background-color: white;
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  height: calc(100% - 50px);
+  overflow-y: auto;
+}
+
+.descricao-content p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* Modal de visualização de evidências */
+.evidencia-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.evidencia-modal-content {
+  background-color: white;
+  border-radius: 4px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.evidencia-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f8f8f8;
+}
+
+.evidencia-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.btn-fechar-modal {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-fechar-modal:hover {
+  color: #000;
+}
+
+.evidencia-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+/* Conteúdo da evidência - Imagem */
+.evidencia-imagem-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.evidencia-imagem {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  margin-bottom: 15px;
+  border: 1px solid #e0e0e0;
+}
+
+.evidencia-descricao {
+  font-size: 14px;
+  color: #444;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Conteúdo da evidência - Texto */
+.evidencia-texto-container {
+  padding: 10px;
+}
+
+.evidencia-texto-container h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.evidencia-texto-content {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 15px;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: #333;
+}
+
+.evidencia-info {
+  font-size: 13px;
+  color: #666;
+  margin-top: 15px;
+}
+
+/* Estados de carregamento e erro */
+.loading-container,
+.error-container,
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  gap: 16px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .caso-content {
+    flex-direction: column;
+  }
+  
+  .info-coluna, .descricao-coluna {
+    width: 100%;
+    border-right: none;
+  }
+  
+  .info-coluna {
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .evidencia-modal-content {
+    width: 95%;
+    max-width: 95%;
+  }
+}

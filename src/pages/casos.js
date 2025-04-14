@@ -89,9 +89,9 @@ export default function MainCasos() {
   };
 
   // Função para visualizar detalhes de um caso
-  const verDetalhesCaso = (casoId) => {
+  const verDetalhesCaso = (id) => {
     // Navegar para a página de detalhes do caso
-    router.push(`/casos/${casoId}`);
+    router.push(`/casos/${id}`);
   };
 
   // Função para obter a classe CSS baseada no status
