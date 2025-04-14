@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { UserCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import "../styles/aside-navbar.css"
+import "../styles/aside-navbar.css";
 
 export default function AsideNavBar() {
   const caminhoAtual = usePathname();
@@ -14,30 +14,70 @@ export default function AsideNavBar() {
     perfil: "",
   });
 
-  // Itens de navegação para cada tipo de usuário
   const itensAdmin = [
-    { rotulo: "Dashboard", caminho: "/adminDashboard" },
-    { rotulo: "Adicionar", caminho: "/admincadastramento" },
-    { rotulo: "Casos", caminho: "/casos" },
-    { rotulo: "Relatórios", caminho: "/relatorios" },
-    { rotulo: "Gerenciamento", caminho: "/gerenciamento" },
-    
-
-
+    {
+      icone: "/images/icons/icone-dashboard.png",
+      rotulo: "Dashboard",
+      caminho: "/admindashboard",
+    },
+    {
+      icone: "/images/icons/icone-adicionar.png",
+      rotulo: "Adicionar",
+      caminho: "/admincadastramento",
+    },
+    {
+      icone: "/images/icons/icone-casos.png",
+      rotulo: "Casos",
+      caminho: "/casos",
+    },
+    {
+      icone: "/images/icons/icone-relatorios.png",
+      rotulo: "Relatórios",
+      caminho: "/relatorios",
+    },
+    {
+      icone: "/images/icons/icone-gerenciamento.png",
+      rotulo: "Gerenciamento",
+      caminho: "/gerenciamento",
+    },
   ];
 
   const itensAssistente = [
-    { rotulo: "Dashboard", caminho: "/dashboard" },
-    { rotulo: "Casos", caminho: "/casos" },
-    { rotulo: "Relatórios", caminho: "/relatorios" },
+    {
+      icone: "/images/icons/icone-dashboard.png",
+      rotulo: "Dashboard",
+      caminho: "/dashboard",
+    },
+    {
+      icone: "/images/icons/icone-casos.png",
+      rotulo: "Casos",
+      caminho: "/casos",
+    },
+    {
+      icone: "/images/icons/icone-relatorios.png",
+      rotulo: "Relatórios",
+      caminho: "/relatorios",
+    },
   ];
 
   const itensPerito = [
-    { rotulo: "Casos", caminho: "/casos" },
-    { rotulo: "Meus Laudos", caminho: "/laudos" },
+    {
+      icone: "/images/icons/icone-dashboard.png",
+      rotulo: "Dashboard",
+      caminho: "/dashboard",
+    },
+    {
+      icone: "/images/icons/icone-casos.png",
+      rotulo: "Casos",
+      caminho: "/casos",
+    },
+    {
+      icone: "/images/icons/icone-relatorios.png",
+      rotulo: "Relatórios",
+      caminho: "/relatorios",
+    },
   ];
 
-  // Carrega os dados do usuário ao montar o componente
   useEffect(() => {
     const nome = localStorage.getItem("name") || "";
     const perfil = localStorage.getItem("role") || "";
@@ -49,48 +89,27 @@ export default function AsideNavBar() {
     navegador.push("/");
   }
 
-  // Retorna os itens de navegação conforme o perfil do usuário
   function obterItensNavegacao() {
     const perfil = dadosUsuario.perfil.toLowerCase();
 
-    if (perfil === "admin") {
-      return itensAdmin;
-    }
-
-    if (perfil === "assistente") {
-      return itensAssistente;
-    }
-
-    if (perfil === "perito") {
-      return itensPerito;
-    }
+    if (perfil === "admin") return itensAdmin;
+    if (perfil === "assistente") return itensAssistente;
+    if (perfil === "perito") return itensPerito;
 
     return [];
   }
 
-  // Formata o perfil para exibição
   function formatarPerfil(perfil) {
     const perfilLower = perfil.toLowerCase();
-
-    if (perfilLower === "admin") {
-      return "Administrador";
-    }
-
-    if (perfilLower === "assistente") {
-      return "Assistente";
-    }
-
-    if (perfilLower === "perito") {
-      return "Perito";
-    }
-
-    return "Houve um erro ao formar o perfil para exibição";
+    if (perfilLower === "admin") return "Administrador";
+    if (perfilLower === "assistente") return "Assistente";
+    if (perfilLower === "perito") return "Perito";
+    return "Perfil Desconhecido";
   }
 
   return (
     <aside className="barra-navegacao">
       <div className="conteudo-barra">
-        {/* Logo */}
         <div className="logo-barra">
           <Image
             src="/images/logos/logo-perio-scan.png"
@@ -101,41 +120,51 @@ export default function AsideNavBar() {
           <span>PerioScan</span>
         </div>
 
-        {/* Perfil do usuário */}
         {dadosUsuario.nome && (
           <div className="perfil-usuario">
             <UserCircle size={48} />
             <span className="info-usuario">
-              {dadosUsuario.nome.split(" ")[0]} {/* Primeiro nome */}
+              {dadosUsuario.nome.split(" ")[0]}
               <br />
-              {dadosUsuario.nome.split(" ").slice(1).join(" ")}{" "}
-              {/* Sobrenomes */}
+              {dadosUsuario.nome.split(" ").slice(1).join(" ")}
               <br />({formatarPerfil(dadosUsuario.perfil)})
             </span>
           </div>
         )}
 
-        {/* Menu de navegação */}
         <nav className="navegacao">
           <ul>
-            {obterItensNavegacao().map(function (item) {
-              return (
-                <li
-                  key={item.caminho}
-                  className={caminhoAtual === item.caminho ? "ativo" : ""}
-                >
-                  <Link href={item.caminho}>{item.rotulo}</Link>
-                </li>
-              );
-            })}
+            {obterItensNavegacao().map((item) => (
+              <li
+                key={item.caminho}
+                className={caminhoAtual === item.caminho ? "ativo" : ""}
+              >
+                <Link href={item.caminho}>
+                  <div className="link-conteudo">
+                    <Image
+                      src={item.icone}
+                      alt={item.rotulo}
+                      width={32}
+                      height={32}
+                    />
+                    <span>{item.rotulo}</span>
+                  </div>
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
       </div>
 
-      {/* Botão de logout */}
       <div className="area-logout">
-        <button onClick={fazerLogout}>
-          Sair
+        <button onClick={fazerLogout} className="link-conteudo">
+          <Image
+            src="/images/icons/icone-logout.png"
+            alt="Ícone de logout"
+            width={32}
+            height={32}
+          />
+          <span>Sair</span>
         </button>
       </div>
     </aside>
