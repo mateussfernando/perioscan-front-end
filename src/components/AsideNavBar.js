@@ -7,135 +7,141 @@ import { useEffect, useState } from "react";
 import "../styles/aside-navbar.css";
 
 export default function AsideNavBar() {
-  const caminhoAtual = usePathname()
-  const navegador = useRouter()
-  const [dadosUsuario, setDadosUsuario] = useState({
-    nome: "",
-    perfil: "",
-  })
+  // Hooks and state
+  const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState({ nome: "", perfil: "" });
 
-  const itensAdmin = [
-    {
-      icone: "/images/icons/icone-dashboard.png",
-      rotulo: "Dashboard",
-      caminho: "/admindashboard",
-    },
-    {
-      icone: "/images/icons/icone-adicionar.png",
-      rotulo: "Adicionar",
-      caminho: "/admincadastramento",
-    },
-    {
-      icone: "/images/icons/icone-casos.png",
-      rotulo: "Casos",
-      caminho: "/casos",
-    },
-    {
-      icone: "/images/icons/icone-relatorios.png",
-      rotulo: "Relatórios",
-      caminho: "/relatorios",
-    },
-    {
-      icone: "/images/icons/icone-gerenciamento.png",
-      rotulo: "Gerenciamento",
-      caminho: "/gerenciamento",
-    },
-  ];
+  // Navigation items by profile type
+  const navItems = {
+    admin: [
+      {
+        icone: "/images/icons/icone-dashboard.png",
+        rotulo: "Dashboard",
+        caminho: "/admindashboard",
+      },
+      {
+        icone: "/images/icons/icone-adicionar.png",
+        rotulo: "Adicionar",
+        caminho: "/admincadastramento",
+      },
+      {
+        icone: "/images/icons/icone-casos.png",
+        rotulo: "Casos",
+        caminho: "/casos",
+      },
+      {
+        icone: "/images/icons/icone-relatorios.png",
+        rotulo: "Relatórios",
+        caminho: "/relatorios",
+      },
+      {
+        icone: "/images/icons/icone-gerenciamento.png",
+        rotulo: "Gerenciamento",
+        caminho: "/gerenciamento",
+      },
+    ],
+    assistente: [
+      {
+        icone: "/images/icons/icone-dashboard.png",
+        rotulo: "Dashboard",
+        caminho: "/dashboard",
+      },
+      {
+        icone: "/images/icons/icone-casos.png",
+        rotulo: "Casos",
+        caminho: "/casos",
+      },
+      {
+        icone: "/images/icons/icone-relatorios.png",
+        rotulo: "Relatórios",
+        caminho: "/relatorios",
+      },
+    ],
+    perito: [
+      {
+        icone: "/images/icons/icone-dashboard.png",
+        rotulo: "Dashboard",
+        caminho: "/dashboard",
+      },
+      {
+        icone: "/images/icons/icone-casos.png",
+        rotulo: "Casos",
+        caminho: "/casos",
+      },
+      {
+        icone: "/images/icons/icone-relatorios.png",
+        rotulo: "Relatórios",
+        caminho: "/relatorios",
+      },
+    ],
+  };
 
-  const itensAssistente = [
-    {
-      icone: "/images/icons/icone-dashboard.png",
-      rotulo: "Dashboard",
-      caminho: "/dashboard",
-    },
-    {
-      icone: "/images/icons/icone-casos.png",
-      rotulo: "Casos",
-      caminho: "/casos",
-    },
-    {
-      icone: "/images/icons/icone-relatorios.png",
-      rotulo: "Relatórios",
-      caminho: "/relatorios",
-    },
-  ];
+  // Effects
+  useEffect(function loadUserFromStorage() {
+    setUser({
+      nome: localStorage.getItem("name") || "",
+      perfil: localStorage.getItem("role") || "",
+    });
+  }, []);
 
-  const itensPerito = [
-    {
-      icone: "/images/icons/icone-dashboard.png",
-      rotulo: "Dashboard",
-      caminho: "/dashboard",
-    },
-    {
-      icone: "/images/icons/icone-casos.png",
-      rotulo: "Casos",
-      caminho: "/casos",
-    },
-    {
-      icone: "/images/icons/icone-relatorios.png",
-      rotulo: "Relatórios",
-      caminho: "/relatorios",
-    },
-  ];
-
-  useEffect(() => {
-    const nome = localStorage.getItem("name") || ""
-    const perfil = localStorage.getItem("role") || ""
-    setDadosUsuario({ nome, perfil })
-  }, [])
-
-  function fazerLogout() {
-    localStorage.clear()
-    navegador.push("/")
+  // Helper functions
+  function formatProfile(perfil) {
+    return (
+      {
+        admin: "Administrador",
+        assistente: "Assistente",
+        perito: "Perito",
+      }[perfil.toLowerCase()] || "Perfil Desconhecido"
+    );
   }
 
-  function obterItensNavegacao() {
-    const perfil = dadosUsuario.perfil.toLowerCase()
-
-    if (perfil === "admin") return itensAdmin;
-    if (perfil === "assistente") return itensAssistente;
-    if (perfil === "perito") return itensPerito;
-
-    return []
+  function logout() {
+    localStorage.clear();
+    router.push("/");
   }
 
-  function formatarPerfil(perfil) {
-    const perfilLower = perfil.toLowerCase();
-    if (perfilLower === "admin") return "Administrador";
-    if (perfilLower === "assistente") return "Assistente";
-    if (perfilLower === "perito") return "Perito";
-    return "Perfil Desconhecido";
-  }
+  // Derived values
+  const navItemsToShow = navItems[user.perfil.toLowerCase()] || [];
 
   return (
-    <aside className="barra-navegacao">
-      <div className="conteudo-barra">
-        <div className="logo-barra">
-          <Image src="/images/logos/logo-perio-scan.png" alt="Logo PerioScan" width={40} height={40} />
+    <aside className="sidebar">
+      <div className="sidebar-content">
+        {/* Logo section */}
+        <div className="logo">
+          <Image
+            src="/images/logos/logo-perio-scan.png"
+            alt="Logo PerioScan"
+            width={40}
+            height={40}
+          />
           <span>PerioScan</span>
         </div>
 
-        {dadosUsuario.nome && (
-          <div className="perfil-usuario">
-            <UserCircle size={48} />
-            <span className="info-usuario">
-              {dadosUsuario.nome.split(" ")[0]}
-              <br />
-              {dadosUsuario.nome.split(" ").slice(1).join(" ")}
-              <br />({formatarPerfil(dadosUsuario.perfil)})
-            </span>
+        {/* Profile section */}
+        {user.nome && (
+          <div className="profile">
+            {/* <UserCircle size={48} /> */}
+            <div className="user-info">
+              <div className="first-name">{user.nome.split(" ")[0]}</div>
+              <div className="last-name">
+                {user.nome.split(" ").slice(1).join(" ")}
+              </div>
+              <div className="profile-role">({formatProfile(user.perfil)})</div>
+            </div>
           </div>
         )}
 
-        <nav className="navegacao">
+        {/* Navigation section */}
+        <nav>
           <ul>
-            {obterItensNavegacao().map((item) => (
+            {navItemsToShow.map((item) => (
               <li
                 key={item.caminho}
-                className={caminhoAtual === item.caminho ? "ativo" : ""}
+                className={pathname === item.caminho ? "active" : ""}
               >
                 <Link href={item.caminho}>
-                  <div className="link-conteudo">
+                  <div className="nav-link">
                     <Image
                       src={item.icone}
                       alt={item.rotulo}
@@ -151,8 +157,9 @@ export default function AsideNavBar() {
         </nav>
       </div>
 
-      <div className="area-logout">
-        <button onClick={fazerLogout} className="link-conteudo">
+      {/* Logout section */}
+      <div className="logout">
+        <button onClick={logout} className="nav-link">
           <Image
             src="/images/icons/icone-logout.png"
             alt="Ícone de logout"
@@ -163,5 +170,5 @@ export default function AsideNavBar() {
         </button>
       </div>
     </aside>
-  )
+  );
 }
