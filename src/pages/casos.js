@@ -1,4 +1,4 @@
-// pages/casos
+     // pages/casos
 
 import "../styles/casos.css";
 import AsideNavbar from "@/components/AsideNavBar";
@@ -125,7 +125,7 @@ export default function MainCasos() {
         <div className="header-casos">
           <h2>Página de Casos</h2>
           <div className="input-casos">
-            <input type="text" placeholder="Buscar caso" />
+            <input type="text" placeholder="Buscar caso..." />
             <Search/>
           </div>
         </div>

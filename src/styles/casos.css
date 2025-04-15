@@ -36,14 +36,15 @@ body{
   display: flex;
   align-items: center;
   padding: 5px;
-  gap: 15px;
+  gap: 10px;
   
 }
 .input-casos > input{
   padding: 10px;
-  border-radius: 10px;
-  border: 1px solid black;
+  border-radius: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.308);
   outline: none;
+
 }
 .top-bar-casos {
   display: flex;
