@@ -70,7 +70,7 @@
 
 /* Coluna de Informações */
 .info-coluna {
-  width: 40%;
+  width: 60%;
   border-right: 1px solid #e0e0e0;
   padding: 0;
   background-color: #f8f8f8;
@@ -233,7 +233,7 @@
 
 /* Coluna de Descrição */
 .descricao-coluna {
-  width: 60%;
+  width: 40%;
   padding: 15px;
   background-color: #f0f0f0;
 }
