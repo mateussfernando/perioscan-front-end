@@ -48,13 +48,21 @@
 
 .btn-editar,
 .btn-voltar {
-  padding: 5px 10px;
+  padding: 8px 30px;
   border-radius: 3px;
-  font-size: 12px;
-  font-weight: 500;
+  color: white;
+  background-color: black;
+  display:flex;
+  align-items: center;
   cursor: pointer;
-  border: 1px solid #ccc;
-  background-color: #f8f8f8;
+}
+.btn-editar:hover{
+  background-color: #555;
+  border-color: #555;
+}
+
+.icon-btn-editar{
+  margin-right: 5px;
 }
 
 .btn-voltar {

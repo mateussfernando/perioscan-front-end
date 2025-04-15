@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useParams } from "next/navigation"
 import AsideNavbar from "@/components/AsideNavBar"
 import "../../styles/caso-detalhes.css"
-import { X, File, ImageIcon, Upload, Plus, Camera, FileText, Loader, Save, MapPin } from "lucide-react"
+import { X, File, ImageIcon, Upload, Plus, Camera, FileText, Loader, Save, MapPin, Pencil } from "lucide-react"
 
 export default function CasoDetalhes() {
   const router = useRouter()
@@ -585,7 +585,9 @@ export default function CasoDetalhes() {
                 {caso.caseNumber || "CASO-1023"} - {caso.title || "Identificação em Incêndio"}
               </h1>
               <div className="header-actions">
+
                 <button className="btn-editar" onClick={abrirModalEditar}>
+                  <Pencil size={16} className="icon-btn-editar" />
                   Editar Caso
                 </button>
                 <button className="btn-voltar" onClick={() => router.push("/casos")}>

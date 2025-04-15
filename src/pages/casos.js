@@ -4,7 +4,7 @@ import "../styles/casos.css";
 import AsideNavbar from "@/components/AsideNavBar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Eye } from "lucide-react";
+import { Search, Eye, Plus} from "lucide-react";
 
 export default function MainCasos() {
   const [casos, setCasos] = useState([]);
@@ -131,7 +131,9 @@ export default function MainCasos() {
         </div>
 
         <div className="top-bar-casos">
-          <button className="btn-novo-caso">Novo caso</button>
+          <button className="btn-novo-caso">
+          <Plus size={22} className="icon-plus-btn"/>
+          Novo caso</button>
         </div>
 
         <div className="tabela-container">

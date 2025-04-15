@@ -64,6 +64,9 @@ body{
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-novo-caso:hover {
@@ -74,6 +77,12 @@ body{
   overflow-x: auto;
   padding: 0 2.5%;
   margin-bottom: 30px;
+}
+
+.icon-plus-btn{
+  margin-right: 3px;
+
+  
 }
 
 .tabela-casos {
