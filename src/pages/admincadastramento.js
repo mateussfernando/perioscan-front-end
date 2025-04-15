@@ -105,17 +105,14 @@ export default function AdminCadastramento() {
               <label htmlFor="senha">Senha:</label>
               <div className="admincadastramento-container-senha">
                 <input
-                  type="text"
+                  type="password"
                   id="senha"
                   name="senha"
                   value={dadosFormulario.senha}
                   onChange={manipularMudanca}
                   required
-                  readOnly // Campo somente leitura para senha gerada
+                  placeholder="Digite sua senha"
                 />
-                <button type="button" onClick={gerarSenhaAleatoria}>
-                  Gerar Senha
-                </button>
               </div>
             </div>
 

@@ -89,6 +89,10 @@ html, body {
 
 .admincadastramento-container-senha input {
   flex: 1;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9fafc;
 }
 
 .admincadastramento-container-senha button {
