@@ -3,53 +3,71 @@
   padding: 0;
   box-sizing: border-box;
 }
-body{
-  background-color: #F0F0F0;
+body {
+  background-color: #f0f0f0;
 }
-.main-conteiner-casos{
+.main-conteiner-casos {
   width: 100%;
-  height: 10%;
+  min-height: 100vh;
   display: flex;
   flex-direction: row;
 }
-.container-casos{
+
+.container-casos {
   width: 100%;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
 }
-.header-casos{
+
+/* Cabeçalho responsivo */
+.header-casos {
   display: flex;
   flex-direction: row;
   background-color: white;
   width: 100%;
-  height: 100px;
+  min-height: 80px;
   align-items: center;
   justify-content: space-between;
-  padding: 0 2.5%;
+  padding: 15px 2.5%;
   font-family: "Lato", sans-serif;
   font-size: 22px;
   font-weight: bold;
   color: black;
+  flex-wrap: wrap;
+  gap: 15px;
 }
-.input-casos{
+
+.input-casos {
   display: flex;
   align-items: center;
   padding: 5px;
   gap: 10px;
-  
+  flex-wrap: nowrap;
 }
-.input-casos > input{
-  padding: 10px;
-  border-radius: 15px;
-  border: 1px solid rgba(0, 0, 0, 0.308);
-  outline: none;
 
+.input-casos > input {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid black;
+  outline: none;
+  min-width: 150px;
 }
+
+.btn-search {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botão de novo caso responsivo */
 .top-bar-casos {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   padding: 0 2.5%;
 }
 
@@ -57,32 +75,36 @@ body{
   background-color: black;
   color: white;
   border: none;
-  padding: 12px 24px;
+  padding: 10px 20px;
   font-size: 16px;
-  width: 200px;
-  margin-top: 20px;
+  min-width: 150px;
+  margin-top: 15px;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 }
 
 .btn-novo-caso:hover {
   background-color: #333;
 }
 
+.btn-disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-disabled:hover {
+  background-color: #ccc;
+}
+
 .tabela-container {
   overflow-x: auto;
   padding: 0 2.5%;
   margin-bottom: 30px;
-}
-
-.icon-plus-btn{
-  margin-right: 3px;
-
-  
 }
 
 .tabela-casos {
@@ -122,12 +144,12 @@ body{
 
 /* Classes de status com cores diferentes */
 .status-em-andamento {
-  background-color: #B99F81;
+  background-color: #b99f81;
   color: white;
 }
 
 .status-finalizado {
-  background-color: #62725C;
+  background-color: #62725c;
   color: white;
 }
 
@@ -176,29 +198,327 @@ body{
   transform: scale(1.1);
 }
 
-@media (max-width: 768px) {
-  .btn-novo-caso {
-      width: 100%;
-  }
+/* Modal para criar novo caso */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
 
-  .input-casos input {
-      width: 100px;
-  }
+.modal-content {
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  margin: 0 15px;
+  background-color: white;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f8f8f8;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.btn-fechar-modal {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-fechar-modal:hover {
+  color: #000;
+}
+
+.modal-body {
+  padding: 15px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.form-novo-caso {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-error {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 4px;
+  padding: 10px;
+  color: #c00;
+  font-size: 13px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-cancelar,
+.btn-salvar {
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-cancelar {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.btn-salvar {
+  background-color: #000;
+  border: 1px solid #000;
+  color: white;
+}
+
+.btn-salvar:disabled,
+.btn-cancelar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Visualizações desktop e mobile */
+.desktop-view {
+  display: block;
+}
+
+.mobile-view {
+  display: none;
+}
+
+/* Cards para visualização mobile */
+.caso-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.caso-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.caso-card-header {
+  padding: 12px 15px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.caso-card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
+}
+
+.caso-card-body {
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.caso-card-info {
+  flex: 1;
+}
+
+.caso-card-info p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.loading-card,
+.error-card,
+.empty-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.error-card {
+  color: #e74c3c;
+}
+
+@media (max-width: 1024px) {
   .tabela-casos th,
   .tabela-casos td {
-      font-size: 12px;
-      padding: 10px;
+    padding: 12px 8px;
+    font-size: 14px;
   }
 
   .status {
-      width: 100%;
-      padding: 4px 6px;
-      font-size: 10px;
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-casos {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
   }
 
-  .btn-ver-caso {
-      width: 30px;
-      height: 30px;
+  .header-casos h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .input-casos {
+    width: 100%;
+  }
+
+  .input-casos > input {
+    flex: 1;
+  }
+
+  .top-bar-casos {
+    justify-content: center;
+  }
+
+  .btn-novo-caso {
+    width: 95%;
+    margin: 10px auto;
+  }
+
+  .desktop-view {
+    display: none;
+  }
+
+  .mobile-view {
+    display: block;
+  }
+
+  .modal-content {
+    width: 95%;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 16px; /* Melhor para input em dispositivos móveis */
+  }
+}
+
+@media (max-width: 480px) {
+  .header-casos h2 {
+    font-size: 18px;
+  }
+
+  .caso-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .caso-card-header h3 {
+    max-width: 100%;
+  }
+
+  .modal-header h3 {
+    font-size: 16px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-cancelar,
+  .btn-salvar {
+    width: 100%;
+    justify-content: center;
   }
 }

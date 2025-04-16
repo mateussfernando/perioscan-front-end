@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useParams } from "next/navigation"
 import AsideNavbar from "@/components/AsideNavBar"
 import "../../styles/caso-detalhes.css"
-import { X, File, ImageIcon, Upload, Plus, Camera, FileText, Loader, Save, MapPin, Pencil } from "lucide-react"
+import { X, File, ImageIcon, Upload, Plus, Camera, FileText, Loader, Save, MapPin, Trash2, Pencil } from "lucide-react"
 
 export default function CasoDetalhes() {
   const router = useRouter()
@@ -41,12 +41,21 @@ export default function CasoDetalhes() {
   const [salvandoCaso, setSalvandoCaso] = useState(false)
   const [erroEdicao, setErroEdicao] = useState(null)
 
+  // Estados para o modal de exclusão de caso
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
+  const [excluindoCaso, setExcluindoCaso] = useState(false)
+  const [erroExclusao, setErroExclusao] = useState(null)
+  const [userRole, setUserRole] = useState("")
+
   // Ref para o input de arquivo
   const fileInputRef = useRef(null)
 
   useEffect(() => {
     const token = localStorage.getItem("token")
+    const role = localStorage.getItem("role")
     const id = params?.id
+
+    setUserRole(role || "")
 
     if (!token) {
       router.push("/")
@@ -152,6 +161,11 @@ export default function CasoDetalhes() {
     fetchEvidencias()
   }, [params, router])
 
+  // Verifica se o usuário tem permissão para excluir casos
+  const podeExcluirCaso = () => {
+    return userRole === "admin" || (userRole === "perito" && caso?.createdBy?.id === localStorage.getItem("userId"))
+  }
+
   const formatarData = (dataISO) => {
     if (!dataISO) return "--"
     const data = new Date(dataISO)
@@ -227,6 +241,111 @@ export default function CasoDetalhes() {
   const fecharModalEditar = () => {
     setModalEditarAberto(false)
   }
+
+  // Função para abrir o modal de exclusão de caso
+  const abrirModalExcluir = () => {
+    if (!podeExcluirCaso()) {
+      alert("Você não tem permissão para excluir este caso.")
+      return
+    }
+
+    setErroExclusao(null)
+    setModalExcluirAberto(true)
+  }
+
+  // Função para fechar o modal de exclusão de caso
+  const fecharModalExcluir = () => {
+    setModalExcluirAberto(false)
+  }
+
+  // Substituir a função arquivarCaso pela função excluirCaso original
+  // Função para excluir o caso
+  const excluirCaso = async () => {
+    setExcluindoCaso(true)
+    setErroExclusao(null)
+
+    try {
+      const token = localStorage.getItem("token")
+      const casoId = caso._id || caso.id
+
+      console.log(`Excluindo caso ${casoId}...`)
+
+      const response = await fetch(`https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+
+      // Capturar a resposta completa para debug
+      const responseText = await response.text()
+      console.log("Resposta bruta da exclusão do caso:", responseText)
+
+      if (!response.ok) {
+        console.error("Resposta de erro ao excluir caso:", responseText)
+        throw new Error(`Falha ao excluir caso: ${response.status} ${response.statusText}`)
+      }
+
+      console.log("Caso excluído com sucesso")
+
+      // Redirecionar para a lista de casos
+      router.push("/casos")
+    } catch (error) {
+      console.error("Erro ao excluir caso:", error)
+      setErroExclusao(`Falha ao excluir caso: ${error.message}`)
+    } finally {
+      setExcluindoCaso(false)
+    }
+  }
+
+  // Função para arquivar o caso em vez de excluí-lo
+  /*const arquivarCaso = async () => {
+    setExcluindoCaso(true)
+    setErroExclusao(null)
+
+    try {
+      const token = localStorage.getItem("token")
+      const casoId = caso._id || caso.id
+
+      console.log(`Arquivando caso ${casoId}...`)
+
+      // Em vez de excluir, vamos atualizar o status para "Arquivado"
+      const dadosAtualizados = {
+        ...caso,
+        status: "Arquivado",
+        closeDate: new Date().toISOString(), // Definir a data de fechamento como agora
+      }
+
+      const response = await fetch(`https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dadosAtualizados),
+      })
+
+      // Capturar a resposta completa para debug
+      const responseText = await response.text()
+      console.log("Resposta bruta do arquivamento do caso:", responseText)
+
+      if (!response.ok) {
+        console.error("Resposta de erro ao arquivar caso:", responseText)
+        throw new Error(`Falha ao arquivar caso: ${response.status} ${response.statusText}`)
+      }
+
+      console.log("Caso arquivado com sucesso")
+
+      // Redirecionar para a lista de casos
+      router.push("/casos")
+    } catch (error) {
+      console.error("Erro ao arquivar caso:", error)
+      setErroExclusao(`Falha ao arquivar caso: ${error.message}`)
+    } finally {
+      setExcluindoCaso(false)
+    }
+  }*/
 
   // Função para lidar com mudanças nos campos do formulário de edição
   const handleCasoChange = (e) => {
@@ -585,10 +704,13 @@ export default function CasoDetalhes() {
                 {caso.caseNumber || "CASO-1023"} - {caso.title || "Identificação em Incêndio"}
               </h1>
               <div className="header-actions">
-
                 <button className="btn-editar" onClick={abrirModalEditar}>
-                  <Pencil size={16} className="icon-btn-editar" />
+                  <Pencil size={16}/>
                   Editar Caso
+                </button>
+                <button className="btn-excluir" onClick={abrirModalExcluir} disabled={!podeExcluirCaso()}>
+                  <Trash2 size={16} />
+                  Excluir
                 </button>
                 <button className="btn-voltar" onClick={() => router.push("/casos")}>
                   Voltar
@@ -974,6 +1096,63 @@ export default function CasoDetalhes() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal para excluir caso */}
+        {modalExcluirAberto && (
+          <div className="evidencia-modal-overlay" onClick={fecharModalExcluir}>
+            <div className="evidencia-modal-content modal-excluir" onClick={(e) => e.stopPropagation()}>
+             
+              <div className="evidencia-modal-header excluir-header">
+                <h3>Excluir Caso</h3>
+                <button className="btn-fechar-modal" onClick={fecharModalExcluir}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="evidencia-modal-body">
+                <div className="excluir-aviso">
+                  <Trash2 size={48} className="excluir-icone" />
+                  <p>
+                    Tem certeza que deseja excluir este caso? Esta ação não pode ser desfeita e todas as evidências
+                    associadas também serão excluídas.
+                  </p>
+                </div>
+
+                {/* Mensagem de erro */}
+                {erroExclusao && (
+                  <div className="upload-error">
+                    <p>{erroExclusao}</p>
+                  </div>
+                )}
+
+                {/* Botões de ação */}
+                <div className="form-actions">
+                  <button type="button" className="btn-cancelar" onClick={fecharModalExcluir} disabled={excluindoCaso}>
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-excluir-confirmar"
+                    onClick={excluirCaso}
+                    disabled={excluindoCaso}
+                  >
+                    {excluindoCaso ? (
+                      <>
+                        <Loader size={16} className="spinner" />
+                        <span>Excluindo...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 size={16} />
+                        <span>Confirmar Exclusão</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

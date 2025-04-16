@@ -47,22 +47,38 @@
 }
 
 .btn-editar,
-.btn-voltar {
-  padding: 8px 30px;
+.btn-voltar,
+.btn-excluir {
+  padding: 8px 25px;
   border-radius: 3px;
-  color: white;
-  background-color: black;
-  display:flex;
-  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
+  color: white;
+  background-color: #000000;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 .btn-editar:hover{
   background-color: #555;
-  border-color: #555;
+  transition: 0.5 ease;
 }
 
-.icon-btn-editar{
-  margin-right: 5px;
+.btn-excluir {
+  background-color: #a52e40;
+  border-color: #ffcdd2;
+  color: #ffffff;
+}
+
+.btn-excluir:hover {
+  background-color: #ffcdd2;
+}
+
+/* Adicionar estilo para o botão desabilitado */
+.btn-excluir:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-voltar {
@@ -74,6 +90,7 @@
 .caso-content {
   display: flex;
   min-height: 500px;
+  cursor: default;
 }
 
 /* Coluna de Informações */
@@ -297,6 +314,11 @@
   background-color: #f8f8f8;
 }
 
+.excluir-header {
+  background-color: #ffebee;
+  border-color: #ffcdd2;
+}
+
 .evidencia-modal-header h3 {
   margin: 0;
   font-size: 18px;
@@ -391,7 +413,8 @@
 
 /* Estilos para o modal de adicionar evidência */
 .modal-adicionar,
-.modal-editar {
+.modal-editar,
+.modal-excluir {
   max-width: 600px;
 }
 
@@ -549,7 +572,8 @@
 }
 
 .btn-cancelar,
-.btn-salvar {
+.btn-salvar,
+.btn-excluir-confirmar {
   padding: 10px 15px;
   border-radius: 4px;
   font-size: 14px;
@@ -572,10 +596,41 @@
   color: white;
 }
 
+.btn-excluir-confirmar {
+  background-color: #f44336;
+  border: 1px solid #d32f2f;
+  color: white;
+}
+
+.btn-excluir-confirmar:hover {
+  background-color: #d32f2f;
+}
+
 .btn-salvar:disabled,
-.btn-cancelar:disabled {
+.btn-cancelar:disabled,
+.btn-excluir-confirmar:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Estilos para o modal de exclusão */
+.excluir-aviso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.excluir-icone {
+  color: #f44336;
+}
+
+.excluir-aviso p {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #333;
 }
 
 .spinner {
@@ -614,5 +669,41 @@
 
   .tipo-evidencia-selector {
     flex-direction: column;
+  }
+
+  .caso-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-actions {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .btn-editar,
+  .btn-excluir,
+  .btn-voltar {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-cancelar,
+  .btn-salvar,
+  .btn-excluir-confirmar {
+    width: 100%;
+    justify-content: center;
   }
 }
