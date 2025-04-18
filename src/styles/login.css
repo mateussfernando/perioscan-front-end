@@ -6,6 +6,8 @@
   justify-content: center;
   background-color: black;
   font-family: "Inter", sans-serif;
+  background: #000000;
+background: linear-gradient(114deg, rgba(0, 0, 0, 1) 0%, rgba(79, 78, 78, 1) 50%, rgba(20, 20, 20, 1) 100%);
 }
 
 .authlogin-caixa {
