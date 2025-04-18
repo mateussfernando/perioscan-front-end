@@ -1,170 +1,235 @@
-// pages/admincadastramento.tsx
-import "../styles/admin-cadastramento.css";
-import { useState } from "react";
-import AsideNavbar from "../components/AsideNavBar";
+"use client"
+
+import "../styles/admin-cadastramento.css"
+import { useState } from "react"
+import AsideNavbar from "../components/AsideNavBar"
+import { AlertCircle, CheckCircle, Eye, EyeOff, Loader } from 'lucide-react'
 
 export default function AdminCadastramento() {
   // Estado para armazenar os dados do formulário
-  const [dadosFormulario, setDadosFormulario] = useState({
-    nomeCompleto: "",
+  const [formData, setFormData] = useState({
+    name: "",
     email: "",
-    senha: "",
-    dataNascimento: "",
-    cpf: "",
-    instituicao: "",
-    cargo: "",
-  });
+    password: "",
+    role: "perito", // Valor padrão
+  })
 
-  // Gera uma senha numérica aleatória com 11 dígitos
-  function gerarSenhaAleatoria() {
-    let senha = "";
-    for (let i = 0; i < 11; i++) {
-      senha += Math.floor(Math.random() * 10);
-    }
-    setDadosFormulario({ ...dadosFormulario, senha });
-  }
+  // Estados para controle de UI
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   // Manipula mudanças nos campos do formulário
-  function manipularMudanca(evento) {
-    const { name, value } = evento.target;
-    setDadosFormulario({ ...dadosFormulario, [name]: value });
+  function handleChange(event) {
+    const { name, value } = event.target
+    setFormData({ ...formData, [name]: value })
   }
 
+
+
   // Processa o envio do formulário
-  async function manipularEnvio(evento) {
-    evento.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault()
     
+    // Validação básica
+    if (!formData.name || !formData.email || !formData.password || !formData.role) {
+      setError("Por favor, preencha todos os campos obrigatórios.")
+      return
+    }
+
+    // Validação de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      setError("Por favor, insira um email válido.")
+      return
+    }
+
+    // Validação de senha
+    if (formData.password.length < 6) {
+      setError("A senha deve ter pelo menos 6 caracteres.")
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    setSuccess(null)
+
     try {
-      const response = await fetch('https://perioscan-back-end-fhhq.onrender.com/api/login', {
-        method: 'POST',
+      // Obter o token do localStorage
+      const token = localStorage.getItem("token")
+      
+      if (!token) {
+        throw new Error("Você precisa estar autenticado para cadastrar usuários.")
+      }
+
+      const response = await fetch("https://perioscan-back-end-fhhq.onrender.com/api/users", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({
-          email: dadosFormulario.email,
-          senha: dadosFormulario.senha
-        })
-      });
-  
-      if (!response.ok) throw new Error('Erro no login');
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Erro ao cadastrar usuário")
+      }
+
+      setSuccess(`Usuário ${formData.name} cadastrado com sucesso!`)
       
-      const { token } = await response.json();
-      localStorage.setItem('authToken', token);
-      alert("Login realizado com sucesso!");
-      window.location.href = '/casos'; // Redireciona para a página de casos
-      
+      // Limpar o formulário após sucesso
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        role: "perito",
+      })
     } catch (error) {
-      console.error("Erro no login:", error);
-      alert("Falha no login: " + error.message);
+      console.error("Erro ao cadastrar usuário:", error)
+      setError(error.message || "Falha ao cadastrar usuário. Tente novamente.")
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <div className="main-container-admincadastramento">
       {/* Barra lateral de navegação */}
-      <AsideNavbar></AsideNavbar>
+      <AsideNavbar />
 
       {/* Conteúdo principal da página */}
       <div className="admincadastramento-pagina">
         <div className="admincadastramento-conteudo-principal">
           <h1 className="admincadastramento-titulo">Cadastro de Usuário</h1>
 
+          {/* Mensagens de feedback */}
+          {error && (
+            <div className="admincadastramento-mensagem error">
+              <AlertCircle size={20} />
+              <p>{error}</p>
+            </div>
+          )}
+          
+          {success && (
+            <div className="admincadastramento-mensagem success">
+              <CheckCircle size={20} />
+              <p>{success}</p>
+            </div>
+          )}
+
           {/* Formulário de cadastro */}
-          <form
-            onSubmit={manipularEnvio}
-            className="admincadastramento-formulario"
-          >
+          <form onSubmit={handleSubmit} className="admincadastramento-formulario">
             {/* Campo: Nome Completo */}
             <div className="admincadastramento-grupo-formulario">
-              <label htmlFor="nomeCompleto">Nome Completo:</label>
+              <label htmlFor="name">Nome Completo</label>
               <input
                 type="text"
-                id="nomeCompleto"
-                name="nomeCompleto"
-                value={dadosFormulario.nomeCompleto}
-                onChange={manipularMudanca}
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Digite o nome completo"
                 required
               />
             </div>
 
             {/* Campo: E-mail */}
             <div className="admincadastramento-grupo-formulario">
-              <label htmlFor="email">E-mail:</label>
+              <label htmlFor="email">E-mail</label>
               <input
                 type="email"
                 id="email"
                 name="email"
-                value={dadosFormulario.email}
-                onChange={manipularMudanca}
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="exemplo@perioscan.com"
                 required
               />
             </div>
 
             {/* Campo: Senha com gerador */}
             <div className="admincadastramento-grupo-formulario">
-              <label htmlFor="senha">Senha:</label>
+              <label htmlFor="password">Senha</label>
               <div className="admincadastramento-container-senha">
-                <input
-                  type="password"
-                  id="senha"
-                  name="senha"
-                  value={dadosFormulario.senha}
-                  onChange={manipularMudanca}
-                  required
-                  placeholder="Digite sua senha"
-                />
+                <div className="password-input-container">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Digite a senha"
+                    required
+                  />
+                  <button 
+                    type="button" 
+                    className="toggle-password"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              
               </div>
-            </div>
-
-            {/* Campo: CPF */}
-            <div className="admincadastramento-grupo-formulario">
-              <label htmlFor="cpf">CPF:</label>
-              <input
-                type="text"
-                id="cpf"
-                name="cpf"
-                value={dadosFormulario.cpf}
-                onChange={manipularMudanca}
-                required
-                placeholder="000.000.000-00" 
-              />
             </div>
 
             {/* Campo: Cargo (radio buttons) */}
             <div className="admincadastramento-grupo-formulario">
-              <label>Cargo:</label>
+              <label>Cargo</label>
               <div className="admincadastramento-opcoes-cargo">
-                <label>
+                <label className="radio-label">
                   <input
                     type="radio"
-                    name="cargo"
+                    name="role"
                     value="perito"
-                    checked={dadosFormulario.cargo === "perito"}
-                    onChange={manipularMudanca}
+                    checked={formData.role === "perito"}
+                    onChange={handleChange}
                     required
                   />
-                  Perito
+                  <span>Perito</span>
                 </label>
-                <label>
+                <label className="radio-label">
                   <input
                     type="radio"
-                    name="cargo"
+                    name="role"
                     value="assistente"
-                    checked={dadosFormulario.cargo === "assistente"}
-                    onChange={manipularMudanca}
+                    checked={formData.role === "assistente"}
+                    onChange={handleChange}
                   />
-                  Assistente
+                  <span>Assistente</span>
+                </label>
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="admin"
+                    checked={formData.role === "admin"}
+                    onChange={handleChange}
+                  />
+                  <span>Administrador</span>
                 </label>
               </div>
             </div>
 
             {/* Botão de Cadastrar */}
             <div className="admincadastramento-acoes-formulario">
-              <button type="submit">Cadastrar Usuário</button>
+              <button type="submit" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader size={20} className="spinner" />
+                    <span>Cadastrando...</span>
+                  </>
+                ) : (
+                  "Cadastrar Usuário"
+                )}
+              </button>
             </div>
           </form>
         </div>
       </div>
     </div>
-  );
+  )
 }

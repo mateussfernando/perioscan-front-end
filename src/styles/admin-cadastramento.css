@@ -5,28 +5,28 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   width: 100%;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   background-color: #f5f7fa;
   color: #333;
-
 }
-.main-container-admincadastramento{
+
+.main-container-admincadastramento {
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: 100%;
-
+  min-height: 100vh;
 }
+
 .admincadastramento-pagina {
-  width: 100vw;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #fff;
-  
-
+  background-color: #f5f7fa;
+  padding: 20px;
 }
 
 .admincadastramento-header {
@@ -40,92 +40,169 @@ html, body {
 
 .admincadastramento-conteudo-principal {
   width: 100%;
-  max-width: 1000px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 40px;
   background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
 .admincadastramento-titulo {
   text-align: center;
   color: #000000;
-  font-size: 24px;
-  margin-bottom: 120px;
+  font-size: 28px;
+  margin-bottom: 40px;
+  font-weight: 700;
 }
 
+/* Mensagens de feedback */
+.admincadastramento-mensagem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  font-size: 14px;
+}
+
+.admincadastramento-mensagem.error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.admincadastramento-mensagem.success {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.admincadastramento-mensagem p {
+  flex: 1;
+}
+
+/* Formulário */
 .admincadastramento-formulario {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  gap: 25px;
 }
 
 .admincadastramento-grupo-formulario {
   display: flex;
   flex-direction: column;
+  gap: 8px;
 }
 
 .admincadastramento-grupo-formulario label {
   font-weight: 600;
   color: #2a3b5b;
-  margin-bottom: 6px;
+  font-size: 14px;
 }
 
 .admincadastramento-grupo-formulario input[type="text"],
 .admincadastramento-grupo-formulario input[type="email"],
-.admincadastramento-grupo-formulario input[type="date"] {
-  padding: 12px;
-  border: 1px solid #ccc;
+.admincadastramento-grupo-formulario input[type="password"] {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #f9fafc;
+  font-size: 14px;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+.admincadastramento-grupo-formulario input:focus {
+  outline: none;
+  border-color: #000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Container de senha */
 .admincadastramento-container-senha {
   display: flex;
   gap: 10px;
+  flex-direction: column;
 }
 
-.admincadastramento-container-senha input {
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9fafc;
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.admincadastramento-container-senha button {
-  padding: 10px 12px;
+.password-input-container input {
+  width: 100%;
+  padding-right: 40px; /* Espaço para o botão de toggle */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  background: none;
   border: none;
-  background-color: #e1e6ef;
-  color: #2b426e;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.generate-password {
+  padding: 12px 15px;
+  background-color: #000;
+  color: white;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  font-size: 14px;
 }
 
+.generate-password:hover {
+  background-color: #333;
+}
+
+/* Opções de cargo */
 .admincadastramento-opcoes-cargo {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
   margin-top: 5px;
 }
 
-.admincadastramento-radio-cargo {
-  accent-color: #2b426e;
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  accent-color: #000;
+  width: 16px;
+  height: 16px;
+}
+
+.radio-label span {
+  font-size: 14px;
 }
 
 /* Botões de ação */
 .admincadastramento-acoes-formulario {
   grid-column: 1 / -1;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
+  justify-content: center;
+  margin-top: 15px;
 }
 
 .admincadastramento-acoes-formulario button {
-  flex: 1;
+  width: 100%;
+  max-width: 300px;
   padding: 14px;
   background-color: #000000;
   color: white;
@@ -134,5 +211,72 @@ html, body {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
+.admincadastramento-acoes-formulario button:hover {
+  background-color: #333;
+}
+
+.admincadastramento-acoes-formulario button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+/* Animação de spinner */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .admincadastramento-conteudo-principal {
+    padding: 25px;
+  }
+  
+  .admincadastramento-titulo {
+    font-size: 24px;
+    margin-bottom: 30px;
+  }
+  
+  .admincadastramento-formulario {
+    grid-template-columns: 1fr;
+  }
+  
+  .admincadastramento-container-senha {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .admincadastramento-pagina {
+    padding: 10px;
+  }
+  
+  .admincadastramento-conteudo-principal {
+    padding: 20px 15px;
+  }
+  
+  .admincadastramento-titulo {
+    font-size: 22px;
+    margin-bottom: 25px;
+  }
+  
+  .admincadastramento-opcoes-cargo {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
