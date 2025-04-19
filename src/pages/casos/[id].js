@@ -1,26 +1,20 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useParams } from "next/navigation"
 import AsideNavbar from "@/components/AsideNavBar"
 import "../../styles/caso-detalhes.css"
-import {
-  X,
-  Upload,
-  Plus,
-  Camera,
-  FileText,
-  Loader,
-  Save,
-  MapPin,
-  Trash2,
-  Pencil,
-  FileDown,
-  AlertCircle,
-  Eye,
-  ClipboardList,
-} from "lucide-react"
+import { Pencil, Trash2 } from "lucide-react"
+
+// Importar componentes
+import EvidenciaItem from "../../components/casos/EvidenciaItem"
+import ModalVisualizarEvidencia from "../../components/casos/ModalVisualizarEvidencia"
+import ModalCriarLaudo from "../../components/casos/ModalCriarLaudo"
+import ModalAdicionarEvidencia from "../../components/casos/ModalAdicionarEvidencia"
+import ModalEditarCaso from "../../components/casos/ModalEditarCaso"
+import ModalExcluirCaso from "../../components/casos/ModalExcluirCaso"
+import NotificacaoLaudo from "../../components/casos/NotificacaoLaudo"
 
 export default function CasoDetalhes() {
   const router = useRouter()
@@ -39,25 +33,13 @@ export default function CasoDetalhes() {
   // Estados para o modal de criar laudo
   const [modalCriarLaudoAberto, setModalCriarLaudoAberto] = useState(false)
   const [evidenciaParaLaudo, setEvidenciaParaLaudo] = useState(null)
-  const [dadosLaudo, setDadosLaudo] = useState({
-    titulo: "",
-    conteudo: "",
-    achados: "",
-    metodologia: "",
-  })
   const [criandoLaudo, setCriandoLaudo] = useState(false)
   const [erroLaudo, setErroLaudo] = useState(null)
 
   // Estados para o modal de adicionar evidência
   const [modalAdicionarAberto, setModalAdicionarAberto] = useState(false)
-  const [tipoEvidencia, setTipoEvidencia] = useState("image") // "image" ou "text"
-  const [descricaoEvidencia, setDescricaoEvidencia] = useState("")
-  const [conteudoTexto, setConteudoTexto] = useState("")
-  const [imagemSelecionada, setImagemSelecionada] = useState(null)
-  const [previewImagem, setPreviewImagem] = useState(null)
   const [enviandoEvidencia, setEnviandoEvidencia] = useState(false)
   const [erroUpload, setErroUpload] = useState(null)
-  const [tipoImagem, setTipoImagem] = useState("radiografia") // Novo campo para imageType
 
   // Estados para o modal de edição de caso
   const [modalEditarAberto, setModalEditarAberto] = useState(false)
@@ -79,9 +61,6 @@ export default function CasoDetalhes() {
 
   // Estado para notificações de laudo
   const [notificacaoLaudo, setNotificacaoLaudo] = useState({ visible: false, message: "", type: "" })
-
-  // Ref para o input de arquivo
-  const fileInputRef = useRef(null)
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -239,25 +218,6 @@ export default function CasoDetalhes() {
   // Função para abrir o modal de criar laudo
   const abrirModalCriarLaudo = (evidencia) => {
     setEvidenciaParaLaudo(evidencia)
-
-    // Pré-preencher alguns campos com base no tipo de evidência
-    let metodologiaSugerida = ""
-    if (evidencia.type === "image") {
-      metodologiaSugerida =
-        evidencia.imageType === "radiografia"
-          ? "Análise radiográfica digital com contraste"
-          : "Análise de imagem digital"
-    } else {
-      metodologiaSugerida = "Análise documental"
-    }
-
-    setDadosLaudo({
-      titulo: `Laudo de ${evidencia.type === "image" ? "Imagem" : "Texto"}: ${evidencia.description || ""}`,
-      conteudo: "",
-      achados: "",
-      metodologia: metodologiaSugerida,
-    })
-
     setErroLaudo(null)
     setModalCriarLaudoAberto(true)
   }
@@ -268,20 +228,9 @@ export default function CasoDetalhes() {
     setEvidenciaParaLaudo(null)
   }
 
-  // Função para lidar com mudanças nos campos do formulário de laudo
-  const handleLaudoChange = (e) => {
-    const { name, value } = e.target
-    setDadosLaudo((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-  }
-
   // Função para criar o laudo da evidência
-  const criarLaudo = async (e) => {
-    e.preventDefault()
-
-    if (!evidenciaParaLaudo) {
+  const criarLaudo = async (evidencia, dadosLaudo) => {
+    if (!evidencia) {
       setErroLaudo("Evidência não selecionada")
       return
     }
@@ -291,7 +240,7 @@ export default function CasoDetalhes() {
 
     try {
       const token = localStorage.getItem("token")
-      const evidenciaId = evidenciaParaLaudo._id || evidenciaParaLaudo.id
+      const evidenciaId = evidencia._id || evidencia.id
 
       console.log(`Criando laudo para evidência ${evidenciaId}...`)
 
@@ -348,7 +297,7 @@ export default function CasoDetalhes() {
         // Mostrar notificação de sucesso
         setNotificacaoLaudo({
           visible: true,
-          message: "Laudo criado com sucesso!",
+          message: "Laudo criado com sucesso! Agora você pode baixar o PDF.",
           type: "success",
         })
       }
@@ -502,15 +451,6 @@ export default function CasoDetalhes() {
 
   // Função para abrir o modal de adicionar evidência
   const abrirModalAdicionar = () => {
-    // Resetar os estados do formulário
-    setTipoEvidencia("image")
-    setDescricaoEvidencia("")
-    setConteudoTexto("")
-    setImagemSelecionada(null)
-    setPreviewImagem(null)
-    setErroUpload(null)
-    setTipoImagem("radiografia") // Resetar o tipo de imagem
-
     setModalAdicionarAberto(true)
   }
 
@@ -547,7 +487,6 @@ export default function CasoDetalhes() {
     setModalExcluirAberto(false)
   }
 
-  // Substituir a função arquivarCaso pela função excluirCaso original
   // Função para excluir o caso
   const excluirCaso = async () => {
     setExcluindoCaso(true)
@@ -656,30 +595,11 @@ export default function CasoDetalhes() {
     }
   }
 
-  // Função para lidar com a seleção de arquivo
-  const handleFileChange = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-
-    // Verificar o tamanho do arquivo (50MB = 50 * 1024 * 1024 bytes)
-    if (file.size > 50 * 1024 * 1024) {
-      setErroUpload("O arquivo é muito grande. O tamanho máximo permitido é 50MB.")
-      return
-    }
-
-    setImagemSelecionada(file)
-
-    // Criar preview da imagem
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setPreviewImagem(reader.result)
-    }
-    reader.readAsDataURL(file)
-  }
-
   // Função para enviar a evidência
-  const enviarEvidencia = async (e) => {
+  const enviarEvidencia = async (e, dadosEvidencia) => {
     e.preventDefault()
+
+    const { tipoEvidencia, descricaoEvidencia, conteudoTexto, imagemSelecionada, tipoImagem } = dadosEvidencia
 
     if (tipoEvidencia === "image" && !imagemSelecionada) {
       setErroUpload("Por favor, selecione uma imagem para upload.")
@@ -887,59 +807,16 @@ export default function CasoDetalhes() {
     }
   }
 
-  // Função para renderizar o conteúdo do modal baseado no tipo de evidência
-  const renderizarConteudoEvidencia = () => {
-    if (!evidenciaAtiva) return null
-
-    if (evidenciaAtiva.type === "image") {
-      return (
-        <div className="evidencia-imagem-container">
-          <img
-            src={evidenciaAtiva.imageUrl || "/placeholder.svg"}
-            alt={evidenciaAtiva.description || "Imagem da evidência"}
-            className="evidencia-imagem"
-          />
-          {evidenciaAtiva.description && <p className="evidencia-descricao">{evidenciaAtiva.description}</p>}
-        </div>
-      )
-    } else {
-      // Tipo texto ou outro
-      return (
-        <div className="evidencia-texto-container">
-          <h3>{evidenciaAtiva.description || "Evidência de texto"}</h3>
-          <div className="evidencia-texto-content">{evidenciaAtiva.content}</div>
-          <p className="evidencia-info">
-            <strong>Coletado em:</strong> {formatarData(evidenciaAtiva.collectionDate)}
-            {evidenciaAtiva.collectedBy && (
-              <span>
-                {" "}
-                por <strong>{evidenciaAtiva.collectedBy}</strong>
-              </span>
-            )}
-          </p>
-        </div>
-      )
-    }
-  }
-
   return (
     <div className="main-container-caso-detalhes">
       <AsideNavbar />
 
       <div className="container-caso-detalhes">
         {/* Notificação de laudo */}
-        {notificacaoLaudo.visible && (
-          <div className={`notificacao-laudo ${notificacaoLaudo.type}`}>
-            {notificacaoLaudo.type === "error" ? <AlertCircle size={18} /> : <FileDown size={18} />}
-            <span>{notificacaoLaudo.message}</span>
-            <button
-              className="fechar-notificacao"
-              onClick={() => setNotificacaoLaudo((prev) => ({ ...prev, visible: false }))}
-            >
-              <X size={16} />
-            </button>
-          </div>
-        )}
+        <NotificacaoLaudo
+          notificacao={notificacaoLaudo}
+          onFechar={() => setNotificacaoLaudo((prev) => ({ ...prev, visible: false }))}
+        />
 
         {loadingCaso ? (
           <div className="loading-container">
@@ -1018,53 +895,21 @@ export default function CasoDetalhes() {
                               evidencias.map((evidencia, index) => {
                                 const evidenciaId = evidencia._id || evidencia.id
                                 const temLaudo = !!laudosEvidencias[evidenciaId]
+                                const laudoId = laudosEvidencias[evidenciaId]
 
                                 return (
-                                  <tr key={evidenciaId || index} className="evidencia-row">
-                                    <td onClick={() => abrirEvidencia(evidencia)}>
-                                      {evidencia.description || `Evidência ${index + 1}`}
-                                    </td>
-                                    <td onClick={() => abrirEvidencia(evidencia)}>
-                                      {evidencia.type === "image" ? "Imagem" : "Texto"}
-                                    </td>
-                                    <td className="acoes-cell">
-                                      <button
-                                        className="btn-ver-caso"
-                                        onClick={() => abrirEvidencia(evidencia)}
-                                        title="Ver detalhes"
-                                      >
-                                        <Eye size={18} />
-                                      </button>
-
-                                      {temLaudo ? (
-                                        <button
-                                          className="btn-baixar-pdf"
-                                          onClick={() => baixarPDF(evidenciaId, laudosEvidencias[evidenciaId])}
-                                          disabled={baixandoPDF[laudosEvidencias[evidenciaId]]}
-                                          title="Baixar PDF do laudo"
-                                        >
-                                          {baixandoPDF[laudosEvidencias[evidenciaId]] ? (
-                                            <Loader size={18} className="spinner" />
-                                          ) : (
-                                            <FileDown size={18} />
-                                          )}
-                                        </button>
-                                      ) : (
-                                        <button
-                                          className="btn-criar-laudo"
-                                          onClick={() => abrirModalCriarLaudo(evidencia)}
-                                          disabled={gerandoLaudo[evidenciaId]}
-                                          title="Criar laudo"
-                                        >
-                                          {gerandoLaudo[evidenciaId] ? (
-                                            <Loader size={18} className="spinner" />
-                                          ) : (
-                                            <ClipboardList size={18} />
-                                          )}
-                                        </button>
-                                      )}
-                                    </td>
-                                  </tr>
+                                  <EvidenciaItem
+                                    key={evidenciaId || index}
+                                    evidencia={evidencia}
+                                    index={index}
+                                    temLaudo={temLaudo}
+                                    laudoId={laudoId}
+                                    baixandoPDF={baixandoPDF}
+                                    gerandoLaudo={gerandoLaudo}
+                                    onVerEvidencia={abrirEvidencia}
+                                    onCriarLaudo={abrirModalCriarLaudo}
+                                    onBaixarPDF={baixarPDF}
+                                  />
                                 )
                               })
                             ) : (
@@ -1114,491 +959,59 @@ export default function CasoDetalhes() {
 
         {/* Modal para visualizar evidências */}
         {modalAberto && evidenciaAtiva && (
-          <div className="evidencia-modal-overlay" onClick={fecharModal}>
-            <div className="evidencia-modal-content" onClick={(e) => e.stopPropagation()}>
-              <div className="evidencia-modal-header">
-                <h3>{evidenciaAtiva.type === "image" ? "Visualizar Imagem" : "Visualizar Texto"}</h3>
-                <button className="btn-fechar-modal" onClick={fecharModal}>
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="evidencia-modal-body">{renderizarConteudoEvidencia()}</div>
-              <div className="evidencia-modal-footer">
-                {laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id] ? (
-                  <button
-                    className="btn-baixar-pdf-modal"
-                    onClick={() =>
-                      baixarPDF(
-                        evidenciaAtiva._id || evidenciaAtiva.id,
-                        laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id],
-                      )
-                    }
-                    disabled={baixandoPDF[laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id]]}
-                  >
-                    {baixandoPDF[laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id]] ? (
-                      <>
-                        <Loader size={16} className="spinner" />
-                        <span>Baixando PDF...</span>
-                      </>
-                    ) : (
-                      <>
-                        <FileDown size={16} />
-                        <span>Baixar PDF do Laudo</span>
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <button
-                    className="btn-criar-laudo-modal"
-                    onClick={() => abrirModalCriarLaudo(evidenciaAtiva)}
-                    disabled={gerandoLaudo[evidenciaAtiva._id || evidenciaAtiva.id]}
-                  >
-                    {gerandoLaudo[evidenciaAtiva._id || evidenciaAtiva.id] ? (
-                      <>
-                        <Loader size={16} className="spinner" />
-                        <span>Criando laudo...</span>
-                      </>
-                    ) : (
-                      <>
-                        <ClipboardList size={16} />
-                        <span>Criar Laudo</span>
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+          <ModalVisualizarEvidencia
+            evidenciaAtiva={evidenciaAtiva}
+            temLaudo={!!laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id]}
+            laudoId={laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id]}
+            baixandoPDF={baixandoPDF}
+            gerandoLaudo={gerandoLaudo}
+            onFechar={fecharModal}
+            onCriarLaudo={abrirModalCriarLaudo}
+            onBaixarPDF={baixarPDF}
+          />
         )}
 
         {/* Modal para criar laudo */}
         {modalCriarLaudoAberto && evidenciaParaLaudo && (
-          <div className="evidencia-modal-overlay" onClick={fecharModalCriarLaudo}>
-            <div className="evidencia-modal-content modal-criar-laudo" onClick={(e) => e.stopPropagation()}>
-              <div className="evidencia-modal-header">
-                <h3>Criar Laudo para Evidência</h3>
-                <button className="btn-fechar-modal" onClick={fecharModalCriarLaudo}>
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="evidencia-modal-body">
-                <form onSubmit={criarLaudo} className="form-criar-laudo">
-                  {/* Título do laudo */}
-                  <div className="form-group">
-                    <label htmlFor="titulo">Título do Laudo</label>
-                    <input
-                      type="text"
-                      id="titulo"
-                      name="titulo"
-                      value={dadosLaudo.titulo}
-                      onChange={handleLaudoChange}
-                      placeholder="Ex: Análise de Radiografia Mandibular"
-                      required
-                    />
-                  </div>
-
-                  {/* Conteúdo do laudo */}
-                  <div className="form-group">
-                    <label htmlFor="conteudo">Conteúdo do Laudo</label>
-                    <textarea
-                      id="conteudo"
-                      name="conteudo"
-                      value={dadosLaudo.conteudo}
-                      onChange={handleLaudoChange}
-                      placeholder="Descreva detalhadamente a análise da evidência..."
-                      rows={5}
-                      required
-                    ></textarea>
-                  </div>
-
-                  {/* Achados */}
-                  <div className="form-group">
-                    <label htmlFor="achados">Achados</label>
-                    <textarea
-                      id="achados"
-                      name="achados"
-                      value={dadosLaudo.achados}
-                      onChange={handleLaudoChange}
-                      placeholder="Descreva os achados principais da análise..."
-                      rows={3}
-                      required
-                    ></textarea>
-                  </div>
-
-                  {/* Metodologia */}
-                  <div className="form-group">
-                    <label htmlFor="metodologia">Metodologia</label>
-                    <textarea
-                      id="metodologia"
-                      name="metodologia"
-                      value={dadosLaudo.metodologia}
-                      onChange={handleLaudoChange}
-                      placeholder="Descreva a metodologia utilizada na análise..."
-                      rows={2}
-                      required
-                    ></textarea>
-                  </div>
-
-                  {/* Mensagem de erro */}
-                  {erroLaudo && (
-                    <div className="upload-error">
-                      <p>{erroLaudo}</p>
-                    </div>
-                  )}
-
-                  {/* Botões de ação */}
-                  <div className="form-actions">
-                    <button
-                      type="button"
-                      className="btn-cancelar"
-                      onClick={fecharModalCriarLaudo}
-                      disabled={criandoLaudo}
-                    >
-                      Cancelar
-                    </button>
-                    <button type="submit" className="btn-salvar" disabled={criandoLaudo}>
-                      {criandoLaudo ? (
-                        <>
-                          <Loader size={16} className="spinner" />
-                          <span>Criando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <ClipboardList size={16} />
-                          <span>Criar Laudo</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
+          <ModalCriarLaudo
+            evidencia={evidenciaParaLaudo}
+            onFechar={fecharModalCriarLaudo}
+            onCriar={criarLaudo}
+            criandoLaudo={criandoLaudo}
+            erroLaudo={erroLaudo}
+          />
         )}
 
         {/* Modal para adicionar evidência */}
         {modalAdicionarAberto && (
-          <div className="evidencia-modal-overlay" onClick={fecharModalAdicionar}>
-            <div className="evidencia-modal-content modal-adicionar" onClick={(e) => e.stopPropagation()}>
-              <div className="evidencia-modal-header">
-                <h3>Adicionar Nova Evidência</h3>
-                <button className="btn-fechar-modal" onClick={fecharModalAdicionar}>
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="evidencia-modal-body">
-                <form onSubmit={enviarEvidencia} className="form-adicionar-evidencia">
-                  {/* Seleção de tipo de evidência */}
-                  <div className="tipo-evidencia-selector">
-                    <button
-                      type="button"
-                      className={`tipo-btn ${tipoEvidencia === "image" ? "active" : ""}`}
-                      onClick={() => setTipoEvidencia("image")}
-                    >
-                      <Camera size={20} />
-                      <span>Imagem</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`tipo-btn ${tipoEvidencia === "text" ? "active" : ""}`}
-                      onClick={() => setTipoEvidencia("text")}
-                    >
-                      <FileText size={20} />
-                      <span>Texto</span>
-                    </button>
-                  </div>
-
-                  {/* Campo de descrição (comum para ambos os tipos) */}
-                  <div className="form-group">
-                    <label htmlFor="descricao">Descrição da Evidência</label>
-                    <input
-                      type="text"
-                      id="descricao"
-                      value={descricaoEvidencia}
-                      onChange={(e) => setDescricaoEvidencia(e.target.value)}
-                      placeholder="Ex: Radiografia panorâmica da vítima"
-                      required
-                    />
-                  </div>
-
-                  {/* Campos específicos para cada tipo de evidência */}
-                  {tipoEvidencia === "image" ? (
-                    <>
-                      {/* Tipo de imagem (novo campo) */}
-                      <div className="form-group">
-                        <label htmlFor="tipoImagem">Tipo de Imagem</label>
-                        <select
-                          id="tipoImagem"
-                          value={tipoImagem}
-                          onChange={(e) => setTipoImagem(e.target.value)}
-                          required
-                        >
-                          <option value="radiografia">Radiografia</option>
-                          <option value="fotografia">Fotografia</option>
-                          <option value="tomografia">Tomografia</option>
-                          <option value="outro">Outro</option>
-                        </select>
-                      </div>
-
-                      {/* Área de upload */}
-                      <div className="form-group upload-container">
-                        <label>Imagem (máx. 50MB)</label>
-                        <div className="upload-area" onClick={() => fileInputRef.current.click()}>
-                          {previewImagem ? (
-                            <div className="preview-container">
-                              <img src={previewImagem || "/placeholder.svg"} alt="Preview" className="image-preview" />
-                              <button
-                                type="button"
-                                className="remove-preview"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  setImagemSelecionada(null)
-                                  setPreviewImagem(null)
-                                }}
-                              >
-                                <X size={16} />
-                              </button>
-                            </div>
-                          ) : (
-                            <>
-                              <Upload size={40} />
-                              <p>Clique para selecionar ou arraste uma imagem</p>
-                              <span className="upload-hint">JPG, PNG ou GIF até 50MB</span>
-                            </>
-                          )}
-
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            accept="image/*"
-                            style={{ display: "none" }}
-                          />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="form-group">
-                      <label htmlFor="conteudo">Conteúdo do Texto</label>
-                      <textarea
-                        id="conteudo"
-                        value={conteudoTexto}
-                        onChange={(e) => setConteudoTexto(e.target.value)}
-                        placeholder="Insira o conteúdo textual da evidência aqui..."
-                        rows={6}
-                        required
-                      ></textarea>
-                    </div>
-                  )}
-
-                  {/* Mensagem de erro */}
-                  {erroUpload && (
-                    <div className="upload-error">
-                      <p>{erroUpload}</p>
-                    </div>
-                  )}
-
-                  {/* Botões de ação */}
-                  <div className="form-actions">
-                    <button
-                      type="button"
-                      className="btn-cancelar"
-                      onClick={fecharModalAdicionar}
-                      disabled={enviandoEvidencia}
-                    >
-                      Cancelar
-                    </button>
-                    <button type="submit" className="btn-salvar" disabled={enviandoEvidencia}>
-                      {enviandoEvidencia ? (
-                        <>
-                          <Loader size={16} className="spinner" />
-                          <span>Enviando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Plus size={16} />
-                          <span>Adicionar Evidência</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
+          <ModalAdicionarEvidencia
+            onFechar={fecharModalAdicionar}
+            onEnviar={enviarEvidencia}
+            enviandoEvidencia={enviandoEvidencia}
+            erroUpload={erroUpload}
+          />
         )}
 
         {/* Modal para editar caso */}
         {modalEditarAberto && (
-          <div className="evidencia-modal-overlay" onClick={fecharModalEditar}>
-            <div className="evidencia-modal-content modal-editar" onClick={(e) => e.stopPropagation()}>
-              <div className="evidencia-modal-header">
-                <h3>Editar Caso</h3>
-                <button className="btn-fechar-modal" onClick={fecharModalEditar}>
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="evidencia-modal-body">
-                <form onSubmit={salvarCaso} className="form-editar-caso">
-                  {/* Título do caso */}
-                  <div className="form-group">
-                    <label htmlFor="title">
-                      <span>Título do Caso</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="title"
-                      name="title"
-                      value={casoEditado.title}
-                      onChange={handleCasoChange}
-                      placeholder="Ex: Identificação de Vítima em Incêndio"
-                      required
-                    />
-                  </div>
-
-                  {/* Local */}
-                  <div className="form-group">
-                    <label htmlFor="location">
-                      <MapPin size={16} />
-                      <span>Local</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="location"
-                      name="location"
-                      value={casoEditado.location}
-                      onChange={handleCasoChange}
-                      placeholder="Ex: Belo Horizonte, MG"
-                    />
-                  </div>
-
-                  {/* Status */}
-                  <div className="form-group">
-                    <label htmlFor="status">Status</label>
-                    <select id="status" name="status" value={casoEditado.status} onChange={handleCasoChange} required>
-                      <option value="Em Andamento">Em Andamento</option>
-                      <option value="Finalizado">Finalizado</option>
-                      <option value="Pendente">Pendente</option>
-                      <option value="Arquivado">Arquivado</option>
-                      <option value="Cancelado">Cancelado</option>
-                    </select>
-                  </div>
-
-                  {/* Descrição */}
-                  <div className="form-group">
-                    <label htmlFor="description">Descrição</label>
-                    <textarea
-                      id="description"
-                      name="description"
-                      value={casoEditado.description}
-                      onChange={handleCasoChange}
-                      placeholder="Descreva os detalhes do caso..."
-                      rows={6}
-                    ></textarea>
-                  </div>
-
-                  {/* Observação */}
-                  <div className="form-group">
-                    <label htmlFor="observation">Observação</label>
-                    <textarea
-                      id="observation"
-                      name="observation"
-                      value={casoEditado.observation}
-                      onChange={handleCasoChange}
-                      placeholder="Adicione observações relevantes..."
-                      rows={3}
-                    ></textarea>
-                  </div>
-
-                  {/* Mensagem de erro */}
-                  {erroEdicao && (
-                    <div className="upload-error">
-                      <p>{erroEdicao}</p>
-                    </div>
-                  )}
-
-                  {/* Botões de ação */}
-                  <div className="form-actions">
-                    <button type="button" className="btn-cancelar" onClick={fecharModalEditar} disabled={salvandoCaso}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="btn-salvar" disabled={salvandoCaso}>
-                      {salvandoCaso ? (
-                        <>
-                          <Loader size={16} className="spinner" />
-                          <span>Salvando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Save size={16} />
-                          <span>Salvar Alterações</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
+          <ModalEditarCaso
+            casoEditado={casoEditado}
+            onFechar={fecharModalEditar}
+            onSalvar={salvarCaso}
+            onCasoChange={handleCasoChange}
+            salvandoCaso={salvandoCaso}
+            erroEdicao={erroEdicao}
+          />
         )}
 
         {/* Modal para excluir caso */}
         {modalExcluirAberto && (
-          <div className="evidencia-modal-overlay" onClick={fecharModalExcluir}>
-            <div className="evidencia-modal-content modal-excluir" onClick={(e) => e.stopPropagation()}>
-              <div className="evidencia-modal-header excluir-header">
-                <h3>Excluir Caso</h3>
-                <button className="btn-fechar-modal" onClick={fecharModalExcluir}>
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="evidencia-modal-body">
-                <div className="excluir-aviso">
-                  <Trash2 size={48} className="excluir-icone" />
-                  <p>
-                    Tem certeza que deseja excluir este caso? Esta ação não pode ser desfeita e todas as evidências
-                    associadas também serão excluídas.
-                  </p>
-                </div>
-
-                {/* Mensagem de erro */}
-                {erroExclusao && (
-                  <div className="upload-error">
-                    <p>{erroExclusao}</p>
-                  </div>
-                )}
-
-                {/* Botões de ação */}
-                <div className="form-actions">
-                  <button type="button" className="btn-cancelar" onClick={fecharModalExcluir} disabled={excluindoCaso}>
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-excluir-confirmar"
-                    onClick={excluirCaso}
-                    disabled={excluindoCaso}
-                  >
-                    {excluindoCaso ? (
-                      <>
-                        <Loader size={16} className="spinner" />
-                        <span>Excluindo...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 size={16} />
-                        <span>Confirmar Exclusão</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ModalExcluirCaso
+            onFechar={fecharModalExcluir}
+            onExcluir={excluirCaso}
+            excluindoCaso={excluindoCaso}
+            erroExclusao={erroExclusao}
+          />
         )}
       </div>
     </div>
