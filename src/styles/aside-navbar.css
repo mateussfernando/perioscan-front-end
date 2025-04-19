@@ -1,10 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-*{
+* {
   text-decoration: none;
 }
+
+/* Adicionar container para posicionar o botão fora da sidebar */
+.sidebar-container {
+  position: relative;
+  height: 100vh;
+  display: flex;
+}
+
 .sidebar {
-  width: 220px;
-  height: 950px;
   background: #000;
   display: flex;
   flex-direction: column;
@@ -12,6 +18,44 @@
   padding: 20px 10px;
   font-family: "Inter", sans-serif;
   text-decoration: none;
+  transition: width 0.3s ease;
+  position: relative;
+  height: 100vh;
+  overflow: hidden; /* Alterado de overflow-x: hidden para overflow: hidden para remover a barra de rolagem */
+}
+
+/* Remover o posicionamento antigo do botão de toggle */
+.sidebar-toggle {
+  display: none;
+}
+
+/* Estilo para o botão de toggle fora da sidebar */
+.toggle-button-outside {
+  position: absolute;
+  top: 20px;
+  left: 100%;
+  z-index: 10;
+  background: #333;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  width: 24px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-button-outside:hover {
+  background: #555;
+}
+
+/* Ajustar o posicionamento do botão quando a sidebar está fechada */
+.sidebar.closed + .toggle-button-outside {
+  left: 80px;
 }
 
 .sidebar-content {
@@ -19,6 +63,7 @@
   flex-direction: column;
   align-items: center;
   flex-grow: 1;
+  margin-top: 20px;
 }
 
 .logo,
@@ -33,6 +78,11 @@ nav ul {
   gap: 8px;
   margin-bottom: 30px;
   font-weight: bold;
+  justify-content: center;
+}
+
+.sidebar.closed .logo {
+  justify-content: center;
 }
 
 .profile {
@@ -63,6 +113,11 @@ nav li {
   transition: background 0.3s;
   color: white;
   text-decoration: none;
+  justify-content: flex-start;
+}
+
+.sidebar.closed .nav-link {
+  justify-content: center;
 }
 
 .active .nav-link,
@@ -89,6 +144,12 @@ nav li {
   align-items: center;
   gap: 6px;
   transition: opacity 0.3s;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.sidebar.closed .logout button {
+  justify-content: center;
 }
 
 .logout button:hover {
@@ -118,4 +179,19 @@ nav li {
   line-height: 1.2;
   padding: 4px;
   border-radius: 10px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .sidebar.open {
+    width: 200px;
+  }
+
+  .sidebar.closed {
+    width: 70px;
+  }
+
+  .sidebar.closed + .toggle-button-outside {
+    left: 70px;
+  }
 }

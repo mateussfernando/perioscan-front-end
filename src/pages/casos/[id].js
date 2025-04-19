@@ -5,7 +5,22 @@ import { useRouter } from "next/navigation"
 import { useParams } from "next/navigation"
 import AsideNavbar from "@/components/AsideNavBar"
 import "../../styles/caso-detalhes.css"
-import { X, File, ImageIcon, Upload, Plus, Camera, FileText, Loader, Save, MapPin, Trash2, Pencil } from "lucide-react"
+import {
+  X,
+  Upload,
+  Plus,
+  Camera,
+  FileText,
+  Loader,
+  Save,
+  MapPin,
+  Trash2,
+  Pencil,
+  FileDown,
+  AlertCircle,
+  Eye,
+  ClipboardList,
+} from "lucide-react"
 
 export default function CasoDetalhes() {
   const router = useRouter()
@@ -17,6 +32,21 @@ export default function CasoDetalhes() {
   const [error, setError] = useState(null)
   const [evidenciaAtiva, setEvidenciaAtiva] = useState(null)
   const [modalAberto, setModalAberto] = useState(false)
+  const [gerandoLaudo, setGerandoLaudo] = useState({})
+  const [baixandoPDF, setBaixandoPDF] = useState({})
+  const [laudosEvidencias, setLaudosEvidencias] = useState({}) // Mapeia evidência ID -> laudo ID
+
+  // Estados para o modal de criar laudo
+  const [modalCriarLaudoAberto, setModalCriarLaudoAberto] = useState(false)
+  const [evidenciaParaLaudo, setEvidenciaParaLaudo] = useState(null)
+  const [dadosLaudo, setDadosLaudo] = useState({
+    titulo: "",
+    conteudo: "",
+    achados: "",
+    metodologia: "",
+  })
+  const [criandoLaudo, setCriandoLaudo] = useState(false)
+  const [erroLaudo, setErroLaudo] = useState(null)
 
   // Estados para o modal de adicionar evidência
   const [modalAdicionarAberto, setModalAdicionarAberto] = useState(false)
@@ -46,6 +76,9 @@ export default function CasoDetalhes() {
   const [excluindoCaso, setExcluindoCaso] = useState(false)
   const [erroExclusao, setErroExclusao] = useState(null)
   const [userRole, setUserRole] = useState("")
+
+  // Estado para notificações de laudo
+  const [notificacaoLaudo, setNotificacaoLaudo] = useState({ visible: false, message: "", type: "" })
 
   // Ref para o input de arquivo
   const fileInputRef = useRef(null)
@@ -144,6 +177,12 @@ export default function CasoDetalhes() {
 
         if (responseObject.success && responseObject.data) {
           setEvidencias(responseObject.data)
+
+          // Buscar laudos existentes para cada evidência
+          const evidenciasIds = responseObject.data.map((ev) => ev._id || ev.id)
+          if (evidenciasIds.length > 0) {
+            fetchLaudosExistentes(evidenciasIds)
+          }
         } else {
           console.error("Formato de resposta inesperado para evidências:", responseObject)
           // Não bloqueia o carregamento do caso se as evidências falham
@@ -156,10 +195,260 @@ export default function CasoDetalhes() {
       }
     }
 
+    // Função para buscar laudos existentes para as evidências
+    async function fetchLaudosExistentes(evidenciasIds) {
+      try {
+        const token = localStorage.getItem("token")
+
+        // Buscar todos os laudos
+        const response = await fetch(`https://perioscan-back-end-fhhq.onrender.com/api/evidence-reports`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+
+        if (!response.ok) {
+          console.error("Erro ao buscar laudos existentes:", response.status)
+          return
+        }
+
+        const data = await response.json()
+        if (data.success && data.data) {
+          // Mapear evidências para seus laudos
+          const laudosMap = {}
+          data.data.forEach((laudo) => {
+            if (evidenciasIds.includes(laudo.evidence)) {
+              laudosMap[laudo.evidence] = laudo._id || laudo.id
+            }
+          })
+
+          setLaudosEvidencias(laudosMap)
+          console.log("Laudos existentes:", laudosMap)
+        }
+      } catch (error) {
+        console.error("Erro ao buscar laudos existentes:", error)
+      }
+    }
+
     // Executa ambas as requisições
     fetchCasoDetalhes()
     fetchEvidencias()
   }, [params, router])
+
+  // Função para abrir o modal de criar laudo
+  const abrirModalCriarLaudo = (evidencia) => {
+    setEvidenciaParaLaudo(evidencia)
+
+    // Pré-preencher alguns campos com base no tipo de evidência
+    let metodologiaSugerida = ""
+    if (evidencia.type === "image") {
+      metodologiaSugerida =
+        evidencia.imageType === "radiografia"
+          ? "Análise radiográfica digital com contraste"
+          : "Análise de imagem digital"
+    } else {
+      metodologiaSugerida = "Análise documental"
+    }
+
+    setDadosLaudo({
+      titulo: `Laudo de ${evidencia.type === "image" ? "Imagem" : "Texto"}: ${evidencia.description || ""}`,
+      conteudo: "",
+      achados: "",
+      metodologia: metodologiaSugerida,
+    })
+
+    setErroLaudo(null)
+    setModalCriarLaudoAberto(true)
+  }
+
+  // Função para fechar o modal de criar laudo
+  const fecharModalCriarLaudo = () => {
+    setModalCriarLaudoAberto(false)
+    setEvidenciaParaLaudo(null)
+  }
+
+  // Função para lidar com mudanças nos campos do formulário de laudo
+  const handleLaudoChange = (e) => {
+    const { name, value } = e.target
+    setDadosLaudo((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  // Função para criar o laudo da evidência
+  const criarLaudo = async (e) => {
+    e.preventDefault()
+
+    if (!evidenciaParaLaudo) {
+      setErroLaudo("Evidência não selecionada")
+      return
+    }
+
+    setCriandoLaudo(true)
+    setErroLaudo(null)
+
+    try {
+      const token = localStorage.getItem("token")
+      const evidenciaId = evidenciaParaLaudo._id || evidenciaParaLaudo.id
+
+      console.log(`Criando laudo para evidência ${evidenciaId}...`)
+
+      // Preparar dados para enviar ao backend
+      const laudoData = {
+        title: dadosLaudo.titulo,
+        content: dadosLaudo.conteudo,
+        evidence: evidenciaId,
+        findings: dadosLaudo.achados,
+        methodology: dadosLaudo.metodologia,
+      }
+
+      console.log("Dados do laudo:", laudoData)
+
+      const response = await fetch("https://perioscan-back-end-fhhq.onrender.com/api/evidence-reports", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(laudoData),
+      })
+
+      // Capturar a resposta completa para debug
+      const responseText = await response.text()
+      console.log("Resposta bruta da criação de laudo:", responseText)
+
+      if (!response.ok) {
+        console.error("Resposta de erro ao criar laudo:", responseText)
+        throw new Error(`Falha ao criar laudo: ${response.status} ${response.statusText}`)
+      }
+
+      // Tentar analisar a resposta como JSON
+      let novoLaudo
+      try {
+        novoLaudo = JSON.parse(responseText)
+      } catch (e) {
+        console.error("Erro ao analisar resposta JSON da criação de laudo:", e)
+        // Continuar mesmo com erro de parsing
+      }
+
+      console.log("Laudo criado com sucesso:", novoLaudo)
+
+      // Atualizar o mapeamento de laudos
+      if (novoLaudo && (novoLaudo.data || novoLaudo)) {
+        const laudoData = novoLaudo.data || novoLaudo
+        const laudoId = laudoData._id || laudoData.id
+
+        setLaudosEvidencias((prev) => ({
+          ...prev,
+          [evidenciaId]: laudoId,
+        }))
+
+        // Mostrar notificação de sucesso
+        setNotificacaoLaudo({
+          visible: true,
+          message: "Laudo criado com sucesso!",
+          type: "success",
+        })
+      }
+
+      // Fechar o modal
+      fecharModalCriarLaudo()
+    } catch (error) {
+      console.error("Erro ao criar laudo:", error)
+      setErroLaudo(`Falha ao criar laudo: ${error.message}`)
+    } finally {
+      setCriandoLaudo(false)
+
+      // Esconder a notificação após 5 segundos
+      setTimeout(() => {
+        setNotificacaoLaudo((prev) => ({ ...prev, visible: false }))
+      }, 5000)
+    }
+  }
+
+  // Função para baixar o PDF do laudo
+  const baixarPDF = async (evidenciaId, laudoId) => {
+    // Atualizar estado para mostrar o loader para este laudo específico
+    setBaixandoPDF((prev) => ({ ...prev, [laudoId]: true }))
+
+    try {
+      const token = localStorage.getItem("token")
+
+      console.log(`Baixando PDF do laudo ${laudoId} para evidência ${evidenciaId}...`)
+
+      const response = await fetch(`https://perioscan-back-end-fhhq.onrender.com/api/evidence-reports/${laudoId}/pdf`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        // Tentar obter mais informações sobre o erro
+        let errorMessage = `Erro ${response.status}`
+        try {
+          const errorData = await response.text()
+          console.error("Resposta de erro completa:", errorData)
+          errorMessage += `: ${errorData}`
+        } catch (e) {
+          // Se não conseguir ler o corpo da resposta, use a mensagem padrão
+        }
+
+        throw new Error(`Erro ao baixar PDF: ${errorMessage}`)
+      }
+
+      // Verificar o tipo de conteúdo da resposta
+      const contentType = response.headers.get("content-type")
+      console.log("Tipo de conteúdo da resposta:", contentType)
+
+      if (contentType && contentType.includes("application/pdf")) {
+        // É um PDF, vamos fazer o download
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.style.display = "none"
+        a.href = url
+        a.download = `laudo-evidencia-${evidenciaId}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+
+        // Mostrar notificação de sucesso
+        setNotificacaoLaudo({
+          visible: true,
+          message: "PDF baixado com sucesso!",
+          type: "success",
+        })
+      } else {
+        // Não é um PDF, pode ser uma resposta JSON com erro
+        const data = await response.text()
+        console.error("Resposta não é um PDF:", data)
+        throw new Error("O servidor não retornou um PDF. Verifique os logs para mais detalhes.")
+      }
+    } catch (error) {
+      console.error("Erro ao baixar PDF:", error)
+      setNotificacaoLaudo({
+        visible: true,
+        message: `${error.message}`,
+        type: "error",
+      })
+    } finally {
+      // Remover o estado de loading para este laudo
+      setBaixandoPDF((prev) => {
+        const newState = { ...prev }
+        delete newState[laudoId]
+        return newState
+      })
+
+      // Esconder a notificação após 5 segundos
+      setTimeout(() => {
+        setNotificacaoLaudo((prev) => ({ ...prev, visible: false }))
+      }, 5000)
+    }
+  }
 
   // Verifica se o usuário tem permissão para excluir casos
   const podeExcluirCaso = () => {
@@ -298,54 +587,6 @@ export default function CasoDetalhes() {
       setExcluindoCaso(false)
     }
   }
-
-  // Função para arquivar o caso em vez de excluí-lo
-  /*const arquivarCaso = async () => {
-    setExcluindoCaso(true)
-    setErroExclusao(null)
-
-    try {
-      const token = localStorage.getItem("token")
-      const casoId = caso._id || caso.id
-
-      console.log(`Arquivando caso ${casoId}...`)
-
-      // Em vez de excluir, vamos atualizar o status para "Arquivado"
-      const dadosAtualizados = {
-        ...caso,
-        status: "Arquivado",
-        closeDate: new Date().toISOString(), // Definir a data de fechamento como agora
-      }
-
-      const response = await fetch(`https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dadosAtualizados),
-      })
-
-      // Capturar a resposta completa para debug
-      const responseText = await response.text()
-      console.log("Resposta bruta do arquivamento do caso:", responseText)
-
-      if (!response.ok) {
-        console.error("Resposta de erro ao arquivar caso:", responseText)
-        throw new Error(`Falha ao arquivar caso: ${response.status} ${response.statusText}`)
-      }
-
-      console.log("Caso arquivado com sucesso")
-
-      // Redirecionar para a lista de casos
-      router.push("/casos")
-    } catch (error) {
-      console.error("Erro ao arquivar caso:", error)
-      setErroExclusao(`Falha ao arquivar caso: ${error.message}`)
-    } finally {
-      setExcluindoCaso(false)
-    }
-  }*/
 
   // Função para lidar com mudanças nos campos do formulário de edição
   const handleCasoChange = (e) => {
@@ -686,6 +927,20 @@ export default function CasoDetalhes() {
       <AsideNavbar />
 
       <div className="container-caso-detalhes">
+        {/* Notificação de laudo */}
+        {notificacaoLaudo.visible && (
+          <div className={`notificacao-laudo ${notificacaoLaudo.type}`}>
+            {notificacaoLaudo.type === "error" ? <AlertCircle size={18} /> : <FileDown size={18} />}
+            <span>{notificacaoLaudo.message}</span>
+            <button
+              className="fechar-notificacao"
+              onClick={() => setNotificacaoLaudo((prev) => ({ ...prev, visible: false }))}
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
         {loadingCaso ? (
           <div className="loading-container">
             <p>Carregando detalhes do caso...</p>
@@ -705,7 +960,7 @@ export default function CasoDetalhes() {
               </h1>
               <div className="header-actions">
                 <button className="btn-editar" onClick={abrirModalEditar}>
-                  <Pencil size={16}/>
+                  <Pencil size={16} />
                   Editar Caso
                 </button>
                 <button className="btn-excluir" onClick={abrirModalExcluir} disabled={!podeExcluirCaso()}>
@@ -755,24 +1010,63 @@ export default function CasoDetalhes() {
                             <tr>
                               <th>Nome/Descrição</th>
                               <th>Tipo</th>
-                              <th></th>
+                              <th>Ações</th>
                             </tr>
                           </thead>
                           <tbody>
                             {evidencias.length > 0 ? (
-                              evidencias.map((evidencia, index) => (
-                                <tr
-                                  key={evidencia.id || evidencia._id || index}
-                                  className="evidencia-row"
-                                  onClick={() => abrirEvidencia(evidencia)}
-                                >
-                                  <td>{evidencia.description || `Evidência ${index + 1}`}</td>
-                                  <td>{evidencia.type === "image" ? "Imagem" : "Texto"}</td>
-                                  <td className="icon-cell">
-                                    {evidencia.type === "image" ? <ImageIcon size={18} /> : <File size={18} />}
-                                  </td>
-                                </tr>
-                              ))
+                              evidencias.map((evidencia, index) => {
+                                const evidenciaId = evidencia._id || evidencia.id
+                                const temLaudo = !!laudosEvidencias[evidenciaId]
+
+                                return (
+                                  <tr key={evidenciaId || index} className="evidencia-row">
+                                    <td onClick={() => abrirEvidencia(evidencia)}>
+                                      {evidencia.description || `Evidência ${index + 1}`}
+                                    </td>
+                                    <td onClick={() => abrirEvidencia(evidencia)}>
+                                      {evidencia.type === "image" ? "Imagem" : "Texto"}
+                                    </td>
+                                    <td className="acoes-cell">
+                                      <button
+                                        className="btn-ver-caso"
+                                        onClick={() => abrirEvidencia(evidencia)}
+                                        title="Ver detalhes"
+                                      >
+                                        <Eye size={18} />
+                                      </button>
+
+                                      {temLaudo ? (
+                                        <button
+                                          className="btn-baixar-pdf"
+                                          onClick={() => baixarPDF(evidenciaId, laudosEvidencias[evidenciaId])}
+                                          disabled={baixandoPDF[laudosEvidencias[evidenciaId]]}
+                                          title="Baixar PDF do laudo"
+                                        >
+                                          {baixandoPDF[laudosEvidencias[evidenciaId]] ? (
+                                            <Loader size={18} className="spinner" />
+                                          ) : (
+                                            <FileDown size={18} />
+                                          )}
+                                        </button>
+                                      ) : (
+                                        <button
+                                          className="btn-criar-laudo"
+                                          onClick={() => abrirModalCriarLaudo(evidencia)}
+                                          disabled={gerandoLaudo[evidenciaId]}
+                                          title="Criar laudo"
+                                        >
+                                          {gerandoLaudo[evidenciaId] ? (
+                                            <Loader size={18} className="spinner" />
+                                          ) : (
+                                            <ClipboardList size={18} />
+                                          )}
+                                        </button>
+                                      )}
+                                    </td>
+                                  </tr>
+                                )
+                              })
                             ) : (
                               <tr>
                                 <td colSpan="3" className="no-evidencias">
@@ -829,6 +1123,156 @@ export default function CasoDetalhes() {
                 </button>
               </div>
               <div className="evidencia-modal-body">{renderizarConteudoEvidencia()}</div>
+              <div className="evidencia-modal-footer">
+                {laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id] ? (
+                  <button
+                    className="btn-baixar-pdf-modal"
+                    onClick={() =>
+                      baixarPDF(
+                        evidenciaAtiva._id || evidenciaAtiva.id,
+                        laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id],
+                      )
+                    }
+                    disabled={baixandoPDF[laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id]]}
+                  >
+                    {baixandoPDF[laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id]] ? (
+                      <>
+                        <Loader size={16} className="spinner" />
+                        <span>Baixando PDF...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FileDown size={16} />
+                        <span>Baixar PDF do Laudo</span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    className="btn-criar-laudo-modal"
+                    onClick={() => abrirModalCriarLaudo(evidenciaAtiva)}
+                    disabled={gerandoLaudo[evidenciaAtiva._id || evidenciaAtiva.id]}
+                  >
+                    {gerandoLaudo[evidenciaAtiva._id || evidenciaAtiva.id] ? (
+                      <>
+                        <Loader size={16} className="spinner" />
+                        <span>Criando laudo...</span>
+                      </>
+                    ) : (
+                      <>
+                        <ClipboardList size={16} />
+                        <span>Criar Laudo</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal para criar laudo */}
+        {modalCriarLaudoAberto && evidenciaParaLaudo && (
+          <div className="evidencia-modal-overlay" onClick={fecharModalCriarLaudo}>
+            <div className="evidencia-modal-content modal-criar-laudo" onClick={(e) => e.stopPropagation()}>
+              <div className="evidencia-modal-header">
+                <h3>Criar Laudo para Evidência</h3>
+                <button className="btn-fechar-modal" onClick={fecharModalCriarLaudo}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="evidencia-modal-body">
+                <form onSubmit={criarLaudo} className="form-criar-laudo">
+                  {/* Título do laudo */}
+                  <div className="form-group">
+                    <label htmlFor="titulo">Título do Laudo</label>
+                    <input
+                      type="text"
+                      id="titulo"
+                      name="titulo"
+                      value={dadosLaudo.titulo}
+                      onChange={handleLaudoChange}
+                      placeholder="Ex: Análise de Radiografia Mandibular"
+                      required
+                    />
+                  </div>
+
+                  {/* Conteúdo do laudo */}
+                  <div className="form-group">
+                    <label htmlFor="conteudo">Conteúdo do Laudo</label>
+                    <textarea
+                      id="conteudo"
+                      name="conteudo"
+                      value={dadosLaudo.conteudo}
+                      onChange={handleLaudoChange}
+                      placeholder="Descreva detalhadamente a análise da evidência..."
+                      rows={5}
+                      required
+                    ></textarea>
+                  </div>
+
+                  {/* Achados */}
+                  <div className="form-group">
+                    <label htmlFor="achados">Achados</label>
+                    <textarea
+                      id="achados"
+                      name="achados"
+                      value={dadosLaudo.achados}
+                      onChange={handleLaudoChange}
+                      placeholder="Descreva os achados principais da análise..."
+                      rows={3}
+                      required
+                    ></textarea>
+                  </div>
+
+                  {/* Metodologia */}
+                  <div className="form-group">
+                    <label htmlFor="metodologia">Metodologia</label>
+                    <textarea
+                      id="metodologia"
+                      name="metodologia"
+                      value={dadosLaudo.metodologia}
+                      onChange={handleLaudoChange}
+                      placeholder="Descreva a metodologia utilizada na análise..."
+                      rows={2}
+                      required
+                    ></textarea>
+                  </div>
+
+                  {/* Mensagem de erro */}
+                  {erroLaudo && (
+                    <div className="upload-error">
+                      <p>{erroLaudo}</p>
+                    </div>
+                  )}
+
+                  {/* Botões de ação */}
+                  <div className="form-actions">
+                    <button
+                      type="button"
+                      className="btn-cancelar"
+                      onClick={fecharModalCriarLaudo}
+                      disabled={criandoLaudo}
+                    >
+                      Cancelar
+                    </button>
+                    <button type="submit" className="btn-salvar" disabled={criandoLaudo}>
+                      {criandoLaudo ? (
+                        <>
+                          <Loader size={16} className="spinner" />
+                          <span>Criando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <ClipboardList size={16} />
+                          <span>Criar Laudo</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         )}
@@ -1105,7 +1549,6 @@ export default function CasoDetalhes() {
         {modalExcluirAberto && (
           <div className="evidencia-modal-overlay" onClick={fecharModalExcluir}>
             <div className="evidencia-modal-content modal-excluir" onClick={(e) => e.stopPropagation()}>
-             
               <div className="evidencia-modal-header excluir-header">
                 <h3>Excluir Caso</h3>
                 <button className="btn-fechar-modal" onClick={fecharModalExcluir}>
