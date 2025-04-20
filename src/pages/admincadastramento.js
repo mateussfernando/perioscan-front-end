@@ -5,7 +5,7 @@ import "../styles/admin-cadastramento.css";
 import { useState } from "react";
 import AsideNavbar from "../components/AsideNavBar";
 import { AlertCircle, CheckCircle, Eye, EyeOff, Loader } from "lucide-react";
-import ProtecaoDeRota from "@/components/ProtecaoDeRota";
+import ControleDeRota from "@/components/ControleDeRota";
 
 export default function AdminCadastramento() {
   // Estado para armazenar os dados do formulário
@@ -106,7 +106,7 @@ export default function AdminCadastramento() {
   }
 
   return (
-    <ProtecaoDeRota requiredRole="admin">
+    <ControleDeRota requiredRole="admin">
       <div className="main-container-admincadastramento">
         {/* Barra lateral de navegação */}
         <AsideNavbar />
@@ -244,6 +244,6 @@ export default function AdminCadastramento() {
           </div>
         </div>
       </div>
-    </ProtecaoDeRota>
+    </ControleDeRota>
   );
 }
