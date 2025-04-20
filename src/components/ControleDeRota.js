@@ -58,7 +58,7 @@ export default function ControleDeRota({ children, requiredRole }) {
   }
 
   if (authStatus === "naoAutorizado") {
-    setTimeout(() => router.push("/nao-autorizado"), 100);
+    setTimeout(() => router.push("/naoautorizado"), 100);
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader className="animate-spin" size={48} />

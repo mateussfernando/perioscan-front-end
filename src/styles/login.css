@@ -107,3 +107,35 @@ font-weight: 400
   background-color: #95a5a6;
   cursor: not-allowed;
 }
+/* Adicione estas regras ao seu arquivo login.css */
+
+.authlogin-password-container {
+  position: relative;
+}
+
+.authlogin-toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.authlogin-toggle-password svg {
+  color: #666;
+}
+
+.authlogin-toggle-password:hover svg {
+  color: #000;
+}
+
+/* Ajuste para o input de senha com o botão */
+.authlogin-entrada-formulario {
+  padding-right: 40px !important; /* Espaço para o ícone */
+}
