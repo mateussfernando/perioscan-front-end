@@ -8,6 +8,8 @@
   position: relative;
   height: 100vh;
   display: flex;
+  font-family: "Inter", sans-serif;
+
 }
 
 .sidebar {

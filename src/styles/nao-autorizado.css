@@ -1,0 +1,121 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
+/* nao-autorizado.css */
+.naoautorizado-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  animation: naoautorizado-fadeIn 0.3s ease-out;
+font-family: "Inter", sans-serif;
+
+}
+
+.naoautorizado-card {
+  max-width: 28rem;
+  width: 100%;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 2rem;
+  text-align: center;
+}
+
+.naoautorizado-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.naoautorizado-alert-icon {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  width: 3rem;
+  border-radius: 9999px;
+  background-color: #fee2e2;
+  margin-bottom: 1rem;
+}
+
+.naoautorizado-alert-icon .naoautorizado-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  color: #dc2626;
+}
+
+.naoautorizado-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.naoautorizado-message {
+  color: #4b5563;
+  margin-bottom: 1.5rem;
+}
+
+.naoautorizado-button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.naoautorizado-back-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  color: white;
+  background-color: #2563eb;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.naoautorizado-back-button:hover {
+  background-color: #1d4ed8;
+}
+
+.naoautorizado-back-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #93c5fd;
+}
+
+.naoautorizado-button-icon {
+  margin-right: 0.5rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+.naoautorizado-link-container {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.naoautorizado-home-link {
+  font-weight: 500;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.naoautorizado-home-link:hover {
+  color: #1e40af;
+}
+
+@keyframes naoautorizado-fadeIn {
+  from { 
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

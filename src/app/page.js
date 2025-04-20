@@ -1,25 +1,43 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Adicionado useEffect
 import { useRouter } from "next/navigation";
 import "../styles/login.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); // Alterado de senha para password
+  const [password, setPassword] = useState("");
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // Efeito para verificar o token ao carregar o componente
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (token) {
+      // Verificar se o token está expirado (opcional)
+      // Aqui você pode adicionar lógica para validar o token
+      // Por enquanto, vamos assumir que o token existe e é válido
+
+      setLoading(true);
+      if (role === "admin") {
+        router.push("/admincadastramento");
+      } else {
+        router.push("/casos");
+      }
+    }
+  }, [router]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    
-    // Validação básica no cliente
+
     if (!email || !password) {
       setErro("Por favor, preencha todos os campos");
       return;
     }
-    
+
     setLoading(true);
     setErro("");
 
@@ -28,13 +46,13 @@ export default function Login() {
         "https://perioscan-back-end-fhhq.onrender.com/api/auth/login",
         {
           method: "POST",
-          headers: { 
-            "Content-Type": "application/json"
+          headers: {
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             email: email.trim(),
-            password: password // Usando o nome correto que o backend espera
-          })
+            password: password,
+          }),
         }
       );
 
@@ -44,27 +62,23 @@ export default function Login() {
         throw new Error(data.message || "Credenciais inválidas");
       }
 
-      // Verifica se os dados necessários estão presentes na resposta
       if (!data.token || !data.user) {
         throw new Error("Dados de autenticação incompletos");
       }
 
-      // Armazenamento seguro (considerar usar context/state management no futuro)
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.user.id);
       localStorage.setItem("name", data.user.name);
       localStorage.setItem("role", data.user.role);
 
-      // Redirecionamento baseado no role
-      router.push(data.user.role === "admin" 
-        ? "/admincadastramento" 
-        : "/casos");
-      
+      router.push(
+        data.user.role === "admin" ? "/admincadastramento" : "/casos"
+      );
     } catch (err) {
       console.error("Erro no login:", err);
       setErro(
-        err.message.includes("Failed to fetch") 
-          ? "Não foi possível conectar ao servidor" 
+        err.message.includes("Failed to fetch")
+          ? "Não foi possível conectar ao servidor"
           : err.message
       );
     } finally {
@@ -105,7 +119,7 @@ export default function Login() {
 
           <div className="authlogin-grupo-formulario">
             <input
-              id="password" 
+              id="password"
               type="password"
               required
               value={password}

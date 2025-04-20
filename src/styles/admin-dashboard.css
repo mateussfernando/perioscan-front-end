@@ -4,12 +4,16 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+
 }
 
 .admin-dashboard-main-container {
   width: 100%;
   min-height: 100vh;
   display: flex;
+  font-family: "Inter", sans-serif;
+
 }
 
 /* Cabecalho do dashboard */

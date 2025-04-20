@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
 /* Estilos para a página de detalhes do caso */
 .main-container-caso-detalhes {
   width: 100%;
@@ -5,6 +7,8 @@
   display: flex;
   flex-direction: row;
   background-color: #f5f7fa;
+  font-family: "Inter", sans-serif;
+
 }
 
 .container-caso-detalhes {
