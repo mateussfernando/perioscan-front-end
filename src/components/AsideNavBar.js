@@ -119,8 +119,8 @@ export default function AsideNavBar() {
             <Image
               src="/images/logos/logo-perio-scan.png"
               alt="Logo PerioScan"
-              width={40}
-              height={40}
+              width={30}
+              height={30}
             />
             {isOpen && <span>PerioScan</span>}
           </div>

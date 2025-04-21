@@ -85,23 +85,23 @@ export default function Login() {
   return (
     <div className="authlogin-page">
       <div className="authlogin-caixa">
-        <h1 className="authlogin-titulo authlogin-text">Login</h1>
-
         <div className="authlogin-logo-page">
           <Image
             src="/images/logos/logo-perio-scan.png"
             alt="logo PerioScan"
-            width={100}
-            height={90}
+            width={80}
+            height={70}
             className="authlogin-imagem-logo"
           />
           <h2 className="authlogin-texto-logo">PerioScan</h2>
+          <h1 className="authlogin-titulo authlogin-text">Login</h1>
         </div>
 
         {erro && <div className="authlogin-mensagem-erro">{erro}</div>}
 
         <form onSubmit={handleLogin} className="authlogin-formulario">
           <div className="authlogin-grupo-formulario">
+            <label>Email:</label>
             <input
               id="email"
               type="email"
@@ -109,11 +109,12 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="authlogin-entrada-formulario"
-              placeholder="Email"
+              placeholder="Digite o email"
             />
           </div>
 
           <div className="authlogin-grupo-formulario authlogin-password-container">
+            <label>Senha:</label>
             <input
               id="password"
               type={showPassword ? "text" : "password"}
@@ -121,7 +122,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="authlogin-entrada-formulario"
-              placeholder="Senha"
+              placeholder="Digite sua senha"
             />
             <button
               type="button"

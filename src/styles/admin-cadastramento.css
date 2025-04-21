@@ -73,7 +73,7 @@ body {
 
 .admincadastramento-grupo-formulario input[type="text"],
 .admincadastramento-grupo-formulario input[type="email"],
-.admincadastramento-grupo-formulario input[type="date"] {
+.admincadastramento-grupo-formulario input[type="password"] {
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -86,7 +86,6 @@ body {
 }
 
 .admincadastramento-container-senha input {
-  flex: 1;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -101,6 +100,7 @@ body {
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+  display: flex;
 }
 
 .admincadastramento-opcoes-cargo {
@@ -121,7 +121,14 @@ body {
   align-items: center;
   gap: 10px;
 }
-
+.password-input-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.password-input-container > input {
+  width: 400px;
+}
 .admincadastramento-acoes-formulario button {
   flex: 1;
   padding: 14px;
