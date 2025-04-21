@@ -5,6 +5,8 @@ import AsideNavBar from "@/components/AsideNavBar";
 import "../styles/gerenciamento.css";
 import Image from "next/image";
 import { Pencil, Search, Bell, Trash2, CircleX } from "lucide-react";
+import ModalEditarUsuario from "@/components/usuario/ModalEditarUsuario";
+import ModalConfirmarExclusao from "@/components/usuario/ModalConfirmarExclusao";
 
 export default function Gerenciamento() {
   const router = useRouter();
@@ -15,6 +17,11 @@ export default function Gerenciamento() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
 
+  // Estados para os modais
+  const [modalEditarAberto, setModalEditarAberto] = useState(false);
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false);
+  const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
+
   // Verificar autenticação e permissão
   useEffect(() => {
     const role = localStorage.getItem("role");
@@ -23,53 +30,79 @@ export default function Gerenciamento() {
       return;
     }
 
-    // Buscar dados da API
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setErro("Token de autenticação não encontrado");
-      setCarregando(false);
-      return;
-    }
-
-    console.log("Iniciando busca de usuários...");
-
-    fetch("https://perioscan-back-end-fhhq.onrender.com/api/users", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        console.log("Status da resposta:", response.status);
-        if (!response.ok) {
-          throw new Error(`Erro ao buscar usuários: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Dados recebidos:", data);
-
-        // Verificar a estrutura da resposta
-        if (Array.isArray(data)) {
-          setUsuarios(data);
-        } else if (data.users && Array.isArray(data.users)) {
-          // Se os usuários estiverem em uma propriedade 'users'
-          setUsuarios(data.users);
-        } else if (data.data && Array.isArray(data.data)) {
-          // Se os usuários estiverem em uma propriedade 'data'
-          setUsuarios(data.data);
-        } else {
-          console.error("Estrutura de dados inesperada:", data);
-          setErro("Estrutura de dados inesperada na resposta da API");
-        }
-
-        setCarregando(false);
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar usuários:", error);
-        setErro(error.message);
-        setCarregando(false);
-      });
+    carregarUsuarios();
   }, [router]);
+
+  // Função para carregar usuários da API
+  const carregarUsuarios = async () => {
+    setCarregando(true);
+    setErro(null);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setErro("Token de autenticação não encontrado");
+        setCarregando(false);
+        return;
+      }
+
+      console.log("Iniciando busca de usuários...");
+
+      const response = await fetch(
+        "https://perioscan-back-end-fhhq.onrender.com/api/users",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Status da resposta:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar usuários: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Dados recebidos:", data);
+
+      // Verificar a estrutura da resposta
+      if (Array.isArray(data)) {
+        // Garantir que cada usuário tenha um ID único para a key do React
+        const usuariosComId = data.map((usuario, index) => {
+          if (!usuario._id && !usuario.id) {
+            usuario._id = `generated-id-${index}`;
+          }
+          return usuario;
+        });
+        setUsuarios(usuariosComId);
+      } else if (data.users && Array.isArray(data.users)) {
+        const usuariosComId = data.users.map((usuario, index) => {
+          if (!usuario._id && !usuario.id) {
+            usuario._id = `generated-id-${index}`;
+          }
+          return usuario;
+        });
+        setUsuarios(usuariosComId);
+      } else if (data.data && Array.isArray(data.data)) {
+        const usuariosComId = data.data.map((usuario, index) => {
+          if (!usuario._id && !usuario.id) {
+            usuario._id = `generated-id-${index}`;
+          }
+          return usuario;
+        });
+        setUsuarios(usuariosComId);
+      } else {
+        console.error("Estrutura de dados inesperada:", data);
+        setErro("Estrutura de dados inesperada na resposta da API");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      setErro(error.message);
+    } finally {
+      setCarregando(false);
+    }
+  };
 
   // Aplicar filtros quando mudar o filtro ativo ou termo de busca
   useEffect(() => {
@@ -109,7 +142,7 @@ export default function Gerenciamento() {
   }, [filtroAtivo, termoBusca, usuarios]);
 
   // Função para alternar o status do usuário
-  function alternarStatus(id) {
+  async function alternarStatus(id) {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Token de autenticação não encontrado");
@@ -121,48 +154,73 @@ export default function Gerenciamento() {
 
     const novoStatus = usuario.active ? false : true;
 
-    fetch(`https://perioscan-back-end-fhhq.onrender.com/api/users/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ active: novoStatus }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Erro ao atualizar status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        // Atualizar o usuário na lista
-        setUsuarios(
-          usuarios.map((u) => {
-            if (u._id === id || u.id === id) {
-              return { ...u, active: novoStatus };
-            }
-            return u;
-          })
-        );
-      })
-      .catch((error) => {
-        console.error("Erro ao atualizar status:", error);
-        alert(`Erro ao atualizar status: ${error.message}`);
+    try {
+      // Verificar a estrutura correta da URL
+      const url = `https://perioscan-back-end-fhhq.onrender.com/api/users/${id}`;
+      console.log("URL para alternar status:", url);
+
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ active: novoStatus }),
       });
+
+      console.log("Status da resposta (alternar status):", response.status);
+
+      if (!response.ok) {
+        throw new Error(`Erro ao atualizar status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Resposta da API (alternar status):", data);
+
+      // Atualizar o usuário na lista
+      setUsuarios(
+        usuarios.map((u) => {
+          if (u._id === id || u.id === id) {
+            return { ...u, active: novoStatus };
+          }
+          return u;
+        })
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      alert(`Erro ao atualizar status: ${error.message}`);
+    }
   }
 
-  // Função para editar usuário
-  function editarUsuario(id) {
-    // Implementação futura - abrir modal de edição
-    alert(`Editar usuário com ID: ${id}`);
+  // Função para abrir o modal de edição
+  function abrirModalEditar(usuario) {
+    console.log("Abrindo modal para editar usuário:", usuario);
+    setUsuarioSelecionado(usuario);
+    setModalEditarAberto(true);
+  }
+
+  // Função para abrir o modal de exclusão
+  function abrirModalExcluir(usuario) {
+    setUsuarioSelecionado(usuario);
+    setModalExcluirAberto(true);
+  }
+
+  // Função para salvar usuário editado
+  function salvarUsuarioEditado(usuarioAtualizado) {
+    console.log("Usuário atualizado recebido:", usuarioAtualizado);
+    setUsuarios(
+      usuarios.map((u) => {
+        if (u._id === usuarioAtualizado._id || u.id === usuarioAtualizado.id) {
+          return usuarioAtualizado;
+        }
+        return u;
+      })
+    );
   }
 
   // Função para excluir usuário
-  function excluirUsuario(id) {
-    if (!confirm("Tem certeza que deseja excluir este usuário?")) {
-      return;
-    }
+  async function excluirUsuario() {
+    if (!usuarioSelecionado) return;
 
     const token = localStorage.getItem("token");
     if (!token) {
@@ -170,26 +228,44 @@ export default function Gerenciamento() {
       return;
     }
 
-    fetch(`https://perioscan-back-end-fhhq.onrender.com/api/users/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Erro ao excluir usuário: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(() => {
-        // Remover o usuário da lista
-        setUsuarios(usuarios.filter((u) => u._id !== id && u.id !== id));
-      })
-      .catch((error) => {
-        console.error("Erro ao excluir usuário:", error);
-        alert(`Erro ao excluir usuário: ${error.message}`);
+    const userId = usuarioSelecionado._id || usuarioSelecionado.id;
+    console.log("Excluindo usuário com ID:", userId);
+
+    try {
+      // Verificar a estrutura correta da URL
+      const url = `https://perioscan-back-end-fhhq.onrender.com/api/users/${userId}`;
+      console.log("URL para exclusão:", url);
+
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      console.log("Status da resposta (exclusão):", response.status);
+
+      if (!response.ok) {
+        throw new Error(`Erro ao excluir usuário: ${response.status}`);
+      }
+
+      // Tentar obter a resposta como JSON
+      try {
+        const data = await response.json();
+        console.log("Resposta da API (exclusão):", data);
+      } catch (e) {
+        console.log(
+          "Resposta não é JSON válido, mas a exclusão foi bem-sucedida"
+        );
+      }
+
+      // Remover o usuário da lista
+      setUsuarios(usuarios.filter((u) => u._id !== userId && u.id !== userId));
+      setModalExcluirAberto(false);
+    } catch (error) {
+      console.error("Erro ao excluir usuário:", error);
+      alert(`Erro ao excluir usuário: ${error.message}`);
+    }
   }
 
   // Função para formatar o papel do usuário
@@ -207,6 +283,11 @@ export default function Gerenciamento() {
   // Função para obter o ID do usuário (pode estar em _id ou id)
   function obterIdUsuario(usuario) {
     return usuario._id || usuario.id || "ID não disponível";
+  }
+
+  // Função para gerar uma chave única para cada linha da tabela
+  function gerarChaveUnica(usuario, index) {
+    return usuario._id || usuario.id || `usuario-sem-id-${index}`;
   }
 
   // Função para verificar se o usuário está ativo
@@ -281,9 +362,9 @@ export default function Gerenciamento() {
               </thead>
               <tbody>
                 {usuariosFiltrados.length > 0 ? (
-                  usuariosFiltrados.map((usuario) => (
+                  usuariosFiltrados.map((usuario, index) => (
                     <tr
-                      key={obterIdUsuario(usuario)}
+                      key={gerarChaveUnica(usuario, index)}
                       className={
                         !isUsuarioAtivo(usuario) ? "usuario-inativo" : ""
                       }
@@ -304,7 +385,7 @@ export default function Gerenciamento() {
                       <td className="acoes-cell">
                         <button
                           className="acao-btn editar"
-                          onClick={() => editarUsuario(obterIdUsuario(usuario))}
+                          onClick={() => abrirModalEditar(usuario)}
                           title="Editar usuário"
                         >
                           <Pencil alt="Editar" width={16} height={16} />
@@ -321,11 +402,6 @@ export default function Gerenciamento() {
                           }
                         >
                           <CircleX
-                            src={
-                              isUsuarioAtivo(usuario)
-                                ? "/images/icons/icone-desativar.png"
-                                : "/images/icons/icone-ativar.png"
-                            }
                             alt={
                               isUsuarioAtivo(usuario) ? "Desativar" : "Ativar"
                             }
@@ -335,9 +411,7 @@ export default function Gerenciamento() {
                         </button>
                         <button
                           className="acao-btn excluir"
-                          onClick={() =>
-                            excluirUsuario(obterIdUsuario(usuario))
-                          }
+                          onClick={() => abrirModalExcluir(usuario)}
                           title="Excluir usuário"
                         >
                           <Trash2 alt="Excluir" width={16} height={16} />
@@ -371,6 +445,24 @@ export default function Gerenciamento() {
           </button>
         </div>
       </main>
+
+      {/* Modal de Edição */}
+      {modalEditarAberto && (
+        <ModalEditarUsuario
+          usuario={usuarioSelecionado}
+          onClose={() => setModalEditarAberto(false)}
+          onSave={salvarUsuarioEditado}
+        />
+      )}
+
+      {/* Modal de Confirmação de Exclusão */}
+      {modalExcluirAberto && (
+        <ModalConfirmarExclusao
+          usuario={usuarioSelecionado}
+          onClose={() => setModalExcluirAberto(false)}
+          onConfirm={excluirUsuario}
+        />
+      )}
     </div>
   );
 }

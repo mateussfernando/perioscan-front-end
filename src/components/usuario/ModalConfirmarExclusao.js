@@ -1,0 +1,58 @@
+"use client";
+
+import { useState } from "react";
+import "../../styles/modal-confirmar-exclusao.css";
+
+export default function ModalConfirmarExclusao({
+  usuario,
+  onClose,
+  onConfirm,
+}) {
+  const [loading, setLoading] = useState(false);
+
+  const handleConfirm = async () => {
+    setLoading(true);
+    await onConfirm();
+    setLoading(false);
+  };
+
+  return (
+    <div className="modal-backdrop">
+      <div className="modal-content modal-exclusao">
+        <div className="modal-header">
+          <h2>Confirmar Exclusão</h2>
+          <button className="close-button" onClick={onClose}>
+            &times;
+          </button>
+        </div>
+
+        <div className="modal-body">
+          <p>
+            Tem certeza que deseja excluir o usuário{" "}
+            <strong>{usuario?.name || "selecionado"}</strong>?
+          </p>
+          <p className="aviso">Esta ação não pode ser desfeita.</p>
+        </div>
+
+        <div className="modal-actions">
+          <button
+            type="button"
+            className="cancel-button"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="delete-button"
+            onClick={handleConfirm}
+            disabled={loading}
+          >
+            {loading ? "Excluindo..." : "Excluir"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
