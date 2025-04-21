@@ -14,10 +14,30 @@ export default function EvidenciaItem({
 }) {
   const evidenciaId = evidencia._id || evidencia.id
 
+  // Formatar data para exibição
+  const formatarData = (dataISO) => {
+    if (!dataISO) return "--"
+    const data = new Date(dataISO)
+    return data.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    })
+  }
+
   return (
     <tr className="evidencia-row">
-      <td onClick={() => onVerEvidencia(evidencia)}>{evidencia.description || `Evidência ${index + 1}`}</td>
-      <td onClick={() => onVerEvidencia(evidencia)}>{evidencia.type === "image" ? "Imagem" : "Texto"}</td>
+      <td onClick={() => onVerEvidencia(evidencia)}>
+        <div className="evidencia-info-cell">
+          <span className="evidencia-titulo">{evidencia.description || `Evidência ${index + 1}`}</span>
+          <span className="evidencia-data">{formatarData(evidencia.createdAt || evidencia.collectionDate)}</span>
+        </div>
+      </td>
+      <td onClick={() => onVerEvidencia(evidencia)}>
+        <span className={`evidencia-tipo ${evidencia.type === "image" ? "tipo-imagem" : "tipo-texto"}`}>
+          {evidencia.type === "image" ? "Imagem" : "Texto"}
+        </span>
+      </td>
       <td className="acoes-cell">
         <button className="btn-ver-caso" onClick={() => onVerEvidencia(evidencia)} title="Ver detalhes">
           <Eye size={18} />
@@ -31,6 +51,7 @@ export default function EvidenciaItem({
             title="Baixar PDF do laudo"
           >
             {baixandoPDF[laudoId] ? <Loader size={18} className="spinner" /> : <FileDown size={18} />}
+            <span className="btn-text">PDF</span>
           </button>
         ) : (
           <button
@@ -40,6 +61,7 @@ export default function EvidenciaItem({
             title="Criar laudo"
           >
             {gerandoLaudo[evidenciaId] ? <Loader size={18} className="spinner" /> : <ClipboardList size={18} />}
+            <span className="btn-text">Laudo</span>
           </button>
         )}
       </td>
