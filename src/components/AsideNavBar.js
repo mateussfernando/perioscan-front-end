@@ -19,7 +19,7 @@ export default function AsideNavBar() {
       {
         icone: "/images/icons/icone-dashboard.png",
         rotulo: "Dashboard",
-        caminho: "/admindashboard",
+        caminho: "/adminDashboard",
       },
       {
         icone: "/images/icons/icone-adicionar.png",
