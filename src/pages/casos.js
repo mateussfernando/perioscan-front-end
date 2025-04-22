@@ -1,5 +1,5 @@
 "use client";
-
+import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AsideNavBar from "@/components/AsideNavBar";
@@ -359,257 +359,269 @@ export default function MainCasos() {
   };
 
   return (
-    <div className="casos-container">
-      <AsideNavBar />
+    <>
+      <Head>
+        <title>Página de casos</title>
+        <meta
+          name="description"
+          content="Tela de gerenciamento de casos, onde é possivel visualizar, editar, deletar e editar um caso."
+        />
+      </Head>
+      <div className="casos-container">
+        <AsideNavBar />
 
-      <main className="casos-content">
-        <header className="casos-header">
-          <h1>Gerenciamento de Casos</h1>
-          <div className="notificacao-icon">
-            <Bell size={24} />
-          </div>
-        </header>
+        <main className="casos-content">
+          <header className="casos-header">
+            <h1>Gerenciamento de Casos</h1>
+            <div className="notificacao-icon">
+              <Bell size={24} />
+            </div>
+          </header>
 
-        <div className="casos-filtros">
-          <div className="filtro-tabs">
-            <button
-              className={filtroAtivo === "todos" ? "active" : ""}
-              onClick={() => {
-                setFiltroAtivo("todos");
-                setFiltrosAtivos({ ...filtrosAtivos, status: "" });
-              }}
-            >
-              Todos
-            </button>
-            <button
-              className={filtroAtivo === "andamento" ? "active" : ""}
-              onClick={() => {
-                setFiltroAtivo("andamento");
-                setFiltrosAtivos({ ...filtrosAtivos, status: "Em Andamento" });
-              }}
-            >
-              Em Andamento
-            </button>
-            <button
-              className={filtroAtivo === "finalizados" ? "active" : ""}
-              onClick={() => {
-                setFiltroAtivo("finalizados");
-                setFiltrosAtivos({ ...filtrosAtivos, status: "Finalizado" });
-              }}
-            >
-              Finalizados
-            </button>
-          </div>
-
-          <div className="busca-container">
-            <input
-              type="text"
-              placeholder="Buscar caso..."
-              value={termoBusca}
-              onChange={(e) => setTermoBusca(e.target.value)}
-            />
-            <button className="busca-btn">
-              <Search size={20} />
-            </button>
-          </div>
-        </div>
-
-        <div className="acoes-topo">
-          <button
-            className={`btn-novo-caso ${
-              !podeAdicionarCaso() ? "btn-disabled" : ""
-            }`}
-            onClick={abrirModalNovo}
-            disabled={!podeAdicionarCaso()}
-            title={
-              !podeAdicionarCaso()
-                ? "Apenas administradores e peritos podem criar casos"
-                : "Criar novo caso"
-            }
-          >
-            <Plus size={16} />
-            Novo caso
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="carregando">Carregando casos...</div>
-        ) : error ? (
-          <div className="erro">Erro ao carregar casos: {error}</div>
-        ) : (
-          <div className="tabela-container">
-            <table className="tabela-casos">
-              <thead>
-                <tr>
-                  <th>Título</th>
-                  <th>Local</th>
-                  <th>Data abertura</th>
-                  <th>Data fechamento</th>
-                  <th>Criado por</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {casosFiltrados.length > 0 ? (
-                  casosFiltrados.map((caso) => (
-                    <tr key={caso._id}>
-                      <td>{caso.title || "--"}</td>
-                      <td>{caso.location || "--"}</td>
-                      <td>{formatarData(caso.openDate)}</td>
-                      <td>{formatarData(caso.closeDate)}</td>
-                      <td>{caso.createdBy?.name || "--"}</td>
-                      <td>
-                        <span
-                          className={`status-badge ${getStatusClassName(
-                            caso.status
-                          )}`}
-                        >
-                          {caso.status || "--"}
-                        </span>
-                      </td>
-                      <td className="acoes-cell">
-                        <button
-                          className="acao-btn ver"
-                          onClick={() => verDetalhesCaso(caso._id)}
-                          title="Ver detalhes do caso"
-                        >
-                          <Eye size={18} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="nenhum-resultado">
-                      {casos.length === 0
-                        ? "Nenhum caso encontrado."
-                        : "Nenhum caso corresponde aos filtros aplicados."}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </main>
-
-      {/* Modal para criar novo caso */}
-      {modalNovoAberto && (
-        <div className="modal-overlay" onClick={fecharModalNovo}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Criar Novo Caso</h3>
-              <button className="btn-fechar-modal" onClick={fecharModalNovo}>
-                <X size={20} />
+          <div className="casos-filtros">
+            <div className="filtro-tabs">
+              <button
+                className={filtroAtivo === "todos" ? "active" : ""}
+                onClick={() => {
+                  setFiltroAtivo("todos");
+                  setFiltrosAtivos({ ...filtrosAtivos, status: "" });
+                }}
+              >
+                Todos
+              </button>
+              <button
+                className={filtroAtivo === "andamento" ? "active" : ""}
+                onClick={() => {
+                  setFiltroAtivo("andamento");
+                  setFiltrosAtivos({
+                    ...filtrosAtivos,
+                    status: "Em Andamento",
+                  });
+                }}
+              >
+                Em Andamento
+              </button>
+              <button
+                className={filtroAtivo === "finalizados" ? "active" : ""}
+                onClick={() => {
+                  setFiltroAtivo("finalizados");
+                  setFiltrosAtivos({ ...filtrosAtivos, status: "Finalizado" });
+                }}
+              >
+                Finalizados
               </button>
             </div>
 
-            <div className="modal-body">
-              <form onSubmit={criarCaso} className="form-novo-caso">
-                {/* Título do caso */}
-                <div className="form-group">
-                  <label htmlFor="title">
-                    <FileText size={16} />
-                    <span>Título do Caso</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    value={novoCaso.title}
-                    onChange={handleCasoChange}
-                    placeholder="Ex: Identificação de Vítima em Incêndio"
-                    required
-                  />
-                </div>
-
-                {/* Local */}
-                <div className="form-group">
-                  <label htmlFor="location">
-                    <MapPin size={16} />
-                    <span>Local</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="location"
-                    name="location"
-                    value={novoCaso.location}
-                    onChange={handleCasoChange}
-                    placeholder="Ex: Belo Horizonte, MG"
-                  />
-                </div>
-
-                {/* Status */}
-                <div className="form-group">
-                  <label htmlFor="status">Status</label>
-                  <select
-                    id="status"
-                    name="status"
-                    value={novoCaso.status}
-                    onChange={handleCasoChange}
-                  >
-                    <option value="Em Andamento">Em Andamento</option>
-                    <option value="Pendente">Pendente</option>
-                    <option value="Finalizado">Finalizado</option>
-                    <option value="Arquivado">Arquivado</option>
-                    <option value="Cancelado">Cancelado</option>
-                  </select>
-                </div>
-
-                {/* Descrição */}
-                <div className="form-group">
-                  <label htmlFor="description">Descrição</label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    value={novoCaso.description}
-                    onChange={handleCasoChange}
-                    placeholder="Descreva os detalhes do caso..."
-                    rows={6}
-                  ></textarea>
-                </div>
-
-                {/* Mensagem de erro */}
-                {erroCriacao && (
-                  <div className="form-error">
-                    <p>{erroCriacao}</p>
-                  </div>
-                )}
-
-                {/* Botões de ação */}
-                <div className="form-actions">
-                  <button
-                    type="button"
-                    className="btn-cancelar"
-                    onClick={fecharModalNovo}
-                    disabled={criandoCaso}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-salvar"
-                    disabled={criandoCaso}
-                  >
-                    {criandoCaso ? (
-                      <>
-                        <Loader size={16} className="spinner" />
-                        <span>Criando...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus size={16} />
-                        <span>Criar Caso</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
+            <div className="busca-container">
+              <input
+                type="text"
+                placeholder="Buscar caso..."
+                value={termoBusca}
+                onChange={(e) => setTermoBusca(e.target.value)}
+              />
+              <button className="busca-btn">
+                <Search size={20} />
+              </button>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+
+          <div className="acoes-topo">
+            <button
+              className={`btn-novo-caso ${
+                !podeAdicionarCaso() ? "btn-disabled" : ""
+              }`}
+              onClick={abrirModalNovo}
+              disabled={!podeAdicionarCaso()}
+              title={
+                !podeAdicionarCaso()
+                  ? "Apenas administradores e peritos podem criar casos"
+                  : "Criar novo caso"
+              }
+            >
+              <Plus size={16} />
+              Novo caso
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="carregando">Carregando casos...</div>
+          ) : error ? (
+            <div className="erro">Erro ao carregar casos: {error}</div>
+          ) : (
+            <div className="tabela-container">
+              <table className="tabela-casos">
+                <thead>
+                  <tr>
+                    <th>Título</th>
+                    <th>Local</th>
+                    <th>Data abertura</th>
+                    <th>Data fechamento</th>
+                    <th>Criado por</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {casosFiltrados.length > 0 ? (
+                    casosFiltrados.map((caso) => (
+                      <tr key={caso._id}>
+                        <td>{caso.title || "--"}</td>
+                        <td>{caso.location || "--"}</td>
+                        <td>{formatarData(caso.openDate)}</td>
+                        <td>{formatarData(caso.closeDate)}</td>
+                        <td>{caso.createdBy?.name || "--"}</td>
+                        <td>
+                          <span
+                            className={`status-badge ${getStatusClassName(
+                              caso.status
+                            )}`}
+                          >
+                            {caso.status || "--"}
+                          </span>
+                        </td>
+                        <td className="acoes-cell">
+                          <button
+                            className="acao-btn ver"
+                            onClick={() => verDetalhesCaso(caso._id)}
+                            title="Ver detalhes do caso"
+                          >
+                            <Eye size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="nenhum-resultado">
+                        {casos.length === 0
+                          ? "Nenhum caso encontrado."
+                          : "Nenhum caso corresponde aos filtros aplicados."}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </main>
+
+        {/* Modal para criar novo caso */}
+        {modalNovoAberto && (
+          <div className="modal-overlay" onClick={fecharModalNovo}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Criar Novo Caso</h3>
+                <button className="btn-fechar-modal" onClick={fecharModalNovo}>
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="modal-body">
+                <form onSubmit={criarCaso} className="form-novo-caso">
+                  {/* Título do caso */}
+                  <div className="form-group">
+                    <label htmlFor="title">
+                      <FileText size={16} />
+                      <span>Título do Caso</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="title"
+                      name="title"
+                      value={novoCaso.title}
+                      onChange={handleCasoChange}
+                      placeholder="Ex: Identificação de Vítima em Incêndio"
+                      required
+                    />
+                  </div>
+
+                  {/* Local */}
+                  <div className="form-group">
+                    <label htmlFor="location">
+                      <MapPin size={16} />
+                      <span>Local</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="location"
+                      name="location"
+                      value={novoCaso.location}
+                      onChange={handleCasoChange}
+                      placeholder="Ex: Belo Horizonte, MG"
+                    />
+                  </div>
+
+                  {/* Status */}
+                  <div className="form-group">
+                    <label htmlFor="status">Status</label>
+                    <select
+                      id="status"
+                      name="status"
+                      value={novoCaso.status}
+                      onChange={handleCasoChange}
+                    >
+                      <option value="Em Andamento">Em Andamento</option>
+                      <option value="Pendente">Pendente</option>
+                      <option value="Finalizado">Finalizado</option>
+                      <option value="Arquivado">Arquivado</option>
+                      <option value="Cancelado">Cancelado</option>
+                    </select>
+                  </div>
+
+                  {/* Descrição */}
+                  <div className="form-group">
+                    <label htmlFor="description">Descrição</label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      value={novoCaso.description}
+                      onChange={handleCasoChange}
+                      placeholder="Descreva os detalhes do caso..."
+                      rows={6}
+                    ></textarea>
+                  </div>
+
+                  {/* Mensagem de erro */}
+                  {erroCriacao && (
+                    <div className="form-error">
+                      <p>{erroCriacao}</p>
+                    </div>
+                  )}
+
+                  {/* Botões de ação */}
+                  <div className="form-actions">
+                    <button
+                      type="button"
+                      className="btn-cancelar"
+                      onClick={fecharModalNovo}
+                      disabled={criandoCaso}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn-salvar"
+                      disabled={criandoCaso}
+                    >
+                      {criandoCaso ? (
+                        <>
+                          <Loader size={16} className="spinner" />
+                          <span>Criando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={16} />
+                          <span>Criar Caso</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

@@ -20,26 +20,35 @@ export default function AsideNavBar() {
         icone: "/images/icons/icone-dashboard.png",
         rotulo: "Dashboard",
         caminho: "/adminDashboard",
+        textoAlternativo:
+          "Icone de redirecionamento para a página de Dashboard",
       },
       {
         icone: "/images/icons/icone-adicionar.png",
         rotulo: "Adicionar",
         caminho: "/admincadastramento",
+        textoAlternativo:
+          "Icone de redirecionamento para a página de Adicionar usuarios",
       },
       {
         icone: "/images/icons/icone-casos.png",
         rotulo: "Casos",
         caminho: "/casos",
+        textoAlternativo: "Icone de redirecionamento para a página de Casos",
       },
       {
         icone: "/images/icons/icone-relatorios.png",
         rotulo: "Relatórios",
         caminho: "/relatorios",
+        textoAlternativo:
+          "Icone de redirecionamento para a página de Relatórios",
       },
       {
         icone: "/images/icons/icone-gerenciamento.png",
         rotulo: "Gerenciamento",
         caminho: "/gerenciamento",
+        textoAlternativo:
+          "Icone de redirecionamento para a página de Gerenciamento de usuarios",
       },
     ],
     assistente: [
@@ -47,16 +56,21 @@ export default function AsideNavBar() {
         icone: "/images/icons/icone-dashboard.png",
         rotulo: "Dashboard",
         caminho: "/dashboard",
+        textoAlternativo:
+          "Icone de redirecionamento para a página de Dashboard",
       },
       {
         icone: "/images/icons/icone-casos.png",
         rotulo: "Casos",
         caminho: "/casos",
+        textoAlternativo: "Icone de redirecionamento para a página de Casos",
       },
       {
         icone: "/images/icons/icone-relatorios.png",
         rotulo: "Relatórios",
         caminho: "/relatorios",
+        textoAlternativo:
+          "Icone de redirecionamento para a página de Relatórios",
       },
     ],
     perito: [
@@ -64,16 +78,21 @@ export default function AsideNavBar() {
         icone: "/images/icons/icone-dashboard.png",
         rotulo: "Dashboard",
         caminho: "/dashboard",
+        textoAlternativo:
+          "Icone de redirecionamento para a página de Dashboard",
       },
       {
         icone: "/images/icons/icone-casos.png",
         rotulo: "Casos",
         caminho: "/casos",
+        textoAlternativo: "Icone de redirecionamento para a página de Casos",
       },
       {
         icone: "/images/icons/icone-relatorios.png",
         rotulo: "Relatórios",
         caminho: "/relatorios",
+        textoAlternativo:
+          "Icone de redirecionamento para a página de Relatórios",
       },
     ],
   };
@@ -157,7 +176,7 @@ export default function AsideNavBar() {
                     >
                       <Image
                         src={item.icone || "/placeholder.svg"}
-                        alt={item.rotulo}
+                        alt={item.textoAlternativo}
                         width={32}
                         height={32}
                       />
