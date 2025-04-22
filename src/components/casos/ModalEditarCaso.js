@@ -1,16 +1,26 @@
-"use client"
+"use client";
 
-import { X, MapPin, Save, Loader } from "lucide-react"
+import { X, MapPin, Save, Loader } from "lucide-react";
 
-export default function ModalEditarCaso({ casoEditado, onFechar, onSalvar, onCasoChange, salvandoCaso, erroEdicao }) {
+export default function ModalEditarCaso({
+  casoEditado,
+  onFechar,
+  onSalvar,
+  onCasoChange,
+  salvandoCaso,
+  erroEdicao,
+}) {
   const handleSubmit = (e) => {
-    e.preventDefault()
-    onSalvar(e)
-  }
+    e.preventDefault();
+    onSalvar(e);
+  };
 
   return (
     <div className="evidencia-modal-overlay" onClick={onFechar}>
-      <div className="evidencia-modal-content modal-editar" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="evidencia-modal-content modal-editar"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="evidencia-modal-header">
           <h3>Editar Caso</h3>
           <button className="btn-fechar-modal" onClick={onFechar}>
@@ -55,12 +65,18 @@ export default function ModalEditarCaso({ casoEditado, onFechar, onSalvar, onCas
             {/* Status */}
             <div className="form-group">
               <label htmlFor="status">Status</label>
-              <select id="status" name="status" value={casoEditado.status} onChange={onCasoChange} required>
-                <option value="Em Andamento">Em Andamento</option>
-                <option value="Finalizado">Finalizado</option>
-                <option value="Pendente">Pendente</option>
-                <option value="Arquivado">Arquivado</option>
-                <option value="Cancelado">Cancelado</option>
+              <select
+                id="status"
+                name="status"
+                value={casoEditado.status}
+                onChange={onCasoChange}
+                required
+              >
+                <option value="em andamento">Em Andamento</option>
+                <option value="finalizado">Finalizado</option>
+                <option value="pendente">Pendente</option>
+                <option value="arquivado">Arquivado</option>
+                <option value="cancelado">Cancelado</option>
               </select>
             </div>
 
@@ -99,10 +115,19 @@ export default function ModalEditarCaso({ casoEditado, onFechar, onSalvar, onCas
 
             {/* Botões de ação */}
             <div className="form-actions">
-              <button type="button" className="btn-cancelar" onClick={onFechar} disabled={salvandoCaso}>
+              <button
+                type="button"
+                className="btn-cancelar"
+                onClick={onFechar}
+                disabled={salvandoCaso}
+              >
                 Cancelar
               </button>
-              <button type="submit" className="btn-salvar" disabled={salvandoCaso}>
+              <button
+                type="submit"
+                className="btn-salvar"
+                disabled={salvandoCaso}
+              >
                 {salvandoCaso ? (
                   <>
                     <Loader size={16} className="spinner" />
@@ -120,5 +145,5 @@ export default function ModalEditarCaso({ casoEditado, onFechar, onSalvar, onCas
         </div>
       </div>
     </div>
-  )
+  );
 }
