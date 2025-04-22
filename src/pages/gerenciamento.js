@@ -58,13 +58,28 @@ export default function Gerenciamento() {
       );
 
       console.log("Status da resposta:", response.status);
+      console.log(
+        "Headers da resposta:",
+        Object.fromEntries([...response.headers.entries()])
+      );
 
       if (!response.ok) {
         throw new Error(`Erro ao buscar usuários: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.log("Dados recebidos:", data);
+      // Obter o texto da resposta primeiro para debug
+      const responseText = await response.text();
+      console.log("Resposta bruta:", responseText);
+
+      // Tentar converter para JSON
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        console.log("Dados recebidos:", data);
+      } catch (e) {
+        console.error("Erro ao analisar JSON:", e);
+        throw new Error("Resposta inválida da API");
+      }
 
       // Verificar a estrutura da resposta
       if (Array.isArray(data)) {
@@ -160,7 +175,7 @@ export default function Gerenciamento() {
       console.log("URL para alternar status:", url);
 
       const response = await fetch(url, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -208,14 +223,44 @@ export default function Gerenciamento() {
   // Função para salvar usuário editado
   function salvarUsuarioEditado(usuarioAtualizado) {
     console.log("Usuário atualizado recebido:", usuarioAtualizado);
+
+    // Verificar se o usuário atualizado tem a estrutura esperada
+    if (usuarioAtualizado.data) {
+      // Se a API retornar os dados dentro de um objeto 'data'
+      usuarioAtualizado = usuarioAtualizado.data;
+    }
+
+    // Garantir que temos um ID válido para atualizar
+    const userId = usuarioAtualizado._id || usuarioAtualizado.id;
+
+    if (!userId) {
+      console.error(
+        "ID do usuário não encontrado no objeto atualizado:",
+        usuarioAtualizado
+      );
+      // Mesmo sem ID, vamos tentar recarregar a lista para obter dados atualizados
+      carregarUsuarios();
+      return;
+    }
+
+    // Atualizar o usuário na lista local
     setUsuarios(
       usuarios.map((u) => {
-        if (u._id === usuarioAtualizado._id || u.id === usuarioAtualizado.id) {
-          return usuarioAtualizado;
+        if ((u._id && u._id === userId) || (u.id && u.id === userId)) {
+          // Preservar o ID original do usuário
+          const idOriginal = u._id || u.id;
+          return {
+            ...usuarioAtualizado,
+            _id: idOriginal, // Garantir que o ID original seja mantido
+            id: idOriginal, // Garantir que ambos os campos de ID estejam presentes
+          };
         }
         return u;
       })
     );
+
+    // Recarregar a lista de usuários para garantir dados atualizados
+    carregarUsuarios();
   }
 
   // Função para excluir usuário
@@ -240,31 +285,46 @@ export default function Gerenciamento() {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json", // Adicionar Content-Type
         },
       });
 
       console.log("Status da resposta (exclusão):", response.status);
 
-      if (!response.ok) {
-        throw new Error(`Erro ao excluir usuário: ${response.status}`);
-      }
+      // Verificar se o status é 204 (No Content) ou outro código de sucesso
+      if (
+        response.status === 204 ||
+        (response.status >= 200 && response.status < 300)
+      ) {
+        console.log("Exclusão bem-sucedida com status:", response.status);
 
-      // Tentar obter a resposta como JSON
-      try {
-        const data = await response.json();
-        console.log("Resposta da API (exclusão):", data);
-      } catch (e) {
-        console.log(
-          "Resposta não é JSON válido, mas a exclusão foi bem-sucedida"
+        // Remover o usuário da lista
+        setUsuarios(
+          usuarios.filter((u) => u._id !== userId && u.id !== userId)
         );
+        setModalExcluirAberto(false);
+        return;
       }
 
-      // Remover o usuário da lista
-      setUsuarios(usuarios.filter((u) => u._id !== userId && u.id !== userId));
-      setModalExcluirAberto(false);
+      // Se chegou aqui, houve um erro
+      let errorMessage = `Erro ao excluir usuário: ${response.status}`;
+
+      try {
+        // Tentar obter detalhes do erro
+        const errorData = await response.json();
+        console.error("Detalhes do erro:", errorData);
+        errorMessage = errorData.message || errorMessage;
+      } catch (e) {
+        // Se não conseguir ler o corpo da resposta, usa a mensagem padrão
+        console.error("Não foi possível ler detalhes do erro:", e);
+      }
+
+      throw new Error(errorMessage);
     } catch (error) {
       console.error("Erro ao excluir usuário:", error);
       alert(`Erro ao excluir usuário: ${error.message}`);
+      // Fechar o modal mesmo com erro, para evitar que o usuário fique preso
+      setModalExcluirAberto(false);
     }
   }
 

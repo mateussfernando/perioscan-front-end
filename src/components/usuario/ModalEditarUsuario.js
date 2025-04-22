@@ -32,6 +32,7 @@ export default function ModalEditarUsuario({ usuario, onClose, onSave }) {
     });
   };
 
+  // Modificar a função handleSubmit para corrigir o problema de 404
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -49,12 +50,36 @@ export default function ModalEditarUsuario({ usuario, onClose, onSave }) {
       console.log("Atualizando usuário com ID:", userId);
       console.log("Dados a serem enviados:", formData);
 
-      // Verificar se a URL está correta
-      const url = `https://perioscan-back-end-fhhq.onrender.com/api/users/${userId}`;
+      // Verificar se temos um ID válido
+      if (!userId) {
+        throw new Error("ID do usuário não encontrado");
+      }
+
+      // Verificar a estrutura da URL - Ajustar conforme a API espera
+      // Alguns backends esperam o ID sem o prefixo, vamos tentar remover se começar com algum prefixo comum
+      let cleanId = userId;
+      if (typeof userId === "string") {
+        // Remover prefixos comuns se existirem
+        if (userId.startsWith("user_")) {
+          cleanId = userId.substring(5);
+        } else if (userId.startsWith("usr_")) {
+          cleanId = userId.substring(4);
+        }
+      }
+
+      const url = `https://perioscan-back-end-fhhq.onrender.com/api/users/${cleanId}`;
       console.log("URL da requisição:", url);
 
+      // Adicionar logs detalhados para depuração
+      console.log("Enviando requisição PATCH para:", url);
+      console.log("Headers:", {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token.substring(0, 10)}...`, // Mostrar apenas parte do token por segurança
+      });
+      console.log("Body:", JSON.stringify(formData));
+
       const response = await fetch(url, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -63,21 +88,78 @@ export default function ModalEditarUsuario({ usuario, onClose, onSave }) {
       });
 
       console.log("Status da resposta:", response.status);
+      console.log(
+        "Headers da resposta:",
+        Object.fromEntries([...response.headers.entries()])
+      );
+
+      // Se a resposta for 404, tentar uma abordagem alternativa
+      if (response.status === 404) {
+        console.log("Tentando URL alternativa devido a 404...");
+
+        // Tentar com PUT em vez de PATCH
+        const altResponse = await fetch(url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        });
+
+        if (altResponse.ok) {
+          console.log("Método PUT funcionou!");
+          const updatedUser = await altResponse.json();
+          console.log("Usuário atualizado com sucesso:", updatedUser);
+
+          // Garantir que o ID original seja preservado
+          if (userId) {
+            updatedUser._id = userId;
+            updatedUser.id = userId;
+          }
+
+          onSave(updatedUser);
+          onClose();
+          return;
+        } else {
+          console.log("Método alternativo também falhou:", altResponse.status);
+        }
+      }
 
       if (!response.ok) {
         // Tentar obter detalhes do erro
         let errorMessage = `Erro ao atualizar usuário: ${response.status}`;
         try {
           const errorData = await response.json();
+          console.error("Detalhes do erro:", errorData);
           errorMessage = errorData.message || errorMessage;
         } catch (e) {
-          // Se não conseguir obter o JSON, usa a mensagem padrão
+          // Se não conseguir ler o corpo da resposta, usa a mensagem padrão
+          console.error("Não foi possível ler detalhes do erro:", e);
         }
         throw new Error(errorMessage);
       }
 
-      const updatedUser = await response.json();
-      console.log("Usuário atualizado com sucesso:", updatedUser);
+      // Tentar obter a resposta como JSON
+      let updatedUser;
+      try {
+        updatedUser = await response.json();
+        console.log("Usuário atualizado com sucesso:", updatedUser);
+      } catch (e) {
+        console.warn("Resposta não é JSON válido, usando dados do formulário");
+        // Se não conseguir obter JSON, criar um objeto com os dados do formulário
+        updatedUser = {
+          ...usuario, // Manter dados originais como ID
+          ...formData, // Sobrescrever com os dados atualizados
+        };
+      }
+
+      // Garantir que o ID original seja preservado
+      if (userId) {
+        updatedUser._id = userId;
+        updatedUser.id = userId;
+      }
+
       onSave(updatedUser);
       onClose();
     } catch (err) {

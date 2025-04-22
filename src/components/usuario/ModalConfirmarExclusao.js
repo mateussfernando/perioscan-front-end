@@ -12,8 +12,19 @@ export default function ModalConfirmarExclusao({
 
   const handleConfirm = async () => {
     setLoading(true);
-    await onConfirm();
-    setLoading(false);
+    try {
+      await onConfirm();
+      // Se chegou aqui, a exclusão foi bem-sucedida
+    } catch (error) {
+      console.error("Erro durante a exclusão:", error);
+      // Mostrar um alerta com o erro
+      alert(`Erro ao excluir usuário: ${error.message || "Falha na operação"}`);
+      // O erro já será tratado na função onConfirm
+    } finally {
+      setLoading(false);
+      // Fechar o modal mesmo em caso de erro para evitar que o usuário fique preso
+      onClose();
+    }
   };
 
   return (

@@ -189,7 +189,11 @@ export default function AsideNavBar() {
       </aside>
 
       {/* Botão de toggle fora da sidebar */}
-      <button onClick={toggleSidebar} className="toggle-button-outside">
+      <button
+        onClick={toggleSidebar}
+        aria-label="Alternar menu"
+        className="toggle-button-outside"
+      >
         {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
       </button>
     </div>
