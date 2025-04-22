@@ -89,8 +89,12 @@ export default function MainCasos() {
         const responseObject = textData ? JSON.parse(textData) : {};
         console.log("Dados recebidos:", responseObject);
 
-        // Verifica se a resposta tem a propriedade 'data' e é um array
+        // Verificar se a resposta tem a propriedade 'data' e é um array
         if (responseObject.success && Array.isArray(responseObject.data)) {
+          // Adicionar log para verificar os status dos casos recebidos
+          const statusList = responseObject.data.map((caso) => caso.status);
+          console.log("Status dos casos recebidos:", statusList);
+
           setCasos(responseObject.data);
           setCasosFiltrados(responseObject.data);
         } else {
@@ -125,6 +129,11 @@ export default function MainCasos() {
       return;
     }
 
+    console.log("Aplicando filtros aos casos:", casos.length);
+    console.log("Filtro ativo:", filtroAtivo);
+    console.log("Filtros ativos:", filtrosAtivos);
+
+    // Fazer uma cópia dos casos para não modificar o original
     let resultado = [...casos];
 
     // Filtrar por termo de busca
@@ -137,11 +146,19 @@ export default function MainCasos() {
       );
     }
 
-    // Filtrar por status
+    // Filtrar por status - corrigir a comparação para ser case-insensitive
     if (filtrosAtivos.status) {
-      resultado = resultado.filter(
-        (caso) => caso.status === filtrosAtivos.status
-      );
+      console.log("Filtrando por status:", filtrosAtivos.status);
+      resultado = resultado.filter((caso) => {
+        // Normalizar ambos os valores para comparação case-insensitive
+        const casoStatus = caso.status ? caso.status.toLowerCase() : "";
+        const filtroStatus = filtrosAtivos.status.toLowerCase();
+
+        console.log(
+          `Comparando status do caso: "${casoStatus}" com filtro: "${filtroStatus}"`
+        );
+        return casoStatus === filtroStatus;
+      });
     }
 
     // Filtrar por data de abertura
@@ -172,6 +189,7 @@ export default function MainCasos() {
       );
     }
 
+    console.log("Casos filtrados:", resultado.length);
     setCasosFiltrados(resultado);
   };
 
@@ -356,7 +374,10 @@ export default function MainCasos() {
           <div className="filtro-tabs">
             <button
               className={filtroAtivo === "todos" ? "active" : ""}
-              onClick={() => setFiltroAtivo("todos")}
+              onClick={() => {
+                setFiltroAtivo("todos");
+                setFiltrosAtivos({ ...filtrosAtivos, status: "" });
+              }}
             >
               Todos
             </button>
