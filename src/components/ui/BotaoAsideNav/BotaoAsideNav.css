@@ -1,0 +1,63 @@
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background 0.3s;
+  color: white;
+  text-decoration: none;
+  justify-content: flex-start;
+}
+
+.active .nav-link,
+.nav-link:hover {
+  background: #333;
+}
+
+.active .nav-link {
+  background: #615e5e;
+}
+
+/* BotaoAsideNav.module.css */
+
+/* Estilo base do item de navegação */
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background 0.3s;
+  color: white;
+  text-decoration: none;
+  justify-content: flex-start;
+}
+
+/* Estilo quando a sidebar está fechada */
+.closed .navLink {
+  justify-content: center;
+}
+
+/* Estilo hover e estado ativo */
+.navLink:hover {
+  background: #333;
+}
+
+/* .active .navLink {
+  background: #615e5e;
+} */
+
+/* Estilo do texto (label) */
+.navLink span {
+  white-space: nowrap;
+}
+
+
+nav li {
+  margin-bottom: 12px;
+}
+
+.nav-link {
+  justify-content: flex-start;
+}

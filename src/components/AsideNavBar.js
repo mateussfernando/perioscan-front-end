@@ -5,6 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "../styles/aside-navbar.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import BotaoAsideNav from "../components/ui/BotaoAsideNav/BotaoAsideNav";
+
+// Componente BotaoAsideNav reutilizável
 
 export default function AsideNavBar() {
   // Hooks and state
@@ -12,90 +15,6 @@ export default function AsideNavBar() {
   const router = useRouter();
   const [user, setUser] = useState({ nome: "", perfil: "" });
   const [isOpen, setIsOpen] = useState(true);
-
-  // Navigation items by profile type
-  const navItems = {
-    admin: [
-      {
-        icone: "/images/icons/icone-dashboard.png",
-        rotulo: "Dashboard",
-        caminho: "/adminDashboard",
-        textoAlternativo:
-          "Icone de redirecionamento para a página de Dashboard",
-      },
-      {
-        icone: "/images/icons/icone-adicionar.png",
-        rotulo: "Adicionar",
-        caminho: "/admincadastramento",
-        textoAlternativo:
-          "Icone de redirecionamento para a página de Adicionar usuarios",
-      },
-      {
-        icone: "/images/icons/icone-casos.png",
-        rotulo: "Casos",
-        caminho: "/casos",
-        textoAlternativo: "Icone de redirecionamento para a página de Casos",
-      },
-      {
-        icone: "/images/icons/icone-relatorios.png",
-        rotulo: "Relatórios",
-        caminho: "/relatorios",
-        textoAlternativo:
-          "Icone de redirecionamento para a página de Relatórios",
-      },
-      {
-        icone: "/images/icons/icone-gerenciamento.png",
-        rotulo: "Gerenciamento",
-        caminho: "/gerenciamento",
-        textoAlternativo:
-          "Icone de redirecionamento para a página de Gerenciamento de usuarios",
-      },
-    ],
-    assistente: [
-      {
-        icone: "/images/icons/icone-dashboard.png",
-        rotulo: "Dashboard",
-        caminho: "/dashboard",
-        textoAlternativo:
-          "Icone de redirecionamento para a página de Dashboard",
-      },
-      {
-        icone: "/images/icons/icone-casos.png",
-        rotulo: "Casos",
-        caminho: "/casos",
-        textoAlternativo: "Icone de redirecionamento para a página de Casos",
-      },
-      {
-        icone: "/images/icons/icone-relatorios.png",
-        rotulo: "Relatórios",
-        caminho: "/relatorios",
-        textoAlternativo:
-          "Icone de redirecionamento para a página de Relatórios",
-      },
-    ],
-    perito: [
-      {
-        icone: "/images/icons/icone-dashboard.png",
-        rotulo: "Dashboard",
-        caminho: "/dashboard",
-        textoAlternativo:
-          "Icone de redirecionamento para a página de Dashboard",
-      },
-      {
-        icone: "/images/icons/icone-casos.png",
-        rotulo: "Casos",
-        caminho: "/casos",
-        textoAlternativo: "Icone de redirecionamento para a página de Casos",
-      },
-      {
-        icone: "/images/icons/icone-relatorios.png",
-        rotulo: "Relatórios",
-        caminho: "/relatorios",
-        textoAlternativo:
-          "Icone de redirecionamento para a página de Relatórios",
-      },
-    ],
-  };
 
   // Effects
   useEffect(function loadUserFromStorage() {
@@ -107,13 +26,12 @@ export default function AsideNavBar() {
 
   // Helper functions
   function formatProfile(perfil) {
-    return (
-      {
-        admin: "Administrador",
-        assistente: "Assistente",
-        perito: "Perito",
-      }[perfil.toLowerCase()] || "Perfil Desconhecido"
-    );
+    const profiles = {
+      admin: "Administrador",
+      assistente: "Assistente",
+      perito: "Perito",
+    };
+    return profiles[perfil.toLowerCase()] || "Perfil Desconhecido";
   }
 
   function logout() {
@@ -125,9 +43,6 @@ export default function AsideNavBar() {
   function toggleSidebar() {
     setIsOpen(!isOpen);
   }
-
-  // Derived values
-  const navItemsToShow = navItems[user.perfil.toLowerCase()] || [];
 
   return (
     <div className="sidebar-container">
@@ -164,27 +79,80 @@ export default function AsideNavBar() {
           {/* Navigation section */}
           <nav>
             <ul>
-              {navItemsToShow.map((item) => (
-                <li
-                  key={item.caminho}
-                  className={pathname === item.caminho ? "active" : ""}
-                >
-                  <Link href={item.caminho}>
-                    <div
-                      className="nav-link"
-                      title={!isOpen ? item.rotulo : ""}
-                    >
-                      <Image
-                        src={item.icone || "/placeholder.svg"}
-                        alt={item.textoAlternativo}
-                        width={32}
-                        height={32}
-                      />
-                      {isOpen && <span>{item.rotulo}</span>}
-                    </div>
-                  </Link>
-                </li>
-              ))}
+              {user.perfil.toLowerCase() === "admin" && (
+                <>
+                  <BotaoAsideNav
+                    logo="/images/icons/icone-dashboard.png"
+                    src="/admindashboard"
+                    alt="Icone de redirecionamento para a página de Dashboard"
+                    label="Dashboard"
+                    isOpen={isOpen}
+                    active={pathname === "/adminDashboard"}
+                  />
+                  <BotaoAsideNav
+                    logo="/images/icons/icone-adicionar.png"
+                    src="/admincadastramento"
+                    alt="Icone de redirecionamento para a página de Adicionar usuarios"
+                    label="Adicionar"
+                    isOpen={isOpen}
+                    active={pathname === "/admincadastramento"}
+                  />
+                  <BotaoAsideNav
+                    logo="/images/icons/icone-casos.png"
+                    src="/casos"
+                    alt="Icone de redirecionamento para a página de Casos"
+                    label="Casos"
+                    isOpen={isOpen}
+                    active={pathname === "/casos"}
+                  />
+                  <BotaoAsideNav
+                    logo="/images/icons/icone-relatorios.png"
+                    src="/relatorios"
+                    alt="Icone de redirecionamento para a página de Relatórios"
+                    label="Relatórios"
+                    isOpen={isOpen}
+                    active={pathname === "/relatorios"}
+                  />
+                  <BotaoAsideNav
+                    logo="/images/icons/icone-gerenciamento.png"
+                    src="/gerenciamento"
+                    alt="Icone de redirecionamento para a página de Gerenciamento de usuarios"
+                    label="Gerenciamento"
+                    isOpen={isOpen}
+                    active={pathname === "/gerenciamento"}
+                  />
+                </>
+              )}
+
+              {(user.perfil.toLowerCase() === "assistente" ||
+                user.perfil.toLowerCase() === "perito") && (
+                <>
+                  <BotaoAsideNav
+                    logo="/images/icons/icone-dashboard.png"
+                    src="/dashboard"
+                    alt="Icone de redirecionamento para a página de Dashboard"
+                    label="Dashboard"
+                    isOpen={isOpen}
+                    active={pathname === "/dashboard"}
+                  />
+                  <BotaoAsideNav
+                    logo="/images/icons/icone-casos.png"
+                    src="/casos"
+                    alt="Icone de redirecionamento para a página de Casos"
+                    label="Casos"
+                    isOpen={isOpen}
+                    active={pathname === "/casos"}
+                  />
+                  <BotaoAsideNav
+                    logo="/images/icons/icone-relatorios.png"
+                    src="/relatorios"
+                    alt="Icone de redirecionamento para a página de Relatórios"
+                    label="Relatórios"
+                    isOpen={isOpen}
+                    active={pathname === "/relatorios"}
+                  />
+                </>
+              )}
             </ul>
           </nav>
         </div>

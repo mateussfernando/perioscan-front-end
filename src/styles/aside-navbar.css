@@ -9,7 +9,6 @@
   height: 100vh;
   display: flex;
   font-family: "Inter", sans-serif;
-
 }
 
 .sidebar {
@@ -102,33 +101,8 @@ nav ul {
   padding: 0;
 }
 
-nav li {
-  margin-bottom: 12px;
-}
-
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px;
-  border-radius: 4px;
-  transition: background 0.3s;
-  color: white;
-  text-decoration: none;
-  justify-content: flex-start;
-}
-
-.sidebar.closed .nav-link {
+.sidebar.closed {
   justify-content: center;
-}
-
-.active .nav-link,
-.nav-link:hover {
-  background: #333;
-}
-
-.active .nav-link {
-  background: #615e5e;
 }
 
 .logout {
