@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { X, FileDown, ClipboardList, Loader } from "lucide-react"
+import { X, FileDown, ClipboardList, Loader } from "lucide-react";
 
 export default function ModalVisualizarEvidencia({
   evidenciaAtiva,
@@ -12,9 +12,9 @@ export default function ModalVisualizarEvidencia({
   onCriarLaudo,
   onBaixarPDF,
 }) {
-  if (!evidenciaAtiva) return null
+  if (!evidenciaAtiva) return null;
 
-  const evidenciaId = evidenciaAtiva._id || evidenciaAtiva.id
+  const evidenciaId = evidenciaAtiva._id || evidenciaAtiva.id;
 
   const renderizarConteudoEvidencia = () => {
     if (evidenciaAtiva.type === "image") {
@@ -25,49 +25,70 @@ export default function ModalVisualizarEvidencia({
             alt={evidenciaAtiva.description || "Imagem da evidência"}
             className="evidencia-imagem"
           />
-          {evidenciaAtiva.description && <p className="evidencia-descricao">{evidenciaAtiva.description}</p>}
+          {evidenciaAtiva.description && (
+            <p className="evidencia-descricao">{evidenciaAtiva.description}</p>
+          )}
         </div>
-      )
+      );
     } else {
       // Tipo texto ou outro
+      // Verificar se collectedBy é um objeto ou uma string
+      const collectedBy =
+        typeof evidenciaAtiva.collectedBy === "object" &&
+        evidenciaAtiva.collectedBy !== null
+          ? evidenciaAtiva.collectedBy.name || "Usuário desconhecido"
+          : evidenciaAtiva.collectedBy || "Usuário desconhecido";
+
       return (
         <div className="evidencia-texto-container">
           <h3>{evidenciaAtiva.description || "Evidência de texto"}</h3>
-          <div className="evidencia-texto-content">{evidenciaAtiva.content}</div>
+          <div className="evidencia-texto-content">
+            {evidenciaAtiva.content || "Sem conteúdo disponível"}
+          </div>
           <p className="evidencia-info">
-            <strong>Coletado em:</strong> {formatarData(evidenciaAtiva.collectionDate)}
-            {evidenciaAtiva.collectedBy && (
+            <strong>Coletado em:</strong>{" "}
+            {formatarData(evidenciaAtiva.collectionDate)}
+            {collectedBy && (
               <span>
                 {" "}
-                por <strong>{evidenciaAtiva.collectedBy}</strong>
+                por <strong>{collectedBy}</strong>
               </span>
             )}
           </p>
         </div>
-      )
+      );
     }
-  }
+  };
 
   const formatarData = (dataISO) => {
-    if (!dataISO) return "--"
-    const data = new Date(dataISO)
+    if (!dataISO) return "--";
+    const data = new Date(dataISO);
     return data.toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
-    })
-  }
+    });
+  };
 
   return (
     <div className="evidencia-modal-overlay" onClick={onFechar}>
-      <div className="evidencia-modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="evidencia-modal-content"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="evidencia-modal-header">
-          <h3>{evidenciaAtiva.type === "image" ? "Visualizar Imagem" : "Visualizar Texto"}</h3>
+          <h3>
+            {evidenciaAtiva.type === "image"
+              ? "Visualizar Imagem"
+              : "Visualizar Texto"}
+          </h3>
           <button className="btn-fechar-modal" onClick={onFechar}>
             <X size={20} />
           </button>
         </div>
-        <div className="evidencia-modal-body">{renderizarConteudoEvidencia()}</div>
+        <div className="evidencia-modal-body">
+          {renderizarConteudoEvidencia()}
+        </div>
         <div className="evidencia-modal-footer">
           {temLaudo ? (
             <button
@@ -109,5 +130,5 @@ export default function ModalVisualizarEvidencia({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,21 +1,20 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-
 /* Estilos para a página de detalhes do caso */
+/* Adicionar estilos para garantir que o container principal use flex e tenha altura adequada */
 .main-container-caso-detalhes {
-  width: 100%;
-  min-height: 100vh;
   display: flex;
+  min-height: 100vh;
+  height: 100%;
   flex-direction: row;
   background-color: #f5f7fa;
-  font-family: "Inter", sans-serif;
-
 }
 
 .container-caso-detalhes {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
   width: 100%;
   display: flex;
   flex-direction: column;
-  padding: 20px;
 }
 
 /* Card Principal */
@@ -183,6 +182,140 @@
   color: white;
 }
 
+/* Adicionar estilos para o componente de filtro */
+.evidencias-filtro {
+  margin-bottom: 15px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  color: #666;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 10px 8px 35px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #2c7a7b;
+  box-shadow: 0 0 0 2px rgba(44, 122, 123, 0.2);
+}
+
+.clear-search {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.clear-search:hover {
+  color: #333;
+}
+
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: background-color 0.2s;
+}
+
+.filter-toggle:hover {
+  background-color: #e0e0e0;
+}
+
+.filters-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  padding: 15px;
+  background-color: #f8f8f8;
+  border-top: 1px solid #e0e0e0;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  background-color: white;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: #2c7a7b;
+}
+
+.clear-filters {
+  grid-column: 1 / -1;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: fit-content;
+  justify-self: end;
+}
+
+.clear-filters:hover {
+  background-color: #e0e0e0;
+}
+
 /* Tabela de Evidências */
 .evidencias-tabela {
   margin-bottom: 15px;
@@ -228,31 +361,62 @@
   gap: 8px;
 }
 
-.btn-gerar-laudo {
-  background-color: #62725c;
+/* Melhorar a aparência dos botões de laudo e baixar PDF */
+.btn-criar-laudo,
+.btn-baixar-pdf {
+  background-color: #000000;
   color: white;
   border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-left: 8px;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  gap: 5px;
+  transition: all 0.2s;
+  font-weight: 500;
+  font-size: 13px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 80px;
 }
 
-.btn-gerar-laudo:hover {
-  background-color: #4a5a45;
-  transform: scale(1.1);
+.btn-criar-laudo {
+  background-color: #000000;
 }
 
-.btn-gerar-laudo:disabled {
-  opacity: 0.6;
+.btn-baixar-pdf {
+  background-color: #000000;
+}
+
+.btn-criar-laudo:hover,
+.btn-baixar-pdf:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-criar-laudo:hover {
+  background-color: #222222;
+}
+
+.btn-baixar-pdf:hover {
+  background-color: #192221;
+}
+
+.btn-criar-laudo:disabled,
+.btn-baixar-pdf:disabled {
+  background-color: #90cfd0;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
+.btn-text {
+  display: inline-block;
+}
+
+/* Ajustar o estilo do botão de visualização para garantir que o ícone não fique esticado */
 .btn-ver-caso {
   background-color: black;
   color: white;
@@ -265,6 +429,7 @@
   justify-content: center;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
+  padding: 0;
 }
 
 .btn-ver-caso:hover {
@@ -272,10 +437,17 @@
   transform: scale(1.1);
 }
 
+.btn-ver-caso svg {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+}
+
 /* Ajustar a largura da coluna de ações */
 .evidencias-tabela th:last-child,
 .evidencias-tabela td:last-child {
-  width: 100px;
+  width: 180px;
 }
 
 /* Remover o cursor pointer da linha para evitar conflito com os botões */
@@ -744,57 +916,40 @@
 }
 
 /* Estilos para os botões de laudo */
-.btn-criar-laudo,
-.btn-baixar-pdf {
-  background-color: #2c7a7b;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 6px 8px;
-  margin-left: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.btn-criar-laudo:hover,
-.btn-baixar-pdf:hover {
-  background-color: #1d5354;
-}
-
-.btn-criar-laudo:disabled,
-.btn-baixar-pdf:disabled {
-  background-color: #90cfd0;
-  cursor: not-allowed;
-}
-
 .btn-criar-laudo-modal,
 .btn-baixar-pdf-modal {
-  background-color: #2c7a7b;
+  background-color: #000000;
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 10px 16px;
+  padding: 12px 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
   transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  width: auto;
+  min-width: 200px;
 }
 
 .btn-criar-laudo-modal:hover,
 .btn-baixar-pdf-modal:hover {
-  background-color: #1d5354;
+  background-color: #252525;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 .btn-criar-laudo-modal:disabled,
 .btn-baixar-pdf-modal:disabled {
   background-color: #90cfd0;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Estilos para a notificação de laudo */
@@ -838,6 +993,15 @@
   opacity: 1;
 }
 
+/* Adicionar estilo para o footer do modal */
+.evidencia-modal-footer {
+  display: flex;
+  justify-content: center;
+  padding: 15px 20px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #f8f8f8;
+}
+
 @keyframes slideIn {
   from {
     transform: translateX(100%);
@@ -847,6 +1011,42 @@
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+/* Estilizar células da tabela de evidências */
+.evidencia-info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.evidencia-titulo {
+  font-weight: 500;
+  color: #333;
+}
+
+.evidencia-data {
+  font-size: 11px;
+  color: #666;
+}
+
+.evidencia-tipo {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.tipo-imagem {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+}
+
+.tipo-texto {
+  background-color: #e8f5e9;
+  color: #1b5e20;
 }
 
 /* Responsividade */
@@ -883,6 +1083,36 @@
   .header-actions {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .search-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filter-toggle {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
+
+  .filters-container {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-text {
+    display: none;
+  }
+
+  .btn-criar-laudo,
+  .btn-baixar-pdf {
+    min-width: unset;
+    padding: 6px;
+  }
+
+  .evidencias-tabela th:last-child,
+  .evidencias-tabela td:last-child {
+    width: 100px;
   }
 }
 
