@@ -145,6 +145,7 @@ export default function CasoDetalhes() {
             location: responseObject.data.location || "",
             status: statusNormalizado, // Usar o valor normalizado
             observation: responseObject.data.observation || "",
+            occurrenceDate: responseObject.data.occurrenceDate || "", // Add this line
           });
 
           console.log("Status normalizado:", statusNormalizado);
@@ -529,10 +530,19 @@ export default function CasoDetalhes() {
     );
   };
 
+  // Substitua a função formatarData atual por esta versão corrigida
   const formatarData = (dataISO) => {
     if (!dataISO) return "--";
+
+    // Criar a data garantindo que não haja ajuste de fuso horário
     const data = new Date(dataISO);
-    return data.toLocaleDateString("pt-BR", {
+
+    // Ajustar para o fuso horário local para evitar o problema de -1 dia
+    const dataAjustada = new Date(
+      data.getTime() + data.getTimezoneOffset() * 60000
+    );
+
+    return dataAjustada.toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -1072,8 +1082,12 @@ export default function CasoDetalhes() {
                     <strong>Título:</strong> {caso.title}
                   </div>
                   <div className="info-item">
+                    <strong>Data de Abertura:</strong>{" "}
+                    {formatarData(caso.openDate) || "Não informada"}
+                  </div>
+                  <div className="info-item">
                     <strong>Data da Ocorrência:</strong>{" "}
-                    {formatarData(caso.openDate) || "15-02-2025"}
+                    {formatarData(caso.occurrenceDate) || "Não informada"}
                   </div>
                   <div className="info-item">
                     <strong>Local:</strong>{" "}

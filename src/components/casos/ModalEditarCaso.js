@@ -1,6 +1,6 @@
 "use client";
 
-import { X, MapPin, Save, Loader } from "lucide-react";
+import { X, MapPin, Save, Loader, Calendar } from "lucide-react";
 
 export default function ModalEditarCaso({
   casoEditado,
@@ -59,6 +59,25 @@ export default function ModalEditarCaso({
                 value={casoEditado.location}
                 onChange={onCasoChange}
                 placeholder="Ex: Belo Horizonte, MG"
+              />
+            </div>
+
+            {/* Data da Ocorrência */}
+            <div className="form-group">
+              <label htmlFor="occurrenceDate">
+                <Calendar size={16} />
+                <span>Data da Ocorrência</span>
+              </label>
+              <input
+                type="date"
+                id="occurrenceDate"
+                name="occurrenceDate"
+                value={
+                  casoEditado.occurrenceDate
+                    ? casoEditado.occurrenceDate.substring(0, 10)
+                    : ""
+                }
+                onChange={onCasoChange}
               />
             </div>
 

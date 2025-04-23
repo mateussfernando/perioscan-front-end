@@ -1,41 +1,48 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { X, Upload, Plus, Camera, FileText, Loader } from "lucide-react"
+import { useState, useRef } from "react";
+import { X, Upload, Plus, Camera, FileText, Loader } from "lucide-react";
 
-export default function ModalAdicionarEvidencia({ onFechar, onEnviar, enviandoEvidencia }) {
-  const [tipoEvidencia, setTipoEvidencia] = useState("image") // "image" ou "text"
-  const [descricaoEvidencia, setDescricaoEvidencia] = useState("")
-  const [conteudoTexto, setConteudoTexto] = useState("")
-  const [imagemSelecionada, setImagemSelecionada] = useState(null)
-  const [previewImagem, setPreviewImagem] = useState(null)
-  const [tipoImagem, setTipoImagem] = useState("radiografia")
-  const [erroUpload, setErroUpload] = useState(null)
+export default function ModalAdicionarEvidencia({
+  onFechar,
+  onEnviar,
+  enviandoEvidencia,
+}) {
+  const [tipoEvidencia, setTipoEvidencia] = useState("image"); // "image" ou "text"
+  const [descricaoEvidencia, setDescricaoEvidencia] = useState("");
+  const [conteudoTexto, setConteudoTexto] = useState("");
+  const [imagemSelecionada, setImagemSelecionada] = useState(null);
+  const [previewImagem, setPreviewImagem] = useState(null);
+  const [tipoImagem, setTipoImagem] = useState("radiografia");
+  const [erroUpload, setErroUpload] = useState(null);
+  const [occurrenceDate, setOccurrenceDate] = useState("");
 
-  const fileInputRef = useRef(null)
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
+    const file = e.target.files[0];
+    if (!file) return;
 
     // Verificar o tamanho do arquivo (50MB = 50 * 1024 * 1024 bytes)
     if (file.size > 50 * 1024 * 1024) {
-      setErroUpload("O arquivo é muito grande. O tamanho máximo permitido é 50MB.")
-      return
+      setErroUpload(
+        "O arquivo é muito grande. O tamanho máximo permitido é 50MB."
+      );
+      return;
     }
 
-    setImagemSelecionada(file)
+    setImagemSelecionada(file);
 
     // Criar preview da imagem
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onloadend = () => {
-      setPreviewImagem(reader.result)
-    }
-    reader.readAsDataURL(file)
-  }
+      setPreviewImagem(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const dadosEvidencia = {
       tipoEvidencia,
@@ -43,14 +50,18 @@ export default function ModalAdicionarEvidencia({ onFechar, onEnviar, enviandoEv
       conteudoTexto,
       imagemSelecionada,
       tipoImagem,
-    }
+      occurrenceDate,
+    };
 
-    onEnviar(e, dadosEvidencia)
-  }
+    onEnviar(e, dadosEvidencia);
+  };
 
   return (
     <div className="evidencia-modal-overlay" onClick={onFechar}>
-      <div className="evidencia-modal-content modal-adicionar" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="evidencia-modal-content modal-adicionar"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="evidencia-modal-header">
           <h3>Adicionar Nova Evidência</h3>
           <button className="btn-fechar-modal" onClick={onFechar}>
@@ -64,7 +75,9 @@ export default function ModalAdicionarEvidencia({ onFechar, onEnviar, enviandoEv
             <div className="tipo-evidencia-selector">
               <button
                 type="button"
-                className={`tipo-btn ${tipoEvidencia === "image" ? "active" : ""}`}
+                className={`tipo-btn ${
+                  tipoEvidencia === "image" ? "active" : ""
+                }`}
                 onClick={() => setTipoEvidencia("image")}
               >
                 <Camera size={20} />
@@ -72,7 +85,9 @@ export default function ModalAdicionarEvidencia({ onFechar, onEnviar, enviandoEv
               </button>
               <button
                 type="button"
-                className={`tipo-btn ${tipoEvidencia === "text" ? "active" : ""}`}
+                className={`tipo-btn ${
+                  tipoEvidencia === "text" ? "active" : ""
+                }`}
                 onClick={() => setTipoEvidencia("text")}
               >
                 <FileText size={20} />
@@ -93,13 +108,30 @@ export default function ModalAdicionarEvidencia({ onFechar, onEnviar, enviandoEv
               />
             </div>
 
+            {/* Data da Ocorrência */}
+            <div className="form-group">
+              <label htmlFor="occurrenceDate">Data da Ocorrência</label>
+              <input
+                type="date"
+                id="occurrenceDate"
+                name="occurrenceDate"
+                value={occurrenceDate || ""}
+                onChange={(e) => setOccurrenceDate(e.target.value)}
+              />
+            </div>
+
             {/* Campos específicos para cada tipo de evidência */}
             {tipoEvidencia === "image" ? (
               <>
                 {/* Tipo de imagem (novo campo) */}
                 <div className="form-group">
                   <label htmlFor="tipoImagem">Tipo de Imagem</label>
-                  <select id="tipoImagem" value={tipoImagem} onChange={(e) => setTipoImagem(e.target.value)} required>
+                  <select
+                    id="tipoImagem"
+                    value={tipoImagem}
+                    onChange={(e) => setTipoImagem(e.target.value)}
+                    required
+                  >
                     <option value="radiografia">Radiografia</option>
                     <option value="fotografia">Fotografia</option>
                     <option value="tomografia">Tomografia</option>
@@ -110,17 +142,24 @@ export default function ModalAdicionarEvidencia({ onFechar, onEnviar, enviandoEv
                 {/* Área de upload */}
                 <div className="form-group upload-container">
                   <label>Imagem (máx. 50MB)</label>
-                  <div className="upload-area" onClick={() => fileInputRef.current.click()}>
+                  <div
+                    className="upload-area"
+                    onClick={() => fileInputRef.current.click()}
+                  >
                     {previewImagem ? (
                       <div className="preview-container">
-                        <img src={previewImagem || "/placeholder.svg"} alt="Preview" className="image-preview" />
+                        <img
+                          src={previewImagem || "/placeholder.svg"}
+                          alt="Preview"
+                          className="image-preview"
+                        />
                         <button
                           type="button"
                           className="remove-preview"
                           onClick={(e) => {
-                            e.stopPropagation()
-                            setImagemSelecionada(null)
-                            setPreviewImagem(null)
+                            e.stopPropagation();
+                            setImagemSelecionada(null);
+                            setPreviewImagem(null);
                           }}
                         >
                           <X size={16} />
@@ -130,7 +169,9 @@ export default function ModalAdicionarEvidencia({ onFechar, onEnviar, enviandoEv
                       <>
                         <Upload size={40} />
                         <p>Clique para selecionar ou arraste uma imagem</p>
-                        <span className="upload-hint">JPG, PNG ou GIF até 50MB</span>
+                        <span className="upload-hint">
+                          JPG, PNG ou GIF até 50MB
+                        </span>
                       </>
                     )}
 
@@ -167,10 +208,19 @@ export default function ModalAdicionarEvidencia({ onFechar, onEnviar, enviandoEv
 
             {/* Botões de ação */}
             <div className="form-actions">
-              <button type="button" className="btn-cancelar" onClick={onFechar} disabled={enviandoEvidencia}>
+              <button
+                type="button"
+                className="btn-cancelar"
+                onClick={onFechar}
+                disabled={enviandoEvidencia}
+              >
                 Cancelar
               </button>
-              <button type="submit" className="btn-salvar" disabled={enviandoEvidencia}>
+              <button
+                type="submit"
+                className="btn-salvar"
+                disabled={enviandoEvidencia}
+              >
                 {enviandoEvidencia ? (
                   <>
                     <Loader size={16} className="spinner" />
@@ -188,5 +238,5 @@ export default function ModalAdicionarEvidencia({ onFechar, onEnviar, enviandoEv
         </div>
       </div>
     </div>
-  )
+  );
 }

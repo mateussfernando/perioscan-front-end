@@ -13,6 +13,7 @@ import {
   FileText,
   Bell,
   Search,
+  Calendar,
 } from "lucide-react";
 
 export default function MainCasos() {
@@ -27,6 +28,7 @@ export default function MainCasos() {
     description: "",
     location: "",
     status: "em andamento",
+    occurrenceDate: "", // Add this line
   });
   const [criandoCaso, setCriandoCaso] = useState(false);
   const [erroCriacao, setErroCriacao] = useState(null);
@@ -259,6 +261,7 @@ export default function MainCasos() {
       description: "",
       location: "",
       status: "em andamento", // Valor correto em minúsculas
+      occurrenceDate: "",
     });
     setErroCriacao(null);
     setModalNovoAberto(true);
@@ -542,6 +545,21 @@ export default function MainCasos() {
                     value={novoCaso.location}
                     onChange={handleCasoChange}
                     placeholder="Ex: Belo Horizonte, MG"
+                  />
+                </div>
+
+                {/* Data da Ocorrência */}
+                <div className="form-group">
+                  <label htmlFor="occurrenceDate">
+                    <Calendar size={16} />
+                    <span>Data da Ocorrência</span>
+                  </label>
+                  <input
+                    type="date"
+                    id="occurrenceDate"
+                    name="occurrenceDate"
+                    value={novoCaso.occurrenceDate}
+                    onChange={handleCasoChange}
                   />
                 </div>
 
