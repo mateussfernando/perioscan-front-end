@@ -494,7 +494,17 @@ export default function Gerenciamento() {
         )}
 
         <div className="acoes-gerais">
-          <button className="btn-adicionar-usuario">
+          <button
+            className="btn-adicionar-usuario"
+            onClick={() => {
+              const role = localStorage.getItem("role");
+              if (role && role.toLowerCase() === "admin") {
+                router.push("/admincadastramento");
+              } else {
+                router.push("/naoautorizado");
+              }
+            }}
+          >
             <Image
               src="/images/icons/icone-adicionar.png"
               alt="Adicionar"

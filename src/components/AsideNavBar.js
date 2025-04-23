@@ -1,54 +1,52 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "../styles/aside-navbar.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import BotaoAsideNav from "../components/ui/BotaoAsideNav/BotaoAsideNav";
 
-// Componente BotaoAsideNav reutilizável
+export default function BarraLateral() {
+  const caminhoAtual = usePathname();
+  const navegador = useRouter();
+  const [usuario, setUsuario] = useState({ nome: "", perfil: "" });
+  const [aberto, setAberto] = useState(true);
 
-export default function AsideNavBar() {
-  // Hooks and state
-  const pathname = usePathname();
-  const router = useRouter();
-  const [user, setUser] = useState({ nome: "", perfil: "" });
-  const [isOpen, setIsOpen] = useState(true);
-
-  // Effects
-  useEffect(function loadUserFromStorage() {
-    setUser({
-      nome: localStorage.getItem("name") || "",
-      perfil: localStorage.getItem("role") || "",
-    });
+  // Carrega os dados do usuário ao montar o componente
+  useEffect(() => {
+    const nome = localStorage.getItem("name") || "";
+    const perfil = localStorage.getItem("role") || "";
+    setUsuario({ nome: nome, perfil: perfil });
   }, []);
 
-  // Helper functions
-  function formatProfile(perfil) {
-    const profiles = {
-      admin: "Administrador",
-      assistente: "Assistente",
-      perito: "Perito",
-    };
-    return profiles[perfil.toLowerCase()] || "Perfil Desconhecido";
+  // Formata o nome do perfil para exibição
+  function formatarPerfil(perfil) {
+    if (perfil.toLowerCase() === "admin") {
+      return "Administrador";
+    } else if (perfil.toLowerCase() === "assistente") {
+      return "Assistente";
+    } else if (perfil.toLowerCase() === "perito") {
+      return "Perito";
+    }
+    return "Perfil Desconhecido";
   }
 
-  function logout() {
+  // Realiza o logout do sistema
+  function fazerLogout() {
     localStorage.clear();
-    router.push("/");
+    navegador.push("/");
   }
 
-  // Toggle sidebar
-  function toggleSidebar() {
-    setIsOpen(!isOpen);
+  // Alterna o estado da barra lateral (aberto/fechado)
+  function alternarBarraLateral() {
+    setAberto(!aberto);
   }
 
   return (
     <div className="sidebar-container">
-      <aside className={`sidebar ${isOpen ? "open" : "closed"}`}>
+      <aside className={`sidebar ${aberto ? "open" : "closed"}`}>
         <div className="sidebar-content">
-          {/* Logo section */}
+          {/* Seção do Logo */}
           <div className="logo">
             <Image
               src="/images/logos/logo-perio-scan.png"
@@ -56,100 +54,99 @@ export default function AsideNavBar() {
               width={30}
               height={30}
             />
-            {isOpen && <span>PerioScan</span>}
+            {aberto && <span>PerioScan</span>}
           </div>
 
-          {/* Profile section */}
-          {user.nome && (
+          {/* Seção do Perfil */}
+          {usuario.nome && (
             <div className="profile">
-              {isOpen && (
+              {aberto && (
                 <div className="user-info">
-                  <div className="first-name">{user.nome.split(" ")[0]}</div>
+                  <div className="first-name">{usuario.nome.split(" ")[0]}</div>
                   <div className="last-name">
-                    {user.nome.split(" ").slice(1).join(" ")}
+                    {usuario.nome.split(" ").slice(1).join(" ")}
                   </div>
                   <div className="profile-role">
-                    ({formatProfile(user.perfil)})
+                    ({formatarPerfil(usuario.perfil)})
                   </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* Navigation section */}
+          {/* Seção de Navegação */}
           <nav>
             <ul>
-              {user.perfil.toLowerCase() === "admin" && (
+              {usuario.perfil.toLowerCase() === "admin" ? (
+                // Menu para Administradores
                 <>
                   <BotaoAsideNav
                     logo="/images/icons/icone-dashboard.png"
                     src="/admindashboard"
-                    alt="Icone de redirecionamento para a página de Dashboard"
+                    alt="Ícone para Dashboard"
                     label="Dashboard"
-                    isOpen={isOpen}
-                    active={pathname === "/adminDashboard"}
+                    isOpen={aberto}
+                    active={caminhoAtual === "/adminDashboard"}
                   />
-                  <BotaoAsideNav
+                  {/* <BotaoAsideNav
                     logo="/images/icons/icone-adicionar.png"
                     src="/admincadastramento"
-                    alt="Icone de redirecionamento para a página de Adicionar usuarios"
+                    alt="Ícone para Adicionar Usuários"
                     label="Adicionar"
-                    isOpen={isOpen}
-                    active={pathname === "/admincadastramento"}
-                  />
+                    isOpen={aberto}
+                    active={caminhoAtual === "/admincadastramento"}
+                  /> */}
                   <BotaoAsideNav
                     logo="/images/icons/icone-casos.png"
                     src="/casos"
-                    alt="Icone de redirecionamento para a página de Casos"
+                    alt="Ícone para Casos"
                     label="Casos"
-                    isOpen={isOpen}
-                    active={pathname === "/casos"}
+                    isOpen={aberto}
+                    active={caminhoAtual === "/casos"}
                   />
                   <BotaoAsideNav
                     logo="/images/icons/icone-relatorios.png"
                     src="/relatorios"
-                    alt="Icone de redirecionamento para a página de Relatórios"
+                    alt="Ícone para Relatórios"
                     label="Relatórios"
-                    isOpen={isOpen}
-                    active={pathname === "/relatorios"}
+                    isOpen={aberto}
+                    active={caminhoAtual === "/relatorios"}
                   />
                   <BotaoAsideNav
                     logo="/images/icons/icone-gerenciamento.png"
                     src="/gerenciamento"
-                    alt="Icone de redirecionamento para a página de Gerenciamento de usuarios"
+                    alt="Ícone para Gerenciamento"
                     label="Gerenciamento"
-                    isOpen={isOpen}
-                    active={pathname === "/gerenciamento"}
+                    isOpen={aberto}
+                    active={caminhoAtual === "/gerenciamento"}
                   />
                 </>
-              )}
-
-              {(user.perfil.toLowerCase() === "assistente" ||
-                user.perfil.toLowerCase() === "perito") && (
+              ) : (
+                // Menu para Assistentes e Peritos
                 <>
                   <BotaoAsideNav
                     logo="/images/icons/icone-dashboard.png"
                     src="/dashboard"
-                    alt="Icone de redirecionamento para a página de Dashboard"
+                    alt="Ícone para Dashboard"
                     label="Dashboard"
-                    isOpen={isOpen}
-                    active={pathname === "/dashboard"}
+                    isOpen={aberto}
+                    active={caminhoAtual === "/dashboard"}
                   />
                   <BotaoAsideNav
                     logo="/images/icons/icone-casos.png"
                     src="/casos"
-                    alt="Icone de redirecionamento para a página de Casos"
+                    alt="Ícone para Casos"
                     label="Casos"
-                    isOpen={isOpen}
-                    active={pathname === "/casos"}
+                    isOpen={aberto}
+                    active={caminhoAtual === "/casos"}
                   />
                   <BotaoAsideNav
                     logo="/images/icons/icone-relatorios.png"
                     src="/relatorios"
-                    alt="Icone de redirecionamento para a página de Relatórios"
+                    alt="Ícone para Relatórios"
                     label="Relatórios"
-                    isOpen={isOpen}
-                    active={pathname === "/relatorios"}
+                    isOpen={aberto}
+                    active={caminhoAtual === "/relatorios"}
                   />
                 </>
               )}
@@ -157,31 +154,31 @@ export default function AsideNavBar() {
           </nav>
         </div>
 
-        {/* Logout section */}
+        {/* Seção de Logout */}
         <div className="logout">
           <button
-            onClick={logout}
+            onClick={fazerLogout}
             className="nav-link"
-            title={!isOpen ? "Sair" : ""}
+            title={!aberto ? "Sair" : ""}
           >
             <Image
               src="/images/icons/icone-logout.png"
-              alt="Ícone de logout"
+              alt="Ícone de Logout"
               width={32}
               height={32}
             />
-            {isOpen && <span>Sair</span>}
+            {aberto && <span>Sair</span>}
           </button>
         </div>
       </aside>
 
-      {/* Botão de toggle fora da sidebar */}
+      {/* Botão para Alternar a Barra Lateral */}
       <button
-        onClick={toggleSidebar}
+        onClick={alternarBarraLateral}
         aria-label="Alternar menu"
         className="toggle-button-outside"
       >
-        {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+        {aberto ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
       </button>
     </div>
   );
