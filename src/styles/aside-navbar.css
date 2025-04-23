@@ -1,16 +1,24 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
 * {
   text-decoration: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Adicionar container para posicionar o botão fora da sidebar */
+/* Container principal da sidebar (agora sticky) */
 .sidebar-container {
-  position: relative;
+  position: sticky;
+  top: 0;
+  left: 0;
   height: 100vh;
-  display: flex;
   font-family: "Inter", sans-serif;
+  z-index: 1000;
+  background: #000;
 }
 
+/* Sidebar principal */
 .sidebar {
   background: #000;
   display: flex;
@@ -18,19 +26,12 @@
   color: white;
   padding: 20px 10px;
   font-family: "Inter", sans-serif;
-  text-decoration: none;
   transition: width 0.3s ease;
-  position: relative;
   height: 100vh;
-  overflow: hidden; /* Alterado de overflow-x: hidden para overflow: hidden para remover a barra de rolagem */
+  overflow-y: auto; /* Permite rolagem interna se necessário */
 }
 
-/* Remover o posicionamento antigo do botão de toggle */
-.sidebar-toggle {
-  display: none;
-}
-
-/* Estilo para o botão de toggle fora da sidebar */
+/* Botão de toggle fora da sidebar */
 .toggle-button-outside {
   position: absolute;
   top: 20px;
@@ -54,9 +55,9 @@
   background: #555;
 }
 
-/* Ajustar o posicionamento do botão quando a sidebar está fechada */
+/* Ajustes quando sidebar está fechada */
 .sidebar.closed + .toggle-button-outside {
-  left: 80px;
+  left: 70px;
 }
 
 .sidebar-content {
@@ -67,9 +68,7 @@
   margin-top: 20px;
 }
 
-.logo,
-.profile,
-nav ul {
+.logo, .profile, nav ul {
   width: 100%;
 }
 
@@ -80,6 +79,7 @@ nav ul {
   margin-bottom: 30px;
   font-weight: bold;
   justify-content: center;
+  padding: 0 10px;
 }
 
 .sidebar.closed .logo {
@@ -99,16 +99,16 @@ nav ul {
 nav ul {
   list-style: none;
   padding: 0;
+  width: 100%;
 }
 
-.sidebar.closed {
-  justify-content: center;
-}
-
+/* Seção de logout */
 .logout {
+  margin-top: auto; /* Empurra para o final */
   padding: 20px 0 10px;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .logout button {
@@ -122,6 +122,7 @@ nav ul {
   transition: opacity 0.3s;
   width: 100%;
   justify-content: flex-start;
+  padding: 8px 10px;
 }
 
 .sidebar.closed .logout button {
@@ -132,6 +133,7 @@ nav ul {
   opacity: 0.7;
 }
 
+/* Informações do usuário */
 .user-info {
   display: flex;
   flex-direction: column;
@@ -140,8 +142,7 @@ nav ul {
   gap: 4px;
 }
 
-.first-name,
-.last-name {
+.first-name, .last-name {
   font-size: 14px;
   line-height: 1.2;
 }
@@ -153,8 +154,9 @@ nav ul {
   background-color: white;
   font-size: 14px;
   line-height: 1.2;
-  padding: 4px;
+  padding: 4px 8px;
   border-radius: 10px;
+  width: fit-content;
 }
 
 /* Responsividade */
@@ -170,4 +172,22 @@ nav ul {
   .sidebar.closed + .toggle-button-outside {
     left: 70px;
   }
+}
+
+/* Estilos para a barra de rolagem (opcional) */
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #333;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 5px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #888;
 }

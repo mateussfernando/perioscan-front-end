@@ -2,20 +2,25 @@
 
 import { useState, useEffect } from "react";
 import AsideNavbar from "@/components/AsideNavBar";
+// Adicionar importações de ícones necessários
 import {
   Bell,
-  Settings,
   Calendar,
   Users,
   FileText,
   Clock,
-  AlertTriangle,
   ChevronRight,
   Activity,
   CheckCircle,
   AlertCircle,
   BarChart2,
   PieChart,
+  Loader,
+  Archive,
+  ImageIcon,
+  UserPlus,
+  FileCheck,
+  RefreshCw,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -32,6 +37,7 @@ import {
 import { Pie, Bar, Line } from "react-chartjs-2";
 import "../styles/admin-dashboard.css";
 import ControleDeRota from "@/components/ControleDeRota";
+import { useRouter } from "next/navigation";
 
 // Registrar componentes do Chart.js
 ChartJS.register(
@@ -63,7 +69,6 @@ export default function AdminDashboard() {
     usuariosAssistentes: 0,
     usuariosAdmin: 0,
     casosRecentes: [],
-    casosUrgentes: [],
     atividadesRecentes: [],
   });
 
@@ -73,23 +78,11 @@ export default function AdminDashboard() {
   // Dados para gráficos
   const [chartData, setChartData] = useState({
     distribuicaoStatus: {
-      labels: [
-        "Em Andamento",
-        "Finalizados",
-        "Arquivados",
-        "Pendentes",
-        "Cancelados",
-      ],
+      labels: ["Em Andamento", "Finalizados", "Arquivados"],
       datasets: [
         {
-          data: [0, 0, 0, 0, 0],
-          backgroundColor: [
-            "#b99f81",
-            "#62725c",
-            "#969696",
-            "#f39c12",
-            "#e74c3c",
-          ],
+          data: [0, 0, 0],
+          backgroundColor: ["#b99f81", "#62725c", "#969696"],
         },
       ],
     },
@@ -108,15 +101,15 @@ export default function AdminDashboard() {
         {
           label: "Casos Abertos",
           data: [],
-          borderColor: "#3498db",
-          backgroundColor: "rgba(52, 152, 219, 0.2)",
+          borderColor: "#000000",
+          backgroundColor: "rgba(0, 0, 0, 0.2)",
           tension: 0.4,
         },
         {
           label: "Casos Finalizados",
           data: [],
-          borderColor: "#2ecc71",
-          backgroundColor: "rgba(46, 204, 113, 0.2)",
+          borderColor: "#62725c",
+          backgroundColor: "rgba(98, 114, 92, 0.2)",
           tension: 0.4,
         },
       ],
@@ -127,11 +120,13 @@ export default function AdminDashboard() {
         {
           label: "Casos Processados",
           data: [],
-          backgroundColor: "#3498db",
+          backgroundColor: "#000000",
         },
       ],
     },
   });
+
+  const router = useRouter();
 
   // Buscar dados do dashboard
   useEffect(() => {
@@ -140,6 +135,7 @@ export default function AdminDashboard() {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
+          router.push("/");
           throw new Error("Token de autenticação não encontrado");
         }
 
@@ -153,6 +149,13 @@ export default function AdminDashboard() {
             },
           }
         );
+
+        // Verificar se o token expirou (401 Unauthorized)
+        if (casosResponse.status === 401) {
+          localStorage.removeItem("token"); // Limpar o token inválido
+          router.push("/"); // Redirecionar para a página de login
+          throw new Error("Sessão expirada. Por favor, faça login novamente.");
+        }
 
         if (!casosResponse.ok) {
           throw new Error(`Erro ao buscar casos: ${casosResponse.status}`);
@@ -174,6 +177,13 @@ export default function AdminDashboard() {
             },
           }
         );
+
+        // Verificar se o token expirou (401 Unauthorized)
+        if (usuariosResponse.status === 401) {
+          localStorage.removeItem("token"); // Limpar o token inválido
+          router.push("/"); // Redirecionar para a página de login
+          throw new Error("Sessão expirada. Por favor, faça login novamente.");
+        }
 
         if (!usuariosResponse.ok) {
           throw new Error(
@@ -201,19 +211,19 @@ export default function AdminDashboard() {
 
         // Processar dados dos casos
         const casosEmAndamento = casos.filter(
-          (caso) => caso.status === "Em Andamento"
+          (caso) => caso.status?.toLowerCase() === "em andamento"
         ).length;
         const casosFinalizados = casos.filter(
-          (caso) => caso.status === "Finalizado"
+          (caso) => caso.status?.toLowerCase() === "finalizado"
         ).length;
         const casosArquivados = casos.filter(
-          (caso) => caso.status === "Arquivado"
+          (caso) => caso.status?.toLowerCase() === "arquivado"
         ).length;
         const casosPendentes = casos.filter(
-          (caso) => caso.status === "Pendente"
+          (caso) => caso.status?.toLowerCase() === "pendente"
         ).length;
         const casosCancelados = casos.filter(
-          (caso) => caso.status === "Cancelado"
+          (caso) => caso.status?.toLowerCase() === "cancelado"
         ).length;
 
         // Processar dados dos usuários
@@ -241,44 +251,13 @@ export default function AdminDashboard() {
         // Casos recentes (últimos 5)
         const casosRecentes = casosOrdenados.slice(0, 5);
 
-        // Casos urgentes (em andamento com mais de 30 dias)
-        const casosUrgentes = casos
-          .filter((caso) => {
-            if (caso.status !== "Em Andamento") return false;
-            const dataAbertura = new Date(caso.openDate || caso.createdAt);
-            const hoje = new Date();
-            const diferencaDias = Math.floor(
-              (hoje - dataAbertura) / (1000 * 60 * 60 * 24)
-            );
-            return diferencaDias > 30;
-          })
-          .slice(0, 5);
-
-        // Gerar dados para gráfico de distribuição de status
+        // Gerar dados para gráfico de distribuição de status (apenas Em Andamento, Finalizados e Arquivados)
         const distribuicaoStatus = {
-          labels: [
-            "Em Andamento",
-            "Finalizados",
-            "Arquivados",
-            "Pendentes",
-            "Cancelados",
-          ],
+          labels: ["Em Andamento", "Finalizados", "Arquivados"],
           datasets: [
             {
-              data: [
-                casosEmAndamento,
-                casosFinalizados,
-                casosArquivados,
-                casosPendentes,
-                casosCancelados,
-              ],
-              backgroundColor: [
-                "#b99f81",
-                "#62725c",
-                "#969696",
-                "#f39c12",
-                "#e74c3c",
-              ],
+              data: [casosEmAndamento, casosFinalizados, casosArquivados],
+              backgroundColor: ["#b99f81", "#62725c", "#969696"],
             },
           ],
         };
@@ -289,7 +268,7 @@ export default function AdminDashboard() {
           datasets: [
             {
               data: [usuariosPeritos, usuariosAssistentes, usuariosAdmin],
-              backgroundColor: ["#3498db", "#2ecc71", "#9b59b6"],
+              backgroundColor: ["#000000", "#333333", "#666666"],
             },
           ],
         };
@@ -317,7 +296,6 @@ export default function AdminDashboard() {
           usuariosAssistentes,
           usuariosAdmin,
           casosRecentes,
-          casosUrgentes,
           atividadesRecentes,
         });
 
@@ -337,7 +315,7 @@ export default function AdminDashboard() {
     };
 
     fetchDashboardData();
-  }, [periodoAtivo]);
+  }, [periodoAtivo, router]);
 
   // Função para gerar dados de tendência com base no período selecionado
   const gerarDadosTendencia = (casos, periodo) => {
@@ -431,7 +409,7 @@ export default function AdminDashboard() {
       casosAbertos[indice]++;
 
       // Se o caso está finalizado, incrementar o contador de finalizados
-      if (caso.status === "Finalizado") {
+      if (caso.status?.toLowerCase() === "finalizado") {
         casosFinalizados[indice]++;
       }
     });
@@ -442,15 +420,15 @@ export default function AdminDashboard() {
         {
           label: "Casos Abertos",
           data: casosAbertos,
-          borderColor: "#3498db",
-          backgroundColor: "rgba(52, 152, 219, 0.2)",
+          borderColor: "#000000",
+          backgroundColor: "rgba(0, 0, 0, 0.2)",
           tension: 0.4,
         },
         {
           label: "Casos Finalizados",
           data: casosFinalizados,
-          borderColor: "#2ecc71",
-          backgroundColor: "rgba(46, 204, 113, 0.2)",
+          borderColor: "#62725c",
+          backgroundColor: "rgba(98, 114, 92, 0.2)",
           tension: 0.4,
         },
       ],
@@ -477,7 +455,8 @@ export default function AdminDashboard() {
         return (
           dataCaso.getMonth() === data.getMonth() &&
           dataCaso.getFullYear() === data.getFullYear() &&
-          (caso.status === "Finalizado" || caso.status === "Arquivado")
+          (caso.status?.toLowerCase() === "finalizado" ||
+            caso.status?.toLowerCase() === "arquivado")
         );
       }).length;
 
@@ -490,7 +469,7 @@ export default function AdminDashboard() {
         {
           label: "Casos Processados",
           data: dadosMensais,
-          backgroundColor: "#3498db",
+          backgroundColor: "#000000",
         },
       ],
     };
@@ -502,24 +481,101 @@ export default function AdminDashboard() {
 
     // Adicionar casos recentes como atividades
     casos.slice(0, 10).forEach((caso) => {
+      // Atividade de criação de caso
       atividades.push({
-        tipo: "caso",
+        tipo: "caso_criado",
         titulo: caso.title || "Caso sem título",
         data: caso.createdAt || caso.openDate,
         status: caso.status,
         usuario: caso.createdBy?.name || "Usuário desconhecido",
         id: caso._id || caso.id,
+        descricao: `Caso criado por ${
+          caso.createdBy?.name || "Usuário desconhecido"
+        }`,
+        icone: "FileText",
       });
+
+      // Se o caso foi finalizado, adicionar como atividade separada
+      if (caso.status?.toLowerCase() === "finalizado" && caso.closeDate) {
+        atividades.push({
+          tipo: "caso_finalizado",
+          titulo: caso.title || "Caso sem título",
+          data: caso.closeDate,
+          status: "finalizado",
+          usuario:
+            caso.updatedBy?.name ||
+            caso.createdBy?.name ||
+            "Usuário desconhecido",
+          id: caso._id || caso.id,
+          descricao: `Caso finalizado por ${
+            caso.updatedBy?.name ||
+            caso.createdBy?.name ||
+            "Usuário desconhecido"
+          }`,
+          icone: "CheckCircle",
+        });
+      }
+
+      // Se o caso foi arquivado, adicionar como atividade separada
+      if (caso.status?.toLowerCase() === "arquivado" && caso.updatedAt) {
+        atividades.push({
+          tipo: "caso_arquivado",
+          titulo: caso.title || "Caso sem título",
+          data: caso.updatedAt,
+          status: "arquivado",
+          usuario:
+            caso.updatedBy?.name ||
+            caso.createdBy?.name ||
+            "Usuário desconhecido",
+          id: caso._id || caso.id,
+          descricao: `Caso arquivado por ${
+            caso.updatedBy?.name ||
+            caso.createdBy?.name ||
+            "Usuário desconhecido"
+          }`,
+          icone: "Archive",
+        });
+      }
+
+      // Se o caso tem evidências, adicionar como atividade
+      if (
+        caso.evidenceCount > 0 ||
+        (caso.evidences && caso.evidences.length > 0)
+      ) {
+        atividades.push({
+          tipo: "evidencia_adicionada",
+          titulo: `Evidência adicionada ao caso: ${
+            caso.title || "Caso sem título"
+          }`,
+          data: caso.updatedAt || caso.createdAt || caso.openDate,
+          status: caso.status,
+          usuario:
+            caso.updatedBy?.name ||
+            caso.createdBy?.name ||
+            "Usuário desconhecido",
+          id: caso._id || caso.id,
+          descricao: `Nova evidência adicionada por ${
+            caso.updatedBy?.name ||
+            caso.createdBy?.name ||
+            "Usuário desconhecido"
+          }`,
+          icone: "ImageIcon",
+        });
+      }
     });
 
     // Adicionar usuários recentes como atividades
     usuarios.slice(0, 5).forEach((usuario) => {
       atividades.push({
-        tipo: "usuario",
+        tipo: "usuario_criado",
         titulo: `${usuario.name || "Usuário"} (${formatarPapel(usuario.role)})`,
         data: usuario.createdAt || new Date(),
         status: usuario.active !== false ? "Ativo" : "Inativo",
         id: usuario._id || usuario.id,
+        descricao: `Novo usuário ${formatarPapel(
+          usuario.role
+        )} adicionado ao sistema`,
+        icone: "UserPlus",
       });
     });
 
@@ -546,17 +602,44 @@ export default function AdminDashboard() {
   const formatarData = (dataISO) => {
     if (!dataISO) return "--";
     const data = new Date(dataISO);
-    return data.toLocaleDateString("pt-BR", {
+
+    // Ajustar para o fuso horário local para evitar o problema de -1 dia
+    const dataAjustada = new Date(
+      data.getTime() + data.getTimezoneOffset() * 60000
+    );
+
+    return dataAjustada.toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
   };
 
-  // Função para calcular variação percentual
-  const calcularVariacao = (atual, anterior) => {
-    if (anterior === 0) return atual > 0 ? 100 : 0;
-    return Math.round(((atual - anterior) / anterior) * 100);
+  // Função para obter classe CSS baseada no status
+  const getStatusClassName = (status) => {
+    if (!status) return "status-desconhecido";
+
+    // Normalize o status para minúsculas e sem espaços
+    const normalizedStatus = status.toLowerCase().replace(/\s+/g, "-");
+
+    switch (normalizedStatus) {
+      case "em-andamento":
+        return "status-em-andamento";
+      case "finalizado":
+        return "status-finalizado";
+      case "pendente":
+        return "status-pendente";
+      case "arquivado":
+        return "status-arquivado";
+      case "cancelado":
+        return "status-cancelado";
+      case "ativo":
+        return "status-ativo";
+      case "inativo":
+        return "status-inativo";
+      default:
+        return "status-outro";
+    }
   };
 
   // Opções para gráficos
@@ -569,6 +652,10 @@ export default function AdminDashboard() {
         labels: {
           usePointStyle: true,
           padding: 20,
+          font: {
+            family: "'Inter', sans-serif",
+            size: 12,
+          },
         },
       },
     },
@@ -580,10 +667,21 @@ export default function AdminDashboard() {
     plugins: {
       legend: {
         position: "top",
+        labels: {
+          font: {
+            family: "'Inter', sans-serif",
+            size: 12,
+          },
+        },
       },
       title: {
         display: true,
         text: "Desempenho Mensal",
+        font: {
+          family: "'Inter', sans-serif",
+          size: 14,
+          weight: "bold",
+        },
       },
     },
   };
@@ -594,10 +692,21 @@ export default function AdminDashboard() {
     plugins: {
       legend: {
         position: "top",
+        labels: {
+          font: {
+            family: "'Inter', sans-serif",
+            size: 12,
+          },
+        },
       },
       title: {
         display: true,
         text: "Tendência de Casos",
+        font: {
+          family: "'Inter', sans-serif",
+          size: 14,
+          weight: "bold",
+        },
       },
     },
   };
@@ -613,13 +722,12 @@ export default function AdminDashboard() {
             <h2>Dashboard de Gestão</h2>
             <div className="admin-dashboard-header-icons-dashboard">
               <Bell size={24} className="admin-dashboard-header-icon" />
-              <Settings size={24} className="admin-dashboard-header-icon" />
             </div>
           </div>
 
           {loading ? (
             <div className="admin-dashboard-loading">
-              <div className="admin-dashboard-loading-spinner"></div>
+              <Loader size={40} className="spinner" />
               <p>Carregando dados do dashboard...</p>
             </div>
           ) : error ? (
@@ -698,26 +806,6 @@ export default function AdminDashboard() {
                             )
                           : 0}
                         %
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="admin-dashboard-stat-card">
-                  <div className="admin-dashboard-stat-icon urgentes">
-                    <AlertTriangle size={24} />
-                  </div>
-                  <div className="admin-dashboard-stat-content">
-                    <h3>Casos Urgentes</h3>
-                    <div className="admin-dashboard-stat-value">
-                      {dashboardData.casosUrgentes.length}
-                    </div>
-                    <div className="admin-dashboard-stat-comparison">
-                      <span className="admin-dashboard-stat-label">
-                        Pendentes:
-                      </span>
-                      <span className="admin-dashboard-stat-number">
-                        {dashboardData.casosPendentes}
                       </span>
                     </div>
                   </div>
@@ -815,10 +903,13 @@ export default function AdminDashboard() {
 
               {/* Listas de casos e atividades */}
               <div className="admin-dashboard-lists-container">
-                <div className="admin-dashboard-list-card">
+                <div className="admin-dashboard-list-card full-width admin-dashboard-casos-recentes">
                   <div className="admin-dashboard-list-header">
                     <h3>Casos Recentes</h3>
-                    <button className="admin-dashboard-view-all-btn">
+                    <button
+                      className="admin-dashboard-view-all-btn"
+                      onClick={() => router.push("/casos")}
+                    >
                       Ver todos <ChevronRight size={16} />
                     </button>
                   </div>
@@ -829,6 +920,10 @@ export default function AdminDashboard() {
                           <li
                             key={caso._id || caso.id}
                             className="admin-dashboard-list-item"
+                            onClick={() =>
+                              router.push(`/casos/${caso._id || caso.id}`)
+                            }
+                            style={{ cursor: "pointer" }}
                           >
                             <div className="admin-dashboard-list-item-main">
                               <div className="admin-dashboard-list-item-title">
@@ -858,6 +953,15 @@ export default function AdminDashboard() {
                                     "Usuário desconhecido"}
                                 </span>
                               </div>
+                              <div className="admin-dashboard-list-item-detail">
+                                <Clock size={14} />
+                                <span>
+                                  {calcularDiasAberto(
+                                    caso.openDate || caso.createdAt
+                                  )}{" "}
+                                  dias em aberto
+                                </span>
+                              </div>
                             </div>
                           </li>
                         ))}
@@ -869,105 +973,84 @@ export default function AdminDashboard() {
                     )}
                   </div>
                 </div>
-
-                <div className="admin-dashboard-list-card">
-                  <div className="admin-dashboard-list-header">
-                    <h3>Casos Urgentes</h3>
-                    <button className="admin-dashboard-view-all-btn">
-                      Ver todos <ChevronRight size={16} />
-                    </button>
-                  </div>
-                  <div className="admin-dashboard-list-content">
-                    {dashboardData.casosUrgentes.length > 0 ? (
-                      <ul className="admin-dashboard-list">
-                        {dashboardData.casosUrgentes.map((caso) => (
-                          <li
-                            key={caso._id || caso.id}
-                            className="admin-dashboard-list-item urgent"
-                          >
-                            <div className="admin-dashboard-list-item-main">
-                              <div className="admin-dashboard-list-item-title">
-                                {caso.title || "Caso sem título"}
-                              </div>
-                              <div className="admin-dashboard-list-item-badge status-urgente">
-                                Urgente
-                              </div>
-                            </div>
-                            <div className="admin-dashboard-list-item-details">
-                              <div className="admin-dashboard-list-item-detail">
-                                <Calendar size={14} />
-                                <span>
-                                  {formatarData(
-                                    caso.openDate || caso.createdAt
-                                  )}
-                                </span>
-                              </div>
-                              <div className="admin-dashboard-list-item-detail">
-                                <Clock size={14} />
-                                <span>
-                                  {calcularDiasAberto(
-                                    caso.openDate || caso.createdAt
-                                  )}{" "}
-                                  dias
-                                </span>
-                              </div>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <div className="admin-dashboard-empty-list">
-                        <p>Nenhum caso urgente encontrado</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
 
               {/* Atividades recentes */}
               <div className="admin-dashboard-activities-container">
                 <div className="admin-dashboard-list-card full-width">
                   <div className="admin-dashboard-list-header">
-                    <h3>Atividades Recentes</h3>
+                    <h3>
+                      <Activity size={18} /> Atividades Recentes
+                    </h3>
+                    <button
+                      className="admin-dashboard-refresh-btn"
+                      onClick={() => window.location.reload()}
+                    >
+                      <RefreshCw size={16} />
+                      <span>Atualizar</span>
+                    </button>
                   </div>
                   <div className="admin-dashboard-list-content">
                     {dashboardData.atividadesRecentes.length > 0 ? (
                       <ul className="admin-dashboard-list">
                         {dashboardData.atividadesRecentes.map(
-                          (atividade, index) => (
-                            <li
-                              key={`atividade-${index}-${atividade.id}`}
-                              className="admin-dashboard-list-item"
-                            >
-                              <div className="admin-dashboard-list-item-main">
-                                <div className="admin-dashboard-list-item-title">
-                                  {atividade.tipo === "caso"
-                                    ? "Caso: "
-                                    : "Usuário: "}
-                                  {atividade.titulo}
+                          (atividade, index) => {
+                            // Determinar qual ícone usar com base no tipo de atividade
+                            let AtividadeIcone = FileText;
+                            if (atividade.icone === "CheckCircle")
+                              AtividadeIcone = CheckCircle;
+                            else if (atividade.icone === "Archive")
+                              AtividadeIcone = Archive;
+                            else if (atividade.icone === "ImageIcon")
+                              AtividadeIcone = ImageIcon;
+                            else if (atividade.icone === "UserPlus")
+                              AtividadeIcone = UserPlus;
+                            else if (atividade.icone === "FileCheck")
+                              AtividadeIcone = FileCheck;
+
+                            return (
+                              <li
+                                key={`atividade-${index}-${atividade.id}`}
+                                className="admin-dashboard-list-item"
+                                data-tipo={atividade.tipo}
+                              >
+                                <div className="admin-dashboard-activity-icon">
+                                  <AtividadeIcone size={18} />
                                 </div>
-                                <div
-                                  className={`admin-dashboard-list-item-badge ${getStatusClassName(
-                                    atividade.status
-                                  )}`}
-                                >
-                                  {atividade.status}
-                                </div>
-                              </div>
-                              <div className="admin-dashboard-list-item-details">
-                                <div className="admin-dashboard-list-item-detail">
-                                  <Calendar size={14} />
-                                  <span>{formatarData(atividade.data)}</span>
-                                </div>
-                                {atividade.usuario && (
-                                  <div className="admin-dashboard-list-item-detail">
-                                    <Users size={14} />
-                                    <span>{atividade.usuario}</span>
+                                <div className="admin-dashboard-activity-content">
+                                  <div className="admin-dashboard-list-item-main">
+                                    <div className="admin-dashboard-list-item-title">
+                                      {atividade.titulo}
+                                    </div>
+                                    <div
+                                      className={`admin-dashboard-list-item-badge ${getStatusClassName(
+                                        atividade.status
+                                      )}`}
+                                    >
+                                      {atividade.status}
+                                    </div>
                                   </div>
-                                )}
-                              </div>
-                            </li>
-                          )
+                                  <div className="admin-dashboard-activity-description">
+                                    {atividade.descricao}
+                                  </div>
+                                  <div className="admin-dashboard-list-item-details">
+                                    <div className="admin-dashboard-list-item-detail">
+                                      <Calendar size={14} />
+                                      <span>
+                                        {formatarData(atividade.data)}
+                                      </span>
+                                    </div>
+                                    {atividade.usuario && (
+                                      <div className="admin-dashboard-list-item-detail">
+                                        <Users size={14} />
+                                        <span>{atividade.usuario}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </li>
+                            );
+                          }
                         )}
                       </ul>
                     ) : (
@@ -986,39 +1069,10 @@ export default function AdminDashboard() {
   );
 }
 
-// Função auxiliar para calcular dias em aberto
-function calcularDiasAberto(dataAbertura) {
+// Função para calcular dias em aberto
+const calcularDiasAberto = (dataAbertura) => {
   if (!dataAbertura) return "--";
   const inicio = new Date(dataAbertura);
   const hoje = new Date();
   return Math.floor((hoje - inicio) / (1000 * 60 * 60 * 24));
-}
-
-// Função para obter classe CSS baseada no status
-function getStatusClassName(status) {
-  if (!status) return "status-desconhecido";
-
-  // Normalize o status para minúsculas e sem espaços
-  const normalizedStatus = status.toLowerCase().replace(/\s+/g, "-");
-
-  switch (normalizedStatus) {
-    case "em-andamento":
-      return "status-em-andamento";
-    case "finalizado":
-      return "status-finalizado";
-    case "pendente":
-      return "status-pendente";
-    case "arquivado":
-      return "status-arquivado";
-    case "cancelado":
-      return "status-cancelado";
-    case "urgente":
-      return "status-urgente";
-    case "ativo":
-      return "status-ativo";
-    case "inativo":
-      return "status-inativo";
-    default:
-      return "status-outro";
-  }
-}
+};
