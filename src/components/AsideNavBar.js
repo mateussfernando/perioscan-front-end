@@ -1,25 +1,30 @@
-"use client";
+"use client"; // Indica que este é um componente do lado do cliente (Next.js)
+
+// Importações de bibliotecas e componentes
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "../styles/aside-navbar.css";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import BotaoAsideNav from "../components/ui/BotaoAsideNav/BotaoAsideNav";
+import BotaoAsideNav from "./ui/BtnAsideNav";
 
-export default function BarraLateral() {
-  const caminhoAtual = usePathname();
-  const navegador = useRouter();
-  const [usuario, setUsuario] = useState({ nome: "", perfil: "" });
-  const [aberto, setAberto] = useState(true);
+export default function AsideNavBar() {
+  // Hooks do Next.js para roteamento
+  const caminhoAtual = usePathname(); // Obtém a rota atual
+  const navegador = useRouter(); // Objeto para navegação programática
 
-  // Carrega os dados do usuário ao montar o componente
+  // Estados do componente
+  const [usuario, setUsuario] = useState({ nome: "", perfil: "" }); // Armazena dados do usuário
+  const [aberto, setAberto] = useState(true); // Controla se a sidebar está aberta ou fechada
+
+  // Efeito que carrega os dados do usuário ao montar o componente
   useEffect(() => {
-    const nome = localStorage.getItem("name") || "";
-    const perfil = localStorage.getItem("role") || "";
-    setUsuario({ nome: nome, perfil: perfil });
-  }, []);
+    const nome = localStorage.getItem("name") || ""; // Obtém nome do localStorage
+    const perfil = localStorage.getItem("role") || ""; // Obtém perfil do localStorage
+    setUsuario({ nome: nome, perfil: perfil }); // Atualiza estado com dados do usuário
+  }, []); // Array vazio = executa apenas no mount
 
-  // Formata o nome do perfil para exibição
+  // Função para formatar o texto do perfil para exibição amigável
   function formatarPerfil(perfil) {
     if (perfil.toLowerCase() === "admin") {
       return "Administrador";
@@ -28,25 +33,26 @@ export default function BarraLateral() {
     } else if (perfil.toLowerCase() === "perito") {
       return "Perito";
     }
-    return "Perfil Desconhecido";
+    return "Perfil Desconhecido"; // Fallback para perfis não mapeados
   }
 
-  // Realiza o logout do sistema
+  // Função para realizar logout
   function fazerLogout() {
-    localStorage.clear();
-    navegador.push("/");
+    localStorage.clear(); // Limpa todos os dados do localStorage
+    navegador.push("/"); // Redireciona para a página inicial
   }
 
-  // Alterna o estado da barra lateral (aberto/fechado)
-  function alternarBarraLateral() {
-    setAberto(!aberto);
+  // Função para alternar entre sidebar aberta/fechada
+  function alternarAsideNavBar() {
+    setAberto(!aberto); // Inverte o estado atual
   }
 
   return (
     <div className="sidebar-container">
+      {/* Container principal da sidebar - classe muda entre 'open' e 'closed' */}
       <aside className={`sidebar ${aberto ? "open" : "closed"}`}>
         <div className="sidebar-content">
-          {/* Seção do Logo */}
+          {/* Seção do Logo - mostra texto apenas quando aberto */}
           <div className="logo">
             <Image
               src="/images/logos/logo-perio-scan.png"
@@ -54,30 +60,33 @@ export default function BarraLateral() {
               width={30}
               height={30}
             />
-            {aberto && <span>PerioScan</span>}
+            {aberto && <span>PerioScan</span>}{" "}
+            {/* Nome só aparece quando aberto */}
           </div>
 
-          {/* Seção do Perfil */}
+          {/* Seção do Perfil - só renderiza se tiver nome de usuário */}
           {usuario.nome && (
             <div className="profile">
-              {aberto && (
+              {aberto && ( // Conteúdo só aparece quando sidebar está aberta
                 <div className="user-info">
-                  <div className="first-name">{usuario.nome.split(" ")[0]}</div>
+                  <div className="first-name">{usuario.nome.split(" ")[0]}</div>{" "}
+                  {/* Primeiro nome */}
                   <div className="last-name">
-                    {usuario.nome.split(" ").slice(1).join(" ")}
+                    {usuario.nome.split(" ").slice(1).join(" ")}{" "}
+                    {/* Sobrenome(s) */}
                   </div>
                   <div className="profile-role">
-                    ({formatarPerfil(usuario.perfil)})
+                    ({formatarPerfil(usuario.perfil)}) {/* Perfil formatado */}
                   </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* Seção de Navegação */}
+          {/* Seção de Navegação - menus diferentes para admin e outros perfis */}
           <nav>
             <ul>
-              {usuario.perfil.toLowerCase() === "admin" ? (
+              {usuario.perfil.toLowerCase() === "admin" ? ( // Verifica se é admin
                 // Menu para Administradores
                 <>
                   <BotaoAsideNav
@@ -88,14 +97,6 @@ export default function BarraLateral() {
                     isOpen={aberto}
                     active={caminhoAtual === "/adminDashboard"}
                   />
-                  {/* <BotaoAsideNav
-                    logo="/images/icons/icone-adicionar.png"
-                    src="/admincadastramento"
-                    alt="Ícone para Adicionar Usuários"
-                    label="Adicionar"
-                    isOpen={aberto}
-                    active={caminhoAtual === "/admincadastramento"}
-                  /> */}
                   <BotaoAsideNav
                     logo="/images/icons/icone-casos.png"
                     src="/casos"
@@ -159,7 +160,7 @@ export default function BarraLateral() {
           <button
             onClick={fazerLogout}
             className="nav-link"
-            title={!aberto ? "Sair" : ""}
+            title={!aberto ? "Sair" : ""} // Tooltip quando fechado
           >
             <Image
               src="/images/icons/icone-logout.png"
@@ -167,18 +168,19 @@ export default function BarraLateral() {
               width={32}
               height={32}
             />
-            {aberto && <span>Sair</span>}
+            {aberto && <span>Sair</span>} {/* Texto só aparece quando aberto */}
           </button>
         </div>
       </aside>
 
-      {/* Botão para Alternar a Barra Lateral */}
+      {/* Botão para Alternar a Barra Lateral (fora da sidebar) */}
       <button
-        onClick={alternarBarraLateral}
-        aria-label="Alternar menu"
+        onClick={alternarAsideNavBar}
+        aria-label="Alternar menu" // Acessibilidade
         className="toggle-button-outside"
       >
-        {aberto ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+        {aberto ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}{" "}
+        {/* Ícone muda conforme estado */}
       </button>
     </div>
   );

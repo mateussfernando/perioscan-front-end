@@ -191,3 +191,14 @@ nav ul {
 .sidebar::-webkit-scrollbar-thumb:hover {
   background: #888;
 }
+
+@media (max-width: 728px) {
+  .sidebar-container {
+    display: none !important; /* Garante que não apareça em mobile */
+  }
+  
+  /* Opcional: Esconde também o botão de toggle se existir */
+  .toggle-button-outside {
+    display: none !important;
+  }
+}
