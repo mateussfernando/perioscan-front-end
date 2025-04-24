@@ -16,12 +16,6 @@ export default function manifest() {
           purpose: "any maskable"
         },
         {
-          src: "/images/icons/web-app-manifest-512x512.png",
-          sizes: "512x512",
-          type: "image/png",
-          purpose: "any maskable"
-        },
-        {
           src: "/images/icons/logo-periocan114.png",
           sizes: "114x114",
           type: "image/png"
@@ -36,10 +30,25 @@ export default function manifest() {
           sizes: "256x256",
           type: "image/png"
         },
+        
         {
-          src: "/images/icons/logo-periocan512.png",
-          sizes: "512x512",
-          type: "image/png"
+          "purpose": "maskable",
+          "sizes": "1280x1280",
+          "src": "maskable_icon.png",
+          "type": "image/png"
+        },
+        
+        {
+          "purpose": "maskable",
+          "sizes": "384x384",
+          "src": "/images/icons/maskable_icon_x384.png",
+          "type": "image/png"
+        },
+        {
+          "purpose": "maskable",
+          "sizes": "512x512",
+          "src": "/images/icons/maskable_icon_x512.png",
+          "type": "image/png"
         }
       ],
     }
