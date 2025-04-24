@@ -1,0 +1,79 @@
+{
+    "name": "PerioScan",
+    "short_name": "PerioScan",
+    "description": "Solução digital especializada no gerenciamento de perícias odontológicas forenses",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#000000",
+    "orientation": "portrait",
+    "scope": "/",
+    "icons": [
+      {
+        "src": "/images/icons/logo-periocan57.png",
+        "sizes": "57x57",
+        "type": "image/png"
+      },
+      {
+        "src": "/images/icons/logo-periocan92.png",
+        "sizes": "92x92",
+        "type": "image/png"
+      },
+      {
+        "src": "/images/icons/logo-periocan100.png",
+        "sizes": "100x100",
+        "type": "image/png"
+      },
+      {
+        "src": "/images/icons/logo-periocan114.png",
+        "sizes": "114x114",
+        "type": "image/png"
+      },
+      {
+        "src": "/images/icons/logo-periocan196.png",
+        "sizes": "196x196",
+        "type": "image/png"
+      },
+      {
+        "src": "/images/icons/logo-periocan256.png",
+        "sizes": "256x256",
+        "type": "image/png"
+      },
+      {
+        "src": "/images/icons/logo-periocan512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      },
+      {
+        "src": "/images/icons/web-app-manifest-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/images/icons/web-app-manifest-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/images/icons/maskable_icon_x384.png",
+        "sizes": "384x384",
+        "type": "image/png",
+        "purpose": "maskable"
+      },
+      {
+        "src": "/images/icons/maskable_icon_x512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
+      },
+      {
+        "src": "/images/icons/apple-touch-icon.png",
+        "sizes": "180x180",
+        "type": "image/png",
+        "purpose": "any"
+      }
+    ]
+  }
+  
