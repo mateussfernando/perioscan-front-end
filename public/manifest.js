@@ -8,6 +8,18 @@ export default function manifest() {
       background_color: "#ffffff",
       theme_color: "#000000",
       icons: [
+
+        {
+          src: "/images/icons/apple-touch-icon.png",
+          sizes: "46x46",
+          type: "image/png",
+        },
+        
+        {
+          src: "/images/icons/playstore.png",
+          sizes: "46x46",
+          type: "image/png",
+        },
         {
           src: "/images/icons/web-app-manifest-192x192.png",
           sizes: "192x192",
@@ -40,6 +52,8 @@ export default function manifest() {
           sizes: "512x512",
           type: "image/png",
         },
+        
+
       ],
     }
   }
