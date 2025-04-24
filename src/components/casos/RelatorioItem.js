@@ -47,6 +47,7 @@ export default function RelatorioItem({
   // Verificar se o relatório está assinado
   const estaAssinado =
     relatorio.status?.toLowerCase() === "assinado" ||
+    relatorio.status?.toLowerCase() === "finalizado" ||
     !!relatorio.digitalSignature;
 
   // Função para excluir relatório
@@ -59,8 +60,9 @@ export default function RelatorioItem({
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}`,
+      // Tentar usar a rota de exclusão forçada primeiro
+      let response = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}/force-delete`,
         {
           method: "DELETE",
           headers: {
@@ -70,9 +72,36 @@ export default function RelatorioItem({
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`Erro ao excluir relatório: ${response.status}`);
+      // Se a rota de exclusão forçada não existir, tentar a rota padrão
+      if (response.status === 404) {
+        response = await fetch(
+          `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
       }
+
+      if (!response.ok) {
+        // Tentar obter mais detalhes do erro
+        let mensagemErro = `Erro ao excluir relatório: ${response.status}`;
+        try {
+          const erroJson = await response.json();
+          if (erroJson && erroJson.message) {
+            mensagemErro += ` - ${erroJson.message}`;
+          }
+        } catch (e) {
+          // Se não conseguir obter o JSON, apenas continua com a mensagem básica
+        }
+        throw new Error(mensagemErro);
+      }
+
+      // Chamar a função de exclusão passada como prop para atualizar a UI
+      onExcluir(relatorioId);
 
       // Recarregar a página para atualizar a lista de relatórios
       window.location.reload();
@@ -120,7 +149,7 @@ export default function RelatorioItem({
         </button>
         <button
           className="btn-acao btn-excluir"
-          onClick={() => onExcluir(relatorioId)}
+          onClick={excluirRelatorio}
           disabled={excluindo}
           title="Excluir Relatório"
         >

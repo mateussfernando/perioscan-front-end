@@ -32,6 +32,7 @@ const ModalCriarRelatorio = ({
     }));
   };
 
+  // Modificar a função handleSubmit para garantir que o status do caso seja atualizado para "finalizado" apenas quando o relatório é criado
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -45,7 +46,7 @@ const ModalCriarRelatorio = ({
       };
 
       const response = await fetch(
-        "https://perioscan-back-end.onrender.com/api/reports",
+        "https://perioscan-back-end-fhhq.onrender.com/api/reports",
         {
           method: "POST",
           headers: {
@@ -62,11 +63,68 @@ const ModalCriarRelatorio = ({
       const data = await response.json();
       setCreatedReportId(data._id);
       setSuccess("Relatório criado com sucesso!");
+
+      // Chamar a função para atualizar o status do caso para "finalizado"
+      await updateCaseStatus(casoId);
+
       if (onRelatorioCriado) onRelatorioCriado(data);
     } catch (err) {
       setError(err.message || "Ocorreu um erro ao criar o relatório");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Adicionar uma nova função para atualizar o status do caso
+  const updateCaseStatus = async (caseId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      // Primeiro, buscar os dados atuais do caso
+      const getCaseResponse = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${caseId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!getCaseResponse.ok) {
+        console.error("Erro ao buscar dados do caso:", getCaseResponse.status);
+        return;
+      }
+
+      const caseData = await getCaseResponse.json();
+      const currentCase = caseData.data || caseData;
+
+      // Atualizar apenas o status para "finalizado", mantendo os outros dados
+      const updateResponse = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${caseId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...currentCase,
+            status: "finalizado",
+          }),
+        }
+      );
+
+      if (!updateResponse.ok) {
+        console.error(
+          "Erro ao atualizar status do caso:",
+          updateResponse.status
+        );
+      } else {
+        console.log("Status do caso atualizado para finalizado com sucesso");
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar status do caso:", error);
     }
   };
 
@@ -76,7 +134,7 @@ const ModalCriarRelatorio = ({
     try {
       setLoading(true);
       const response = await fetch(
-        `https://perioscan-back-end.onrender.com/api/reports/${createdReportId}/pdf`,
+        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${createdReportId}/pdf`,
         {
           method: "GET",
         }
@@ -118,7 +176,7 @@ const ModalCriarRelatorio = ({
     try {
       setLoading(true);
       const response = await fetch(
-        `https://perioscan-back-end.onrender.com/api/reports/${createdReportId}/sign`,
+        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${createdReportId}/sign`,
         {
           method: "POST",
           headers: {
