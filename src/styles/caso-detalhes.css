@@ -1049,94 +1049,171 @@
   color: #1b5e20;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-  .caso-content {
-    flex-direction: column;
-  }
-
-  .info-coluna,
-  .descricao-coluna {
-    width: 100%;
-    border-right: none;
-  }
-
-  .info-coluna {
-    border-bottom: 1px solid #e0e0e0;
-  }
-
-  .evidencia-modal-content {
-    width: 95%;
-    max-width: 95%;
-  }
-
-  .tipo-evidencia-selector {
-    flex-direction: column;
-  }
-
-  .caso-card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .header-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .search-container {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .filter-toggle {
-    width: 100%;
-    margin-left: 0;
-    justify-content: center;
-  }
-
-  .filters-container {
-    grid-template-columns: 1fr;
-  }
-
-  .btn-text {
-    display: none;
-  }
-
-  .btn-criar-laudo,
-  .btn-baixar-pdf {
-    min-width: unset;
-    padding: 6px;
-  }
-
-  .evidencias-tabela th:last-child,
-  .evidencias-tabela td:last-child {
-    width: 100px;
-  }
+/* Adicionar estilos para a seção de relatórios */
+.relatorios-section {
+  padding: 15px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-@media (max-width: 480px) {
-  .header-actions {
-    flex-wrap: wrap;
-    gap: 5px;
-  }
+.relatorios-section h2 {
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #333;
+}
 
-  .btn-editar,
-  .btn-excluir,
-  .btn-voltar {
-    flex: 1;
-    justify-content: center;
-  }
+.relatorios-tabela {
+  margin-bottom: 15px;
+}
 
-  .form-actions {
-    flex-direction: column;
-  }
+.relatorios-tabela table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
 
-  .btn-cancelar,
-  .btn-salvar,
-  .btn-excluir-confirmar {
-    width: 100%;
-    justify-content: center;
-  }
+.relatorios-tabela th,
+.relatorios-tabela td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.relatorios-tabela th {
+  font-weight: 600;
+  color: #555;
+  background-color: #f0f0f0;
+}
+
+.relatorio-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.relatorio-row:hover {
+  background-color: #f2f2f2;
+}
+
+.relatorio-info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.relatorio-titulo {
+  font-weight: 500;
+  color: #333;
+}
+
+.relatorio-assinado {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #2e7d32;
+}
+
+.loading-relatorios {
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+  padding: 10px;
+  font-style: italic;
+}
+
+.no-relatorios {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+/* Estilos para os botões de ação */
+.btn-assinar {
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-left: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.2s;
+  font-weight: 500;
+  font-size: 13px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 36px;
+  height: 36px;
+}
+
+.btn-assinar:hover {
+  background-color: #333333;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-excluir-relatorio {
+  background-color: #a52e40;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-left: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.2s;
+  font-weight: 500;
+  font-size: 13px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 36px;
+  height: 36px;
+}
+
+.btn-excluir-relatorio:hover {
+  background-color: #c62828;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos para o modal de criar relatório */
+.modal-criar-relatorio,
+.modal-visualizar-relatorio {
+  max-width: 700px;
+  width: 90%;
+}
+
+.form-criar-relatorio {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Estilos para a visualização do relatório */
+.relatorio-visualizacao {
+  padding: 20px;
+}
+
+.relatorio-header {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 15px;
+}
+
+.relatorio-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.relatorio-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
 }

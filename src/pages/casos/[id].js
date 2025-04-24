@@ -5,7 +5,18 @@ import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import AsideNavbar from "@/components/AsideNavBar";
 import "../../styles/caso-detalhes.css";
-import { Pencil, Trash2 } from "lucide-react";
+// Adicionar importações para os novos componentes e ícones
+import {
+  Pencil,
+  Trash2,
+  FilePlus,
+  FileCheck,
+  Download,
+  CheckCircle2,
+  Eye,
+  Loader,
+  X,
+} from "lucide-react";
 
 // Importar componentes
 import EvidenciaItem from "@/components/casos/EvidenciaItem";
@@ -79,6 +90,25 @@ export default function CasoDetalhes() {
     dataFim: "",
     criadoPor: "",
   });
+
+  // Adicionar novos estados para gerenciar relatórios - adicionar após os estados existentes
+  const [modalRelatorioAberto, setModalRelatorioAberto] = useState(false);
+  const [relatorioData, setRelatorioData] = useState({
+    title: "",
+    content: "",
+    methodology: "",
+    conclusion: "",
+    status: "rascunho",
+  });
+  const [criandoRelatorio, setCriandoRelatorio] = useState(false);
+  const [erroRelatorio, setErroRelatorio] = useState(null);
+  const [relatorios, setRelatorios] = useState([]);
+  const [relatorioAtual, setRelatorioAtual] = useState(null);
+  const [carregandoRelatorios, setCarregandoRelatorios] = useState(true);
+  const [baixandoPDFRelatorio, setBaixandoPDFRelatorio] = useState(false);
+  const [assinandoRelatorio, setAssinandoRelatorio] = useState(false);
+  const [modalVisualizarRelatorioAberto, setModalVisualizarRelatorioAberto] =
+    useState(false);
 
   // Adicionar useEffect para filtrar evidências quando os dados mudarem
   useEffect(() => {
@@ -261,6 +291,58 @@ export default function CasoDetalhes() {
     fetchCasoDetalhes();
     fetchEvidencias();
   }, [params, router]);
+
+  // Adicionar função para buscar relatórios do caso - adicionar após o useEffect que busca evidências
+  useEffect(() => {
+    const fetchRelatorios = async () => {
+      if (!caso) return;
+
+      try {
+        const token = localStorage.getItem("token");
+        const casoId = caso._id || caso.id;
+
+        setCarregandoRelatorios(true);
+
+        const response = await fetch(
+          `https://perioscan-back-end-fhhq.onrender.com/api/reports?case=${casoId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          console.error("Erro ao buscar relatórios:", response.status);
+          setRelatorios([]);
+          return;
+        }
+
+        const data = await response.json();
+        if (data.success && Array.isArray(data.data)) {
+          setRelatorios(data.data);
+        } else if (Array.isArray(data)) {
+          setRelatorios(data);
+        } else {
+          console.error(
+            "Formato de resposta inesperado para relatórios:",
+            data
+          );
+          setRelatorios([]);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar relatórios:", error);
+        setRelatorios([]);
+      } finally {
+        setCarregandoRelatorios(false);
+      }
+    };
+
+    if (caso) {
+      fetchRelatorios();
+    }
+  }, [caso]);
 
   // Função para filtrar evidências
   const filtrarEvidencias = () => {
@@ -524,6 +606,359 @@ export default function CasoDetalhes() {
     }
   };
 
+  // Adicionar função para abrir o modal de criação de relatório
+  const abrirModalRelatorio = () => {
+    // Preencher título padrão com o título do caso
+    setRelatorioData({
+      title: `Relatório: ${caso?.title || "Caso"}`,
+      content: "",
+      methodology:
+        "Análise comparativa de registros odontológicos e evidências coletadas.",
+      conclusion: "",
+      status: "rascunho",
+    });
+    setErroRelatorio(null);
+    setModalRelatorioAberto(true);
+  };
+
+  // Adicionar função para fechar o modal de relatório
+  const fecharModalRelatorio = () => {
+    setModalRelatorioAberto(false);
+  };
+
+  // Adicionar função para lidar com mudanças nos campos do formulário de relatório
+  const handleRelatorioChange = (e) => {
+    const { name, value } = e.target;
+    setRelatorioData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Adicionar função para criar relatório
+  const criarRelatorio = async (e) => {
+    e.preventDefault();
+
+    if (!relatorioData.title || !relatorioData.content) {
+      setErroRelatorio("Título e conteúdo são obrigatórios.");
+      return;
+    }
+
+    setCriandoRelatorio(true);
+    setErroRelatorio(null);
+
+    try {
+      const token = localStorage.getItem("token");
+      const casoId = caso._id || caso.id;
+
+      const dadosParaEnviar = {
+        ...relatorioData,
+        case: casoId,
+      };
+
+      console.log("Enviando dados do relatório:", dadosParaEnviar);
+
+      const response = await fetch(
+        "https://perioscan-back-end-fhhq.onrender.com/api/reports",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dadosParaEnviar),
+        }
+      );
+
+      const responseText = await response.text();
+      console.log("Resposta bruta da criação do relatório:", responseText);
+
+      if (!response.ok) {
+        throw new Error(
+          `Falha ao criar relatório: ${response.status} ${response.statusText}`
+        );
+      }
+
+      let novoRelatorio;
+      try {
+        novoRelatorio = JSON.parse(responseText);
+      } catch (e) {
+        console.error(
+          "Erro ao analisar resposta JSON da criação do relatório:",
+          e
+        );
+      }
+
+      console.log("Relatório criado com sucesso:", novoRelatorio);
+
+      // Atualizar a lista de relatórios
+      if (novoRelatorio && (novoRelatorio.data || novoRelatorio)) {
+        const relatorioData = novoRelatorio.data || novoRelatorio;
+        setRelatorios((prev) => [...prev, relatorioData]);
+
+        // Mostrar notificação de sucesso
+        setNotificacaoLaudo({
+          visible: true,
+          message: "Relatório criado com sucesso!",
+          type: "success",
+        });
+
+        // Atualizar o status do caso para "finalizado"
+        await atualizarStatusCasoParaFinalizado();
+      }
+
+      // Fechar o modal
+      fecharModalRelatorio();
+    } catch (error) {
+      console.error("Erro ao criar relatório:", error);
+      setErroRelatorio(`Falha ao criar relatório: ${error.message}`);
+    } finally {
+      setCriandoRelatorio(false);
+
+      // Esconder a notificação após 5 segundos
+      setTimeout(() => {
+        setNotificacaoLaudo((prev) => ({ ...prev, visible: false }));
+      }, 5000);
+    }
+  };
+
+  // Função para atualizar o status do caso para finalizado após criar um relatório
+  const atualizarStatusCasoParaFinalizado = async () => {
+    try {
+      // Criar um evento sintético para passar para salvarCaso
+      const syntheticEvent = { preventDefault: () => {} };
+
+      // Criar uma cópia do caso atual com status atualizado
+      const casoAtualizado = {
+        ...casoEditado,
+        status: "finalizado",
+      };
+
+      // Chamar a função existente para salvar o caso
+      await salvarCaso(syntheticEvent, casoAtualizado);
+
+      // Atualizar o estado local do caso
+      setCaso((prev) => ({
+        ...prev,
+        status: "finalizado",
+      }));
+
+      console.log(
+        "Status do caso atualizado para finalizado após criar relatório"
+      );
+
+      // Mostrar notificação adicional
+      setNotificacaoLaudo({
+        visible: true,
+        message: "Status do caso atualizado para Finalizado",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar status do caso:", error);
+    }
+  };
+
+  // Adicionar função para baixar o PDF do relatório
+  const baixarPDFRelatorio = async (relatorioId) => {
+    setBaixandoPDFRelatorio(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      console.log(`Baixando PDF do relatório ${relatorioId}...`);
+
+      const response = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}/pdf`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        let errorMessage = `Erro ${response.status}`;
+        try {
+          const errorData = await response.text();
+          console.error("Resposta de erro completa:", errorData);
+          errorMessage += `: ${errorData}`;
+        } catch (e) {}
+
+        throw new Error(`Erro ao baixar PDF: ${errorMessage}`);
+      }
+
+      const contentType = response.headers.get("content-type");
+      console.log("Tipo de conteúdo da resposta:", contentType);
+
+      if (contentType && contentType.includes("application/pdf")) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = `relatorio-${relatorioId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        setNotificacaoLaudo({
+          visible: true,
+          message: "PDF do relatório baixado com sucesso!",
+          type: "success",
+        });
+      } else {
+        const data = await response.text();
+        console.error("Resposta não é um PDF:", data);
+        throw new Error(
+          "O servidor não retornou um PDF. Verifique os logs para mais detalhes."
+        );
+      }
+    } catch (error) {
+      console.error("Erro ao baixar PDF do relatório:", error);
+      setNotificacaoLaudo({
+        visible: true,
+        message: `${error.message}`,
+        type: "error",
+      });
+    } finally {
+      setBaixandoPDFRelatorio(false);
+
+      setTimeout(() => {
+        setNotificacaoLaudo((prev) => ({ ...prev, visible: false }));
+      }, 5000);
+    }
+  };
+
+  // Adicionar função para assinar relatório
+  const assinarRelatorio = async (relatorioId) => {
+    setAssinandoRelatorio(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      console.log(`Assinando relatório ${relatorioId}...`);
+
+      const response = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}/sign`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Falha ao assinar relatório: ${response.status} ${response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+      console.log("Relatório assinado com sucesso:", data);
+
+      // Atualizar o relatório na lista
+      setRelatorios((prev) =>
+        prev.map((rel) =>
+          rel._id === relatorioId || rel.id === relatorioId
+            ? { ...rel, signed: true, signedAt: new Date().toISOString() }
+            : rel
+        )
+      );
+
+      setNotificacaoLaudo({
+        visible: true,
+        message: "Relatório assinado com sucesso!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Erro ao assinar relatório:", error);
+      setNotificacaoLaudo({
+        visible: true,
+        message: `Falha ao assinar relatório: ${error.message}`,
+        type: "error",
+      });
+    } finally {
+      setAssinandoRelatorio(false);
+
+      setTimeout(() => {
+        setNotificacaoLaudo((prev) => ({ ...prev, visible: false }));
+      }, 5000);
+    }
+  };
+
+  // Adicionar função para abrir o modal de visualização de relatório
+  const abrirVisualizarRelatorio = (relatorio) => {
+    setRelatorioAtual(relatorio);
+    setModalVisualizarRelatorioAberto(true);
+  };
+
+  // Adicionar função para fechar o modal de visualização de relatório
+  const fecharVisualizarRelatorio = () => {
+    setModalVisualizarRelatorioAberto(false);
+    setRelatorioAtual(null);
+  };
+
+  // Adicionar função para excluir relatório
+  const excluirRelatorio = async (relatorioId) => {
+    if (
+      !confirm(
+        "Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      console.log(`Excluindo relatório ${relatorioId}...`);
+
+      const response = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Falha ao excluir relatório: ${response.status} ${response.statusText}`
+        );
+      }
+
+      console.log("Relatório excluído com sucesso");
+
+      // Remover o relatório da lista
+      setRelatorios((prev) =>
+        prev.filter((rel) => rel._id !== relatorioId && rel.id !== relatorioId)
+      );
+
+      setNotificacaoLaudo({
+        visible: true,
+        message: "Relatório excluído com sucesso!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Erro ao excluir relatório:", error);
+      setNotificacaoLaudo({
+        visible: true,
+        message: `Falha ao excluir relatório: ${error.message}`,
+        type: "error",
+      });
+    } finally {
+      setTimeout(() => {
+        setNotificacaoLaudo((prev) => ({ ...prev, visible: false }));
+      }, 5000);
+    }
+  };
+
   // Verifica se o usuário tem permissão para excluir casos
   const podeExcluirCaso = () => {
     return (
@@ -590,6 +1025,18 @@ export default function CasoDetalhes() {
   };
 
   // Função para abrir o modal de visualização de evidência
+  const abrirEvidenciaModal = (evidencia) => {
+    setEvidenciaAtiva(evidencia);
+    setModalAberto(true);
+  };
+
+  // Função para fechar o modal
+  const fecharEvidenciaModal = () => {
+    setModalAberto(false);
+    setEvidenciaAtiva(null);
+  };
+
+  // Função para abrir evidência
   const abrirEvidencia = (evidencia) => {
     setEvidenciaAtiva(evidencia);
     setModalAberto(true);
@@ -1165,7 +1612,7 @@ export default function CasoDetalhes() {
                                     laudoId={laudoId}
                                     baixandoPDF={baixandoPDF}
                                     gerandoLaudo={gerandoLaudo}
-                                    onVerEvidencia={abrirEvidencia}
+                                    onVerEvidencia={abrirEvidenciaModal}
                                     onCriarLaudo={abrirModalCriarLaudo}
                                     onBaixarPDF={baixarPDF}
                                   />
@@ -1193,6 +1640,144 @@ export default function CasoDetalhes() {
                         onClick={abrirModalAdicionar}
                       >
                         Adicionar Evidência
+                      </button>
+                    </>
+                  )}
+                </div>
+                {/* Modificar o JSX para adicionar a seção de relatórios - adicionar após a seção de evidências
+                Dentro do <div className="info-coluna"> após a seção de evidências */}
+                <div className="relatorios-section">
+                  <h2>Relatórios</h2>
+                  {carregandoRelatorios ? (
+                    <div className="loading-relatorios">
+                      Carregando relatórios...
+                    </div>
+                  ) : (
+                    <>
+                      <div className="relatorios-tabela">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Título</th>
+                              <th>Status</th>
+                              <th>Data de Criação</th>
+                              <th>Ações</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {relatorios.length > 0 ? (
+                              relatorios.map((relatorio) => (
+                                <tr
+                                  key={relatorio._id || relatorio.id}
+                                  className="relatorio-row"
+                                >
+                                  <td
+                                    onClick={() =>
+                                      abrirVisualizarRelatorio(relatorio)
+                                    }
+                                  >
+                                    <div className="relatorio-info-cell">
+                                      <span className="relatorio-titulo">
+                                        {relatorio.title}
+                                      </span>
+                                      {relatorio.signed && (
+                                        <span className="relatorio-assinado">
+                                          <CheckCircle2 size={14} /> Assinado
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    <span
+                                      className={`status-badge ${
+                                        relatorio.status === "rascunho"
+                                          ? "status-pendente"
+                                          : "status-finalizado"
+                                      }`}
+                                    >
+                                      {relatorio.status === "rascunho"
+                                        ? "Rascunho"
+                                        : "Finalizado"}
+                                    </span>
+                                  </td>
+                                  <td>{formatarData(relatorio.createdAt)}</td>
+                                  <td className="acoes-cell">
+                                    <button
+                                      className="btn-ver-caso"
+                                      onClick={() =>
+                                        abrirVisualizarRelatorio(relatorio)
+                                      }
+                                      title="Ver relatório"
+                                    >
+                                      <Eye size={18} />
+                                    </button>
+                                    <button
+                                      className="btn-baixar-pdf"
+                                      onClick={() =>
+                                        baixarPDFRelatorio(
+                                          relatorio._id || relatorio.id
+                                        )
+                                      }
+                                      disabled={baixandoPDFRelatorio}
+                                      title="Baixar PDF do relatório"
+                                    >
+                                      {baixandoPDFRelatorio ? (
+                                        <Loader size={18} className="spinner" />
+                                      ) : (
+                                        <Download size={18} />
+                                      )}
+                                    </button>
+                                    {!relatorio.signed && (
+                                      <button
+                                        className="btn-assinar"
+                                        onClick={() =>
+                                          assinarRelatorio(
+                                            relatorio._id || relatorio.id
+                                          )
+                                        }
+                                        disabled={assinandoRelatorio}
+                                        title="Assinar relatório"
+                                      >
+                                        {assinandoRelatorio ? (
+                                          <Loader
+                                            size={18}
+                                            className="spinner"
+                                          />
+                                        ) : (
+                                          <FileCheck size={18} />
+                                        )}
+                                      </button>
+                                    )}
+                                    <button
+                                      className="btn-excluir-relatorio"
+                                      onClick={() =>
+                                        excluirRelatorio(
+                                          relatorio._id || relatorio.id
+                                        )
+                                      }
+                                      title="Excluir relatório"
+                                    >
+                                      <Trash2 size={18} />
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan="4" className="no-relatorios">
+                                  Nenhum relatório registrado
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                      <button
+                        className="btn-adicionar"
+                        onClick={abrirModalRelatorio}
+                      >
+                        <FilePlus size={16} className="mr-2" />
+                        Criar Relatório
                       </button>
                     </>
                   )}
@@ -1232,7 +1817,7 @@ export default function CasoDetalhes() {
             laudoId={laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id]}
             baixandoPDF={baixandoPDF}
             gerandoLaudo={gerandoLaudo}
-            onFechar={fecharModal}
+            onFechar={fecharEvidenciaModal}
             onCriarLaudo={abrirModalCriarLaudo}
             onBaixarPDF={baixarPDF}
           />
@@ -1281,6 +1866,259 @@ export default function CasoDetalhes() {
           />
         )}
       </div>
+
+      {/* Modal para criar relatório */}
+      {modalRelatorioAberto && (
+        <div className="evidencia-modal-overlay" onClick={fecharModalRelatorio}>
+          <div
+            className="evidencia-modal-content modal-criar-relatorio"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="evidencia-modal-header">
+              <h3>Criar Relatório</h3>
+              <button
+                className="btn-fechar-modal"
+                onClick={fecharModalRelatorio}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="evidencia-modal-body">
+              <form onSubmit={criarRelatorio} className="form-criar-relatorio">
+                {/* Título do relatório */}
+                <div className="form-group">
+                  <label htmlFor="title">Título do Relatório</label>
+                  <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value={relatorioData.title}
+                    onChange={handleRelatorioChange}
+                    placeholder="Ex: Relatório de Análise Odontológica"
+                    required
+                  />
+                </div>
+
+                {/* Conteúdo do relatório */}
+                <div className="form-group">
+                  <label htmlFor="content">Conteúdo do Relatório</label>
+                  <textarea
+                    id="content"
+                    name="content"
+                    value={relatorioData.content}
+                    onChange={handleRelatorioChange}
+                    placeholder="Descreva detalhadamente a análise do caso..."
+                    rows={8}
+                    required
+                  ></textarea>
+                </div>
+
+                {/* Metodologia */}
+                <div className="form-group">
+                  <label htmlFor="methodology">Metodologia</label>
+                  <textarea
+                    id="methodology"
+                    name="methodology"
+                    value={relatorioData.methodology}
+                    onChange={handleRelatorioChange}
+                    placeholder="Descreva a metodologia utilizada..."
+                    rows={4}
+                  ></textarea>
+                </div>
+
+                {/* Conclusão */}
+                <div className="form-group">
+                  <label htmlFor="conclusion">Conclusão</label>
+                  <textarea
+                    id="conclusion"
+                    name="conclusion"
+                    value={relatorioData.conclusion}
+                    onChange={handleRelatorioChange}
+                    placeholder="Descreva a conclusão da análise..."
+                    rows={4}
+                  ></textarea>
+                </div>
+
+                {/* Status */}
+                <div className="form-group">
+                  <label htmlFor="status">Status</label>
+                  <select
+                    id="status"
+                    name="status"
+                    value={relatorioData.status}
+                    onChange={handleRelatorioChange}
+                  >
+                    <option value="rascunho">Rascunho</option>
+                    <option value="finalizado">Finalizado</option>
+                  </select>
+                </div>
+
+                {/* Mensagem de erro */}
+                {erroRelatorio && (
+                  <div className="upload-error">
+                    <p>{erroRelatorio}</p>
+                  </div>
+                )}
+
+                {/* Botões de ação */}
+                <div className="form-actions">
+                  <button
+                    type="button"
+                    className="btn-cancelar"
+                    onClick={fecharModalRelatorio}
+                    disabled={criandoRelatorio}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-salvar"
+                    disabled={criandoRelatorio}
+                  >
+                    {criandoRelatorio ? (
+                      <>
+                        <Loader size={16} className="spinner" />
+                        <span>Criando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FilePlus size={16} />
+                        <span>Criar Relatório</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para visualizar relatório */}
+      {modalVisualizarRelatorioAberto && relatorioAtual && (
+        <div
+          className="evidencia-modal-overlay"
+          onClick={fecharVisualizarRelatorio}
+        >
+          <div
+            className="evidencia-modal-content modal-visualizar-relatorio"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="evidencia-modal-header">
+              <h3>Visualizar Relatório</h3>
+              <button
+                className="btn-fechar-modal"
+                onClick={fecharVisualizarRelatorio}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="evidencia-modal-body relatorio-visualizacao">
+              <div className="relatorio-header">
+                <h2>{relatorioAtual.title}</h2>
+                <div className="relatorio-meta">
+                  <p>
+                    <strong>Data de criação:</strong>{" "}
+                    {formatarData(relatorioAtual.createdAt)}
+                  </p>
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    <span
+                      className={`status-badge ${
+                        relatorioAtual.status === "rascunho"
+                          ? "status-pendente"
+                          : "status-finalizado"
+                      }`}
+                    >
+                      {relatorioAtual.status === "rascunho"
+                        ? "Rascunho"
+                        : "Finalizado"}
+                    </span>
+                  </p>
+                  {relatorioAtual.signed && (
+                    <p className="relatorio-assinado-info">
+                      <CheckCircle2 size={16} className="mr-1" />
+                      <strong>Assinado em:</strong>{" "}
+                      {formatarData(relatorioAtual.signedAt)}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="relatorio-section">
+                <h3>Conteúdo</h3>
+                <div className="relatorio-content">
+                  {relatorioAtual.content}
+                </div>
+              </div>
+
+              {relatorioAtual.methodology && (
+                <div className="relatorio-section">
+                  <h3>Metodologia</h3>
+                  <div className="relatorio-content">
+                    {relatorioAtual.methodology}
+                  </div>
+                </div>
+              )}
+
+              {relatorioAtual.conclusion && (
+                <div className="relatorio-section">
+                  <h3>Conclusão</h3>
+                  <div className="relatorio-content">
+                    {relatorioAtual.conclusion}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="evidencia-modal-footer">
+              <button
+                className="btn-baixar-pdf-modal"
+                onClick={() =>
+                  baixarPDFRelatorio(relatorioAtual._id || relatorioAtual.id)
+                }
+                disabled={baixandoPDFRelatorio}
+              >
+                {baixandoPDFRelatorio ? (
+                  <>
+                    <Loader size={16} className="spinner" />
+                    <span>Baixando PDF...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download size={16} />
+                    <span>Baixar PDF</span>
+                  </>
+                )}
+              </button>
+
+              {!relatorioAtual.signed && (
+                <button
+                  className="btn-assinar-modal"
+                  onClick={() =>
+                    assinarRelatorio(relatorioAtual._id || relatorioAtual.id)
+                  }
+                  disabled={assinandoRelatorio}
+                >
+                  {assinandoRelatorio ? (
+                    <>
+                      <Loader size={16} className="spinner" />
+                      <span>Assinando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileCheck size={16} />
+                      <span>Assinar Relatório</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,111 @@
+.relatorio-modal {
+  max-width: 700px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.relatorio-modal .modal-content {
+  padding: 20px;
+}
+
+.relatorio-modal .form-group {
+  margin-bottom: 15px;
+}
+
+.relatorio-modal label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.relatorio-modal input,
+.relatorio-modal textarea,
+.relatorio-modal select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.relatorio-modal textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.relatorio-modal .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.relatorio-modal .report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.relatorio-modal .btn-primary {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.relatorio-modal .btn-secondary {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.relatorio-modal .btn-outline {
+  background-color: transparent;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.relatorio-modal .btn-primary:hover,
+.relatorio-modal .btn-secondary:hover {
+  opacity: 0.9;
+}
+
+.relatorio-modal .btn-outline:hover {
+  background-color: #f5f5f5;
+}
+
+.relatorio-modal .btn-primary:disabled,
+.relatorio-modal .btn-secondary:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.relatorio-modal .error-message {
+  color: #d32f2f;
+  background-color: #ffebee;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.relatorio-modal .success-message {
+  color: #388e3c;
+  background-color: #e8f5e9;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
