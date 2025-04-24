@@ -20,7 +20,7 @@ export default function Login() {
     if (token) {
       setLoading(true);
       if (role === "admin") {
-        router.push("/admincadastramento");
+        router.push("/admindashboard");
       } else {
         router.push("/casos");
       }
