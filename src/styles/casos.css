@@ -1,4 +1,4 @@
-/* Estilos gerais - já existentes */
+/* Estilos gerais */
 * {
   margin: 0;
   padding: 0;
@@ -10,92 +10,104 @@ body {
   font-family: "Lato", sans-serif;
 }
 
-/* Container principal - ajustes para mobile */
+/* Container principal */
 .casos-container {
   display: flex;
   min-height: 100vh;
   background-color: #f5f5f5;
-  flex-direction: column; /* Alterado para coluna em mobile */
 }
 
 .casos-content {
   flex: 1;
-  padding: 15px;
-  margin-left: 0; /* Removido margin-left para mobile */
-  width: 100%;
+  padding: 20px;
+  margin-left: 5px;
 }
 
-/* Cabeçalho - ajustes para mobile */
+/* Cabeçalho */
 .casos-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  flex-wrap: wrap; /* Permite quebra de linha */
+  margin-bottom: 20px;
 }
 
 .casos-header h1 {
-  font-size: 20px; /* Reduzido para mobile */
+  font-size: 24px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 10px; /* Adicionado espaço */
 }
 
 .notificacao-icon {
   cursor: pointer;
-  margin-left: auto; /* Alinha à direita */
 }
 
-/* Filtros - reorganização para mobile */
+/* Filtros */
 .casos-filtros {
   display: flex;
-  flex-direction: column; /* Coluna em mobile */
-  gap: 15px;
-  margin-bottom: 15px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .filtro-tabs {
   display: flex;
-  overflow-x: auto; /* Permite rolagem horizontal se necessário */
-  padding-bottom: 5px; /* Espaço para scroll */
 }
 
 .filtro-tabs button {
-  padding: 8px 12px;
+  padding: 8px 16px;
   background-color: #fff;
   border: 1px solid #ddd;
   cursor: pointer;
-  font-size: 13px; /* Reduzido para mobile */
-  white-space: nowrap; /* Impede quebra de texto */
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.filtro-tabs button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.filtro-tabs button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.filtro-tabs button.active {
+  background-color: #000;
+  color: #fff;
+  border-color: #000;
 }
 
 .busca-container {
   display: flex;
   align-items: center;
   position: relative;
-  width: 100%; /* Ocupa toda a largura */
 }
 
 .busca-container input {
   padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  width: 100%; /* Ocupa toda a largura */
+  width: 250px;
   font-size: 14px;
 }
 
-/* Ações de topo - centralizado em mobile */
+.busca-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Ações de topo */
 .acoes-topo {
   display: flex;
-  justify-content: center; /* Centralizado em mobile */
-  margin-bottom: 15px;
-  width: 100%;
+  justify-content: flex-end;
+  margin-bottom: 20px;
 }
 
 .btn-novo-caso {
   display: flex;
   align-items: center;
-  justify-content: center; /* Centraliza ícone e texto */
   gap: 8px;
   padding: 10px 16px;
   background-color: #000;
@@ -104,160 +116,372 @@ body {
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
-  width: 100%; /* Ocupa toda a largura */
-  max-width: 300px; /* Limita largura máxima */
+  transition: background-color 0.3s;
 }
 
-/* Tabela de casos - ajustes para mobile */
+.btn-novo-caso:hover {
+  background-color: #333;
+}
+
+.btn-disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-disabled:hover {
+  background-color: #ccc;
+}
+
+/* Tabela de casos */
 .tabela-container {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  overflow-x: auto; /* Permite rolagem horizontal */
-  margin-bottom: 15px;
-  padding: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  padding: 20px;
 }
 
 .tabela-casos {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px; /* Garante largura mínima para tabela */
 }
 
-/* Células - ajuste de padding */
-.tabela-casos th, 
+.tabela-casos th {
+  background-color: #000;
+  color: #fff;
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 500;
+}
+
 .tabela-casos td {
-  padding: 8px 10px;
-  font-size: 13px; /* Reduzido para mobile */
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
 }
 
-/* Status badges - ajuste de tamanho */
+.tabela-casos tr:last-child td {
+  border-bottom: none;
+}
+
+.tabela-casos tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Status badges */
 .status-badge {
-  padding: 3px 6px;
-  font-size: 11px;
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-/* Modal - ajustes para mobile */
+.status-em-andamento {
+  background-color: #b99f81;
+  color: white;
+}
+
+.status-finalizado {
+  background-color: #62725c;
+  color: white;
+}
+
+.status-pendente {
+  background-color: #f39c12;
+  color: white;
+}
+
+.status-arquivado {
+  background-color: #969696;
+  color: white;
+}
+
+.status-cancelado {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.status-outro {
+  background-color: #9b59b6;
+  color: white;
+}
+
+.status-desconhecido {
+  background-color: #95a5a6;
+  color: white;
+}
+
+/* Células de ações */
+.acoes-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.acao-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.acao-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.acao-btn.ver {
+  color: #000;
+}
+
+.acao-btn.ver:hover {
+  background-color: #e3f2fd;
+}
+
+/* Estados de carregamento e erro */
+.carregando,
+.erro {
+  text-align: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.erro {
+  color: #c62828;
+}
+
+.nenhum-resultado {
+  text-align: center;
+  color: #666;
+  padding: 20px !important;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
 .modal-content {
-  width: 95%;
-  max-width: 100%;
-  margin: 0 10px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  margin: 0 15px;
+  background-color: white;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f8f8f8;
+  color: #000;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.btn-fechar-modal {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-fechar-modal:hover {
+  color: #000;
 }
 
 .modal-body {
-  padding: 10px;
+  padding: 15px;
+  overflow-y: auto;
+  flex-grow: 1;
 }
 
-/* Formulário - ajustes para mobile */
+/* Formulário */
+.form-novo-caso {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .form-group label {
-  font-size: 13px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
-  padding: 8px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-error {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 4px;
+  padding: 10px;
+  color: #c00;
   font-size: 13px;
 }
 
 .form-actions {
-  flex-direction: column; /* Botões em coluna */
-  gap: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .btn-cancelar,
 .btn-salvar {
-  width: 100%;
-  justify-content: center;
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-/* Media Queries para telas maiores */
-@media (min-width: 768px) {
-  .casos-container {
-    flex-direction: row; /* Volta ao layout original */
+.btn-cancelar {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.btn-salvar {
+  background-color: #000;
+  border: 1px solid #000;
+  color: white;
+}
+
+.btn-salvar:disabled,
+.btn-cancelar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
   .casos-content {
-    margin-left: 5px;
-    padding: 20px;
-  }
-  
-  .casos-header h1 {
-    font-size: 24px;
-    margin-bottom: 0;
-  }
-  
-  .casos-filtros {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-  
-  .filtro-tabs {
-    overflow-x: visible;
-    padding-bottom: 0;
-  }
-  
-  .filtro-tabs button {
-    font-size: 14px;
-  }
-  
-  .busca-container input {
-    width: 250px;
-  }
-  
-  .acoes-topo {
-    justify-content: flex-end;
-  }
-  
-  .btn-novo-caso {
-    width: auto;
-    max-width: none;
-  }
-  
-  .tabela-container {
+    margin-left: 0;
     padding: 15px;
   }
-  
-  .tabela-casos th, 
+
+  .casos-filtros {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .busca-container input {
+    width: 100%;
+  }
+
+  .tabela-casos th,
   .tabela-casos td {
-    padding: 12px 16px;
-    font-size: 14px;
+    padding: 8px;
   }
-  
+}
+
+@media (max-width: 768px) {
+  .casos-header h1 {
+    font-size: 20px;
+  }
+
+  .filtro-tabs button {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .acoes-topo {
+    justify-content: center;
+  }
+
+  .btn-novo-caso {
+    width: 100%;
+  }
+
+  .tabela-container {
+    padding: 10px;
+  }
+
+  .tabela-casos {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .modal-content {
+    width: 95%;
+  }
+
   .form-actions {
-    flex-direction: row;
+    flex-direction: column;
   }
-  
+
   .btn-cancelar,
   .btn-salvar {
-    width: auto;
-  }
-}
-
-@media (min-width: 1024px) {
-  .casos-content {
-    margin-left: 250px; /* Ajuste para a barra lateral */
-  }
-  
-  .modal-content {
-    max-width: 600px;
-  }
-}
-
-/* Ajustes específicos para telas muito pequenas (menos de 400px) */
-@media (max-width: 400px) {
-  .casos-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .notificacao-icon {
-    margin-left: 0;
-    margin-top: 10px;
-  }
-  
-  .filtro-tabs button {
-    padding: 6px 8px;
-    font-size: 12px;
+    width: 100%;
+    justify-content: center;
   }
 }
