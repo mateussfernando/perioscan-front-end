@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import AsideNavBar from "@/components/AsideNavBar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import ControleDeRota from "@/components/ControleDeRota";
+import ModalExcluirRelatorio from "@/components/casos/ModalExcluirRelatorio";
 import "../styles/relatorios.css";
 import {
   FileText,
@@ -12,6 +13,7 @@ import {
   Filter,
   Trash2,
   RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 
 export default function Relatorios() {
@@ -25,6 +27,9 @@ export default function Relatorios() {
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [atualizando, setAtualizando] = useState(false);
   const [excluindo, setExcluindo] = useState({});
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false);
+  const [relatorioParaExcluir, setRelatorioParaExcluir] = useState(null);
+  const [mensagemSucesso, setMensagemSucesso] = useState("");
   const itensPorPagina = 10;
   const router = useRouter();
 
@@ -86,6 +91,16 @@ export default function Relatorios() {
     buscarRelatorios();
   }, []);
 
+  // Efeito para esconder a mensagem de sucesso após 5 segundos
+  useEffect(() => {
+    if (mensagemSucesso) {
+      const timer = setTimeout(() => {
+        setMensagemSucesso("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [mensagemSucesso]);
+
   // Função para atualizar a lista de relatórios
   const atualizarRelatorios = () => {
     setAtualizando(true);
@@ -142,16 +157,20 @@ export default function Relatorios() {
     }
   };
 
+  // Função para abrir o modal de exclusão
+  const abrirModalExcluir = (relatorio) => {
+    setRelatorioParaExcluir(relatorio);
+    setModalExcluirAberto(true);
+  };
+
+  // Função para fechar o modal de exclusão
+  const fecharModalExcluir = () => {
+    setModalExcluirAberto(false);
+    setRelatorioParaExcluir(null);
+  };
+
   // Função para excluir relatório
   const excluirRelatorio = async (relatorioId) => {
-    if (
-      !confirm(
-        "Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita."
-      )
-    ) {
-      return;
-    }
-
     try {
       setExcluindo((prev) => ({ ...prev, [relatorioId]: true }));
 
@@ -224,15 +243,20 @@ export default function Relatorios() {
       setRelatorios(
         relatorios.filter((relatorio) => relatorio._id !== relatorioId)
       );
-      alert("Relatório excluído com sucesso!");
+
+      // Mostrar mensagem de sucesso
+      setMensagemSucesso("Relatório excluído com sucesso!");
 
       // Recarregar a lista de relatórios para garantir que está atualizada
       buscarRelatorios();
+
+      return true;
     } catch (erro) {
       console.error("Erro ao excluir relatório:", erro);
       alert(
         `Falha ao excluir o relatório: ${erro.message}. Por favor, tente novamente ou contate o suporte.`
       );
+      return false;
     } finally {
       setExcluindo((prev) => ({ ...prev, [relatorioId]: false }));
     }
@@ -332,6 +356,14 @@ export default function Relatorios() {
       <div className="relatorios-page">
         <AsideNavBar />
         <main className="relatorios-content">
+          {/* Mensagem de sucesso */}
+          {mensagemSucesso && (
+            <div className="mensagem-sucesso">
+              <AlertCircle size={20} />
+              {mensagemSucesso}
+            </div>
+          )}
+
           <div className="relatorios-header">
             <div className="header-title-container">
               <h1>Relatórios</h1>
@@ -469,7 +501,7 @@ export default function Relatorios() {
 
                           <button
                             className="btn-acao btn-excluir"
-                            onClick={() => excluirRelatorio(relatorio._id)}
+                            onClick={() => abrirModalExcluir(relatorio)}
                             title="Excluir relatório"
                             disabled={excluindo[relatorio._id]}
                           >
@@ -514,6 +546,15 @@ export default function Relatorios() {
           )}
         </main>
         <MobileBottomNav />
+
+        {/* Modal de confirmação de exclusão */}
+        <ModalExcluirRelatorio
+          isOpen={modalExcluirAberto}
+          onClose={fecharModalExcluir}
+          onConfirm={excluirRelatorio}
+          relatorioId={relatorioParaExcluir?._id}
+          relatorioTitulo={relatorioParaExcluir?.title}
+        />
       </div>
     </ControleDeRota>
   );

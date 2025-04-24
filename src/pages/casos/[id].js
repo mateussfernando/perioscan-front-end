@@ -110,6 +110,19 @@ export default function CasoDetalhes() {
   const [modalVisualizarRelatorioAberto, setModalVisualizarRelatorioAberto] =
     useState(false);
 
+  // Adicionar estado para controlar o modal de exclusão de evidência:
+  const [modalExcluirEvidenciaAberto, setModalExcluirEvidenciaAberto] =
+    useState(false);
+  const [evidenciaParaExcluir, setEvidenciaParaExcluir] = useState(null);
+  const [excluindoEvidencia, setExcluindoEvidencia] = useState(false);
+  const [erroExclusaoEvidencia, setErroExclusaoEvidencia] = useState(null);
+
+  // Adicionar estado para controlar o modal de exclusão de relatório
+  const [modalExcluirRelatorioAberto, setModalExcluirRelatorioAberto] =
+    useState(false);
+  const [relatorioParaExcluir, setRelatorioParaExcluir] = useState(null);
+  const [excluindoRelatorio, setExcluindoRelatorio] = useState(false);
+
   // Adicionar useEffect para filtrar evidências quando os dados mudarem
   useEffect(() => {
     filtrarEvidencias();
@@ -423,6 +436,30 @@ export default function CasoDetalhes() {
     setEvidenciaParaLaudo(null);
   };
 
+  // Adicionar função para abrir o modal de exclusão de evidência:
+  const abrirModalExcluirEvidencia = (evidencia) => {
+    setEvidenciaParaExcluir(evidencia);
+    setErroExclusaoEvidencia(null);
+    setModalExcluirEvidenciaAberto(true);
+  };
+
+  const fecharModalExcluirEvidencia = () => {
+    setModalExcluirEvidenciaAberto(false);
+    setEvidenciaParaExcluir(null);
+  };
+
+  // Adicionar função para abrir o modal de exclusão de relatório
+  const abrirModalExcluirRelatorio = (relatorio) => {
+    setRelatorioParaExcluir(relatorio);
+    setModalExcluirRelatorioAberto(true);
+  };
+
+  // Adicionar função para fechar o modal de exclusão de relatório
+  const fecharModalExcluirRelatorio = () => {
+    setModalExcluirRelatorioAberto(false);
+    setRelatorioParaExcluir(null);
+  };
+
   // Função para criar o laudo da evidência
   const criarLaudo = async (evidencia, dadosLaudo) => {
     if (!evidencia) {
@@ -509,6 +546,75 @@ export default function CasoDetalhes() {
       setErroLaudo(`Falha ao criar laudo: ${error.message}`);
     } finally {
       setCriandoLaudo(false);
+
+      // Esconder a notificação após 5 segundos
+      setTimeout(() => {
+        setNotificacaoLaudo((prev) => ({ ...prev, visible: false }));
+      }, 5000);
+    }
+  };
+
+  // Adicionar função para excluir a evidência:
+  const excluirEvidencia = async () => {
+    if (!evidenciaParaExcluir) return;
+
+    setExcluindoEvidencia(true);
+    setErroExclusaoEvidencia(null);
+
+    try {
+      const token = localStorage.getItem("token");
+      const evidenciaId = evidenciaParaExcluir._id || evidenciaParaExcluir.id;
+
+      console.log(`Excluindo evidência ${evidenciaId}...`);
+
+      const response = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/evidence/${evidenciaId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Resposta de erro ao excluir evidência:", errorText);
+        throw new Error(
+          `Falha ao excluir evidência: ${response.status} ${response.statusText}`
+        );
+      }
+
+      console.log("Evidência excluída com sucesso");
+
+      // Remover a evidência da lista
+      setEvidencias(
+        evidencias.filter(
+          (ev) => ev._id !== evidenciaId && ev.id !== evidenciaId
+        )
+      );
+
+      // Atualizar a lista filtrada também
+      setEvidenciasFiltradas(
+        evidenciasFiltradas.filter(
+          (ev) => ev._id !== evidenciaId && ev.id !== evidenciaId
+        )
+      );
+
+      // Mostrar notificação de sucesso
+      setNotificacaoLaudo({
+        visible: true,
+        message: "Evidência excluída com sucesso!",
+        type: "success",
+      });
+
+      // Fechar o modal
+      fecharModalExcluirEvidencia();
+    } catch (error) {
+      console.error("Erro ao excluir evidência:", error);
+      setErroExclusaoEvidencia(`Falha ao excluir evidência: ${error.message}`);
+    } finally {
+      setExcluindoEvidencia(false);
 
       // Esconder a notificação após 5 segundos
       setTimeout(() => {
@@ -902,15 +1008,9 @@ export default function CasoDetalhes() {
     setRelatorioAtual(null);
   };
 
-  // Adicionar função para excluir relatório
+  // Modificar a função para excluir relatório para usar o modal de confirmação
   const excluirRelatorio = async (relatorioId) => {
-    if (
-      !confirm(
-        "Tem certeza que deseja excluir este relatório? Esta ação não pode ser desfeita."
-      )
-    ) {
-      return;
-    }
+    setExcluindoRelatorio(true);
 
     try {
       const token = localStorage.getItem("token");
@@ -953,6 +1053,9 @@ export default function CasoDetalhes() {
         type: "error",
       });
     } finally {
+      setExcluindoRelatorio(false);
+      fecharModalExcluirRelatorio();
+
       setTimeout(() => {
         setNotificacaoLaudo((prev) => ({ ...prev, visible: false }));
       }, 5000);
@@ -1615,6 +1718,9 @@ export default function CasoDetalhes() {
                                     onVerEvidencia={abrirEvidenciaModal}
                                     onCriarLaudo={abrirModalCriarLaudo}
                                     onBaixarPDF={baixarPDF}
+                                    onExcluirEvidencia={
+                                      abrirModalExcluirEvidencia
+                                    }
                                   />
                                 );
                               })
@@ -1751,9 +1857,7 @@ export default function CasoDetalhes() {
                                     <button
                                       className="btn-excluir-relatorio"
                                       onClick={() =>
-                                        excluirRelatorio(
-                                          relatorio._id || relatorio.id
-                                        )
+                                        abrirModalExcluirRelatorio(relatorio)
                                       }
                                       title="Excluir relatório"
                                     >
@@ -1864,6 +1968,144 @@ export default function CasoDetalhes() {
             excluindoCaso={excluindoCaso}
             erroExclusao={erroExclusao}
           />
+        )}
+
+        {/* Modal para excluir evidência */}
+        {modalExcluirEvidenciaAberto && evidenciaParaExcluir && (
+          <div
+            className="evidencia-modal-overlay"
+            onClick={fecharModalExcluirEvidencia}
+          >
+            <div
+              className="evidencia-modal-content modal-excluir"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="evidencia-modal-header excluir-header">
+                <h3>Excluir Evidência</h3>
+                <button
+                  className="btn-fechar-modal"
+                  onClick={fecharModalExcluirEvidencia}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="evidencia-modal-body">
+                <div className="excluir-aviso">
+                  <Trash2 size={48} className="excluir-icone" />
+                  <p>
+                    Tem certeza que deseja excluir esta evidência?
+                    <br />
+                    <strong>
+                      {evidenciaParaExcluir.description ||
+                        `Evidência ${
+                          evidencias.indexOf(evidenciaParaExcluir) + 1
+                        }`}
+                    </strong>
+                  </p>
+                  <p>
+                    <strong>Esta ação não pode ser desfeita!</strong>
+                  </p>
+                </div>
+                {erroExclusaoEvidencia && (
+                  <div className="upload-error">
+                    <p>{erroExclusaoEvidencia}</p>
+                  </div>
+                )}
+              </div>
+              <div className="evidencia-modal-footer">
+                <button
+                  className="btn-cancelar"
+                  onClick={fecharModalExcluirEvidencia}
+                  disabled={excluindoEvidencia}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn-excluir-confirmar"
+                  onClick={excluirEvidencia}
+                  disabled={excluindoEvidencia}
+                >
+                  {excluindoEvidencia ? (
+                    <>
+                      <Loader size={16} className="spinner" />
+                      <span>Excluindo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={16} />
+                      <span>Excluir Evidência</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal para excluir relatório */}
+        {modalExcluirRelatorioAberto && relatorioParaExcluir && (
+          <div
+            className="evidencia-modal-overlay"
+            onClick={fecharModalExcluirRelatorio}
+          >
+            <div
+              className="evidencia-modal-content modal-excluir"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="evidencia-modal-header excluir-header">
+                <h3>Excluir Relatório</h3>
+                <button
+                  className="btn-fechar-modal"
+                  onClick={fecharModalExcluirRelatorio}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="evidencia-modal-body">
+                <div className="excluir-aviso">
+                  <Trash2 size={48} className="excluir-icone" />
+                  <p>
+                    Tem certeza que deseja excluir este relatório?
+                    <br />
+                    <strong>{relatorioParaExcluir.title || "Relatório"}</strong>
+                  </p>
+                  <p>
+                    <strong>Esta ação não pode ser desfeita!</strong>
+                  </p>
+                </div>
+              </div>
+              <div className="evidencia-modal-footer">
+                <button
+                  className="btn-cancelar"
+                  onClick={fecharModalExcluirRelatorio}
+                  disabled={excluindoRelatorio}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn-excluir-confirmar"
+                  onClick={() =>
+                    excluirRelatorio(
+                      relatorioParaExcluir._id || relatorioParaExcluir.id
+                    )
+                  }
+                  disabled={excluindoRelatorio}
+                >
+                  {excluindoRelatorio ? (
+                    <>
+                      <Loader size={16} className="spinner" />
+                      <span>Excluindo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={16} />
+                      <span>Excluir Relatório</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 

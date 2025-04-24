@@ -2,6 +2,7 @@
 
 import { Download, CheckCircle, Trash2 } from "lucide-react";
 import { useState } from "react";
+import ModalExcluirRelatorio from "./ModalExcluirRelatorio";
 
 export default function RelatorioItem({
   relatorio,
@@ -12,6 +13,7 @@ export default function RelatorioItem({
   onExcluir,
 }) {
   const [excluindo, setExcluindo] = useState(false);
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false);
   const relatorioId = relatorio._id || relatorio.id;
 
   // Função para formatar data
@@ -50,61 +52,22 @@ export default function RelatorioItem({
     relatorio.status?.toLowerCase() === "finalizado" ||
     !!relatorio.digitalSignature;
 
+  // Função para abrir o modal de exclusão
+  const abrirModalExcluir = () => {
+    setModalExcluirAberto(true);
+  };
+
+  // Função para fechar o modal de exclusão
+  const fecharModalExcluir = () => {
+    setModalExcluirAberto(false);
+  };
+
   // Função para excluir relatório
   const excluirRelatorio = async () => {
-    if (!confirm("Tem certeza que deseja excluir este relatório?")) {
-      return;
-    }
-
     setExcluindo(true);
     try {
-      const token = localStorage.getItem("token");
-
-      // Tentar usar a rota de exclusão forçada primeiro
-      let response = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}/force-delete`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Se a rota de exclusão forçada não existir, tentar a rota padrão
-      if (response.status === 404) {
-        response = await fetch(
-          `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      }
-
-      if (!response.ok) {
-        // Tentar obter mais detalhes do erro
-        let mensagemErro = `Erro ao excluir relatório: ${response.status}`;
-        try {
-          const erroJson = await response.json();
-          if (erroJson && erroJson.message) {
-            mensagemErro += ` - ${erroJson.message}`;
-          }
-        } catch (e) {
-          // Se não conseguir obter o JSON, apenas continua com a mensagem básica
-        }
-        throw new Error(mensagemErro);
-      }
-
-      // Chamar a função de exclusão passada como prop para atualizar a UI
-      onExcluir(relatorioId);
-
-      // Recarregar a página para atualizar a lista de relatórios
-      window.location.reload();
+      await onExcluir(relatorioId);
+      // A atualização da UI será feita pelo componente pai
     } catch (error) {
       console.error("Erro ao excluir relatório:", error);
       alert(`Falha ao excluir relatório: ${error.message}`);
@@ -114,48 +77,63 @@ export default function RelatorioItem({
   };
 
   return (
-    <div className="relatorio-item">
-      <div className="relatorio-info">
-        <h3>{relatorio.title || "Relatório"}</h3>
-        <p>Criado em: {formatarData(relatorio.createdAt)}</p>
-        <p>Status: {relatorio.status || "Rascunho"}</p>
-      </div>
-      <div className="relatorio-acoes">
-        {!estaAssinado && (
+    <>
+      <div className="relatorio-item">
+        <div className="relatorio-info">
+          <h3>{relatorio.title || "Relatório"}</h3>
+          <p>Criado em: {formatarData(relatorio.createdAt)}</p>
+          <p>Status: {relatorio.status || "Rascunho"}</p>
+        </div>
+        <div className="relatorio-acoes">
+          {!estaAssinado && (
+            <button
+              className="btn-acao btn-assinar"
+              onClick={() => onAssinar(relatorioId)}
+              disabled={assinando[relatorioId]}
+              title="Assinar Relatório"
+            >
+              {assinando[relatorioId] ? (
+                <span className="spinner"></span>
+              ) : (
+                <CheckCircle size={16} />
+              )}
+            </button>
+          )}
           <button
-            className="btn-acao btn-assinar"
-            onClick={() => onAssinar(relatorioId)}
-            disabled={assinando[relatorioId]}
-            title="Assinar Relatório"
+            className="btn-acao"
+            onClick={() => onBaixarPDF(relatorioId)}
+            disabled={baixandoPDF[relatorioId]}
+            title="Baixar PDF"
           >
-            {assinando[relatorioId] ? (
+            {baixandoPDF[relatorioId] ? (
               <span className="spinner"></span>
             ) : (
-              <CheckCircle size={16} />
+              <Download size={16} />
             )}
           </button>
-        )}
-        <button
-          className="btn-acao"
-          onClick={() => onBaixarPDF(relatorioId)}
-          disabled={baixandoPDF[relatorioId]}
-          title="Baixar PDF"
-        >
-          {baixandoPDF[relatorioId] ? (
-            <span className="spinner"></span>
-          ) : (
-            <Download size={16} />
-          )}
-        </button>
-        <button
-          className="btn-acao btn-excluir"
-          onClick={excluirRelatorio}
-          disabled={excluindo}
-          title="Excluir Relatório"
-        >
-          {excluindo ? <span className="spinner"></span> : <Trash2 size={16} />}
-        </button>
+          <button
+            className="btn-acao btn-excluir"
+            onClick={abrirModalExcluir}
+            disabled={excluindo}
+            title="Excluir Relatório"
+          >
+            {excluindo ? (
+              <span className="spinner"></span>
+            ) : (
+              <Trash2 size={16} />
+            )}
+          </button>
+        </div>
       </div>
-    </div>
+
+      {/* Modal de confirmação de exclusão */}
+      <ModalExcluirRelatorio
+        isOpen={modalExcluirAberto}
+        onClose={fecharModalExcluir}
+        onConfirm={excluirRelatorio}
+        relatorioId={relatorioId}
+        relatorioTitulo={relatorio.title}
+      />
+    </>
   );
 }

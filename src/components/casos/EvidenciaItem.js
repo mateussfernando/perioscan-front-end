@@ -1,5 +1,5 @@
 "use client";
-import { Eye, FileDown, ClipboardList, Loader } from "lucide-react";
+import { Eye, FileDown, ClipboardList, Loader, Trash2 } from "lucide-react";
 
 export default function EvidenciaItem({
   evidencia,
@@ -11,6 +11,7 @@ export default function EvidenciaItem({
   onVerEvidencia,
   onCriarLaudo,
   onBaixarPDF,
+  onExcluirEvidencia,
 }) {
   const evidenciaId = evidencia._id || evidencia.id;
 
@@ -84,6 +85,14 @@ export default function EvidenciaItem({
             <span className="btn-text">Laudo</span>
           </button>
         )}
+
+        <button
+          className="btn-excluir-evidencia"
+          onClick={() => onExcluirEvidencia(evidencia)}
+          title="Excluir evidência"
+        >
+          <Trash2 size={18} />
+        </button>
       </td>
     </tr>
   );

@@ -1,7 +1,5 @@
 // pages/admincadastramento.js
 "use client";
-
-import Link from "next/link";
 import "../styles/admin-cadastramento.css";
 import { useState } from "react";
 import AsideNavbar from "../components/AsideNavBar";
@@ -28,6 +26,9 @@ export default function AdminCadastramento() {
   function handleChange(event) {
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
+
+    // Limpar mensagens de erro quando o usuário começa a digitar
+    if (error) setError(null);
   }
 
   // Processa o envio do formulário
@@ -99,6 +100,11 @@ export default function AdminCadastramento() {
         password: "",
         role: "perito",
       });
+
+      // Remover a mensagem de sucesso após 5 segundos
+      setTimeout(() => {
+        setSuccess(null);
+      }, 5000);
     } catch (error) {
       console.error("Erro ao cadastrar usuário:", error);
       setError(error.message || "Falha ao cadastrar usuário. Tente novamente.");
@@ -107,10 +113,21 @@ export default function AdminCadastramento() {
     }
   }
 
+  // Função para gerar uma senha aleatória
+  function gerarSenhaAleatoria() {
+    const caracteres =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+    let senha = "";
+    for (let i = 0; i < 10; i++) {
+      senha += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    }
+    setFormData({ ...formData, password: senha });
+    setShowPassword(true); // Mostrar a senha gerada
+  }
+
   return (
     <ControleDeRota requiredRole="admin">
-      <MobileBottomNav></MobileBottomNav>
-      <main className="main-container-admincadastramento">
+      <div className="main-container-admincadastramento">
         {/* Barra lateral de navegação */}
         <AsideNavbar />
 
@@ -185,6 +202,9 @@ export default function AdminCadastramento() {
                       type="button"
                       className="toggle-password"
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={
+                        showPassword ? "Ocultar senha" : "Mostrar senha"
+                      }
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
@@ -246,7 +266,10 @@ export default function AdminCadastramento() {
             </form>
           </div>
         </div>
-      </main>
+
+        {/* Navegação mobile */}
+        <MobileBottomNav />
+      </div>
     </ControleDeRota>
   );
 }

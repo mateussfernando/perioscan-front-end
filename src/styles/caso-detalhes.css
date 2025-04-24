@@ -90,6 +90,34 @@
   gap: 5px;
 }
 
+/* Adicionar após os estilos dos botões existentes */
+.btn-excluir-evidencia {
+  background-color: #a52e40;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  padding: 0;
+}
+
+.btn-excluir-evidencia:hover {
+  background-color: #d32f2f;
+  transform: scale(1.1);
+}
+
+.btn-excluir-evidencia svg {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+}
+
 .caso-content {
   display: flex;
   min-height: 500px;
