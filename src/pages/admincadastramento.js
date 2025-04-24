@@ -7,6 +7,7 @@ import { useState } from "react";
 import AsideNavbar from "../components/AsideNavBar";
 import { AlertCircle, CheckCircle, Eye, EyeOff, Loader } from "lucide-react";
 import ControleDeRota from "@/components/ControleDeRota";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 export default function AdminCadastramento() {
   // Estado para armazenar os dados do formulário
@@ -108,8 +109,8 @@ export default function AdminCadastramento() {
 
   return (
     <ControleDeRota requiredRole="admin">
-      {/* <MobileBottomNav></MobileBottomNav> */}
-      <div className="main-container-admincadastramento">
+      <MobileBottomNav></MobileBottomNav>
+      <main className="main-container-admincadastramento">
         {/* Barra lateral de navegação */}
         <AsideNavbar />
 
@@ -245,7 +246,7 @@ export default function AdminCadastramento() {
             </form>
           </div>
         </div>
-      </div>
+      </main>
     </ControleDeRota>
   );
 }
