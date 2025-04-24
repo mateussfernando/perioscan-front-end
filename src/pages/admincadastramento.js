@@ -7,7 +7,6 @@ import { useState } from "react";
 import AsideNavbar from "../components/AsideNavBar";
 import { AlertCircle, CheckCircle, Eye, EyeOff, Loader } from "lucide-react";
 import ControleDeRota from "@/components/ControleDeRota";
-// import MobileBottomNav from "@/components/mobile/MobileBottomNav";
 
 export default function AdminCadastramento() {
   // Estado para armazenar os dados do formulário

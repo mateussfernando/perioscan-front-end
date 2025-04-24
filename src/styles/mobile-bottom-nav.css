@@ -1,0 +1,25 @@
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #000000; /* Fundo preto */
+  border-top: 1px solid #333333;
+  z-index: 50;
+  padding-bottom: 8px;
+}
+
+.nav-list {
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch; /* Isso faz com que todos os itens tenham a mesma altura */
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* Espaço para a navegação inferior */
+.main-content {
+  padding-bottom: 72px; /* Ajuste conforme necessário */
+}

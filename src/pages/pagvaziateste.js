@@ -1,7 +1,5 @@
-import MobileBottomNav from "@/components/mobile/MobileBottomNav";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
-export default function PagVazia (){
-    return(
-        <MobileBottomNav></MobileBottomNav>
-    );
+export default function PagVazia() {
+  return <MobileBottomNav></MobileBottomNav>;
 }

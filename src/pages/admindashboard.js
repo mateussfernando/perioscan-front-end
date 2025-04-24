@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import AsideNavbar from "@/components/AsideNavBar";
-// Adicionar importações de ícones necessários
+import MobileBottomNav from "@/components/MobileBottomNav"
+
 import {
   Bell,
   Calendar,
@@ -714,6 +715,7 @@ export default function AdminDashboard() {
   // Renderizar componente
   return (
     <ControleDeRota requiredRole="admin">
+      <MobileBottomNav></MobileBottomNav>
       <main className="admin-dashboard-main-container">
         <AsideNavbar />
 

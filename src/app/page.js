@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import "../styles/login.css";
 
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,7 +69,7 @@ export default function Login() {
       localStorage.setItem("role", data.user.role);
 
       router.push(
-        data.user.role === "admin" ? "/admincadastramento" : "/casos"
+        data.user.role === "admin" ? "/admindashboard" : "/casos"
       );
     } catch (err) {
       console.error("Erro no login:", err);

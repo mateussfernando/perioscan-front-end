@@ -15,6 +15,8 @@ import {
   Search,
   Calendar,
 } from "lucide-react";
+import MobileBottomNav from "@/components/MobileBottomNav"
+
 
 export default function MainCasos() {
   const [casos, setCasos] = useState([]);
@@ -369,6 +371,7 @@ export default function MainCasos() {
   return (
     <div className="casos-container">
       <AsideNavBar />
+      <MobileBottomNav></MobileBottomNav>
 
       <main className="casos-content">
         <header className="casos-header">
