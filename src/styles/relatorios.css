@@ -7,7 +7,7 @@
 .relatorios-content {
   flex: 1;
   padding: 20px;
-  margin-left: 250px;
+  margin-left: 20px;
   position: relative;
 }
 
@@ -32,7 +32,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #555;
+  color: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,7 +121,7 @@
 }
 
 .relatorios-table th {
-  background-color: #333;
+  background-color: #000000;
   color: white;
   text-align: left;
   padding: 12px 15px;
@@ -181,6 +181,7 @@
 .acoes-coluna {
   display: flex;
   gap: 8px;
+  justify-content: center;
 }
 
 .btn-acao {
@@ -208,7 +209,7 @@
 }
 
 .btn-ver-caso {
-  background-color: #2196f3;
+  background-color: rgb(39, 39, 39);
   color: white;
   border: none;
   padding: 6px 12px;
