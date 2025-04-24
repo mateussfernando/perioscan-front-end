@@ -214,28 +214,267 @@
   background-color: #333;
 }
 
-/* Responsividade */
+/* Adicione estas regras ao seu arquivo CSS existente */
+
+/* Ajustes gerais para mobile */
 @media (max-width: 768px) {
+  .gerenciamento-container {
+    flex-direction: column;
+  }
+
   .gerenciamento-content {
     margin-left: 0;
     padding: 15px;
+    padding-bottom: 80px; /* Espaço para o MobileBottomNav */
+  }
+
+  .gerenciamento-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
   }
 
   .gerenciamento-filtros {
     flex-direction: column;
     gap: 15px;
+    width: 100%;
+  }
+
+  .filtro-tabs {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .filtro-tabs button {
+    flex-shrink: 0;
+  }
+
+  .busca-container {
+    width: 100%;
   }
 
   .busca-container input {
     width: 100%;
   }
 
+  .tabela-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+  }
+
+  .tabela-usuarios {
+    min-width: 600px; /* Força a rolagem horizontal em tabelas muito largas */
+  }
+
   .tabela-usuarios th,
   .tabela-usuarios td {
-    padding: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
   }
 
   .id-cell {
-    max-width: 60px;
+    max-width: 80px;
+  }
+
+  .acoes-cell {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .acao-btn {
+    padding: 6px;
+  }
+
+  .acoes-gerais {
+    justify-content: center;
+  }
+
+  .btn-adicionar-usuario {
+    width: 100%;
+    justify-content: center;
   }
 }
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 480px) {
+  .gerenciamento-content {
+    padding: 10px;
+    padding-bottom: 70px;
+  }
+
+  .gerenciamento-header h1 {
+    font-size: 20px;
+  }
+
+  .filtro-tabs button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .tabela-usuarios th,
+  .tabela-usuarios td {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+
+  .status-badge {
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+}
+
+/* Versão Mobile - Cards com Ícones Neutros */
+@media (max-width: 600px) {
+  .tabela-container {
+    overflow-x: visible;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  
+  .tabela-usuarios {
+    display: block;
+    min-width: 0;
+    border: none;
+  }
+  
+  .tabela-usuarios thead {
+    display: none;
+  }
+  
+  .tabela-usuarios tbody {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .tabela-usuarios tr {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    align-items: center;
+  }
+  
+  .tabela-usuarios tr:active {
+    transform: scale(0.98);
+  }
+  
+  .tabela-usuarios tr.usuario-inativo {
+    opacity: 0.8;
+    background: #f9f9f9;
+  }
+  
+  .tabela-usuarios td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .tabela-usuarios td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #666;
+    font-size: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+  
+  .tabela-usuarios td > span:not(.status-badge) {
+    text-align: right;
+    word-break: break-word;
+    flex-grow: 1;
+  }
+  
+  .tabela-usuarios td:last-child {
+    border-bottom: none;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background: #fafafa;
+  }
+  
+  .id-cell {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #666;
+  }
+  
+  .acoes-cell {
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  
+  .acao-btn {
+    padding: 6px;
+    border-radius: 4px;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    color: inherit;
+  }
+  
+  .acao-btn:hover {
+    background-color: #f5f5f5;
+  }
+  
+  /* Status badge mantido */
+  .status-badge {
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .status-badge.ativo {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  .status-badge.inativo {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+  
+  /* Efeito de hover nos cards */
+  @media (hover: hover) {
+    .tabela-usuarios tr:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+  }
+}
+
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%;
+    max-width: none;
+    margin: 20px auto;
+  }
+  
+  .modal-body {
+    padding: 15px;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .modal-footer button {
+    width: 100%;
+  }
+}
+

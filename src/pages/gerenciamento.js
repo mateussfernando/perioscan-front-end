@@ -7,7 +7,8 @@ import Image from "next/image";
 import { Pencil, Search, Bell, Trash2, CircleX } from "lucide-react";
 import ModalEditarUsuario from "@/components/usuario/ModalEditarUsuario";
 import ModalConfirmarExclusao from "@/components/usuario/ModalConfirmarExclusao";
-// import MobileBottomNav from "@/components/mobile/MobileBottomNav";
+import MobileBottomNav from "@/components/MobileBottomNav"
+
 
 export default function Gerenciamento() {
   const router = useRouter();
@@ -360,7 +361,7 @@ export default function Gerenciamento() {
   return (
     <div className="gerenciamento-container">
       <AsideNavBar />
-      {/* <MobileBottomNav></MobileBottomNav> */}
+      <MobileBottomNav></MobileBottomNav>
 
       <main className="gerenciamento-content">
         <header className="gerenciamento-header">
