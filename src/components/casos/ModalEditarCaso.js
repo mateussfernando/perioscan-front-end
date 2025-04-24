@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { X, MapPin, Save, Loader, Calendar } from "lucide-react";
 
 export default function ModalEditarCaso({
@@ -10,9 +11,40 @@ export default function ModalEditarCaso({
   salvandoCaso,
   erroEdicao,
 }) {
+  const [tipoPersonalizado, setTipoPersonalizado] = useState("");
+
+  // Inicializar o tipo personalizado se o tipo não for um dos padrões
+  useEffect(() => {
+    const tiposPadrao = [
+      "acidente",
+      "identificação de vítima",
+      "exame criminal",
+      "outro",
+    ];
+    if (casoEditado.type && !tiposPadrao.includes(casoEditado.type)) {
+      setTipoPersonalizado(casoEditado.type);
+    }
+  }, [casoEditado.type]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSalvar(e);
+
+    // Se o tipo for "outro" e houver um valor personalizado, use-o como tipo
+    if (casoEditado.type === "outro" && tipoPersonalizado.trim()) {
+      const casoComTipoPersonalizado = {
+        ...casoEditado,
+        type: tipoPersonalizado.trim(),
+      };
+
+      // Chamar onSalvar com o evento e o caso modificado
+      onSalvar(e, casoComTipoPersonalizado);
+    } else {
+      onSalvar(e);
+    }
+  };
+
+  const handleTipoPersonalizadoChange = (e) => {
+    setTipoPersonalizado(e.target.value);
   };
 
   return (
@@ -45,6 +77,39 @@ export default function ModalEditarCaso({
                 required
               />
             </div>
+
+            {/* Tipo do caso */}
+            <div className="form-group">
+              <label htmlFor="type">Tipo do Caso</label>
+              <select
+                id="type"
+                name="type"
+                value={casoEditado.type || "outro"}
+                onChange={onCasoChange}
+              >
+                <option value="acidente">Acidente</option>
+                <option value="identificação de vítima">
+                  Identificação de Vítima
+                </option>
+                <option value="exame criminal">Exame Criminal</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+
+            {/* Campo para tipo personalizado - aparece apenas quando "outro" está selecionado */}
+            {casoEditado.type === "outro" && (
+              <div className="form-group">
+                <label htmlFor="tipoPersonalizado">Especifique o Tipo</label>
+                <input
+                  type="text"
+                  id="tipoPersonalizado"
+                  name="tipoPersonalizado"
+                  value={tipoPersonalizado}
+                  onChange={handleTipoPersonalizadoChange}
+                  placeholder="Digite o tipo específico do caso"
+                />
+              </div>
+            )}
 
             {/* Local */}
             <div className="form-group">

@@ -12,7 +12,7 @@ import EvidenciaItem from "@/components/casos/EvidenciaItem";
 import ModalVisualizarEvidencia from "@/components/casos/ModalVisualizarEvidencia";
 import ModalCriarLaudo from "@/components/casos/ModalCriarLaudo";
 import ModalAdicionarEvidencia from "@/components/casos/ModalAdicionarEvidencia";
-import ModalEditarCaso from "@/components/casos/ModalEditarCaso";
+import ModalEditarCaso from "../../components/casos/ModalEditarCaso";
 import ModalExcluirCaso from "@/components/casos/ModalExcluirCaso";
 import NotificacaoLaudo from "@/components/casos/NotificacaoLaudo";
 import EvidenciasFiltro from "@/components/casos/EvidenciasFiltro";
@@ -51,6 +51,8 @@ export default function CasoDetalhes() {
     location: "",
     status: "em andamento", // Valor correto em minúsculas
     observation: "",
+    occurrenceDate: "",
+    type: "outro", // Valor padrão para o tipo
   });
   const [salvandoCaso, setSalvandoCaso] = useState(false);
   const [erroEdicao, setErroEdicao] = useState(null);
@@ -146,6 +148,7 @@ export default function CasoDetalhes() {
             status: statusNormalizado, // Usar o valor normalizado
             observation: responseObject.data.observation || "",
             occurrenceDate: responseObject.data.occurrenceDate || "", // Add this line
+            type: responseObject.data.type || "outro",
           });
 
           console.log("Status normalizado:", statusNormalizado);
@@ -549,6 +552,20 @@ export default function CasoDetalhes() {
     });
   };
 
+  // Função para formatar o tipo do caso
+  const formatarTipoCaso = (tipo) => {
+    if (!tipo) return "Outro";
+
+    const tipos = {
+      acidente: "Acidente",
+      "identificação de vítima": "Identificação de Vítima",
+      "exame criminal": "Exame Criminal",
+      outro: "Outro",
+    };
+
+    return tipos[tipo] || tipo;
+  };
+
   // Função para obter a classe CSS baseada no status
   const getStatusClassName = (status) => {
     if (!status) return "status-desconhecido";
@@ -677,7 +694,7 @@ export default function CasoDetalhes() {
   };
 
   // Adicionar logs para depuração na função salvarCaso
-  const salvarCaso = async (e) => {
+  const salvarCaso = async (e, casoModificado) => {
     e.preventDefault();
     setSalvandoCaso(true);
     setErroEdicao(null);
@@ -686,9 +703,9 @@ export default function CasoDetalhes() {
       const token = localStorage.getItem("token");
       const casoId = caso._id || caso.id;
 
-      // Garantir que o status esteja no formato correto
+      // Usar o caso modificado se fornecido, caso contrário usar o casoEditado
       const dadosParaEnviar = {
-        ...casoEditado,
+        ...(casoModificado || casoEditado),
         status: normalizarStatus(casoEditado.status),
       };
 
@@ -1102,6 +1119,10 @@ export default function CasoDetalhes() {
                   <div className="info-item">
                     <strong>Criado por:</strong>{" "}
                     {caso.createdBy?.name || "Não informado"}
+                  </div>
+                  <div className="info-item">
+                    <strong>Tipo:</strong>{" "}
+                    {formatarTipoCaso(caso.type) || "Outro"}
                   </div>
                 </div>
 

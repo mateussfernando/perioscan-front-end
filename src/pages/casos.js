@@ -15,8 +15,6 @@ import {
   Search,
   Calendar,
 } from "lucide-react";
-import MobileBottomNav from "@/components/MobileBottomNav"
-
 
 export default function MainCasos() {
   const [casos, setCasos] = useState([]);
@@ -30,7 +28,9 @@ export default function MainCasos() {
     description: "",
     location: "",
     status: "em andamento",
-    occurrenceDate: "", // Add this line
+    occurrenceDate: "",
+    type: "outro", // Valor padrão
+    tipoPersonalizado: "", // Novo campo para armazenar o tipo personalizado
   });
   const [criandoCaso, setCriandoCaso] = useState(false);
   const [erroCriacao, setErroCriacao] = useState(null);
@@ -250,6 +250,20 @@ export default function MainCasos() {
     }
   };
 
+  // Função para formatar o tipo do caso
+  const formatarTipoCaso = (tipo) => {
+    if (!tipo) return "Outro";
+
+    const tipos = {
+      acidente: "Acidente",
+      "identificação de vítima": "Identificação de Vítima",
+      "exame criminal": "Exame Criminal",
+      outro: "Outro",
+    };
+
+    return tipos[tipo] || tipo;
+  };
+
   // Função para abrir o modal de novo caso
   const abrirModalNovo = () => {
     if (!podeAdicionarCaso()) {
@@ -264,6 +278,8 @@ export default function MainCasos() {
       location: "",
       status: "em andamento", // Valor correto em minúsculas
       occurrenceDate: "",
+      type: "outro",
+      tipoPersonalizado: "",
     });
     setErroCriacao(null);
     setModalNovoAberto(true);
@@ -298,12 +314,23 @@ export default function MainCasos() {
     try {
       const token = localStorage.getItem("token");
 
+      // Preparar os dados para envio, tratando o tipo personalizado
+      const dadosParaEnviar = { ...novoCaso };
+
+      // Se o tipo for "outro" e houver um valor personalizado, use-o como tipo
+      if (novoCaso.type === "outro" && novoCaso.tipoPersonalizado.trim()) {
+        dadosParaEnviar.type = novoCaso.tipoPersonalizado.trim();
+      }
+
+      // Remover o campo tipoPersonalizado antes de enviar para o backend
+      delete dadosParaEnviar.tipoPersonalizado;
+
       // Log detalhado para depuração
       console.log(
         "Enviando dados do novo caso:",
-        JSON.stringify(novoCaso, null, 2)
+        JSON.stringify(dadosParaEnviar, null, 2)
       );
-      console.log("Status sendo enviado:", novoCaso.status);
+      console.log("Status sendo enviado:", dadosParaEnviar.status);
 
       const response = await fetch(
         "https://perioscan-back-end-fhhq.onrender.com/api/cases",
@@ -313,7 +340,7 @@ export default function MainCasos() {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(novoCaso),
+          body: JSON.stringify(dadosParaEnviar),
         }
       );
 
@@ -371,7 +398,6 @@ export default function MainCasos() {
   return (
     <div className="casos-container">
       <AsideNavBar />
-      <MobileBottomNav></MobileBottomNav>
 
       <main className="casos-content">
         <header className="casos-header">
@@ -453,6 +479,7 @@ export default function MainCasos() {
               <thead>
                 <tr>
                   <th>Título</th>
+                  <th>Tipo</th>
                   <th>Local</th>
                   <th>Data abertura</th>
                   <th>Data fechamento</th>
@@ -466,6 +493,7 @@ export default function MainCasos() {
                   casosFiltrados.map((caso) => (
                     <tr key={caso._id}>
                       <td>{caso.title || "--"}</td>
+                      <td>{formatarTipoCaso(caso.type) || "--"}</td>
                       <td>{caso.location || "--"}</td>
                       <td>{formatarData(caso.openDate)}</td>
                       <td>{formatarData(caso.closeDate)}</td>
@@ -492,7 +520,7 @@ export default function MainCasos() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="nenhum-resultado">
+                    <td colSpan="8" className="nenhum-resultado">
                       {casos.length === 0
                         ? "Nenhum caso encontrado."
                         : "Nenhum caso corresponde aos filtros aplicados."}
@@ -534,6 +562,41 @@ export default function MainCasos() {
                     required
                   />
                 </div>
+
+                {/* Tipo do caso */}
+                <div className="form-group">
+                  <label htmlFor="type">Tipo do Caso</label>
+                  <select
+                    id="type"
+                    name="type"
+                    value={novoCaso.type}
+                    onChange={handleCasoChange}
+                  >
+                    <option value="acidente">Acidente</option>
+                    <option value="identificação de vítima">
+                      Identificação de Vítima
+                    </option>
+                    <option value="exame criminal">Exame Criminal</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+
+                {/* Campo para tipo personalizado - aparece apenas quando "outro" está selecionado */}
+                {novoCaso.type === "outro" && (
+                  <div className="form-group">
+                    <label htmlFor="tipoPersonalizado">
+                      Especifique o Tipo
+                    </label>
+                    <input
+                      type="text"
+                      id="tipoPersonalizado"
+                      name="tipoPersonalizado"
+                      value={novoCaso.tipoPersonalizado}
+                      onChange={handleCasoChange}
+                      placeholder="Digite o tipo específico do caso"
+                    />
+                  </div>
+                )}
 
                 {/* Local */}
                 <div className="form-group">
