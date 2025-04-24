@@ -23,3 +23,9 @@
 .main-content {
   padding-bottom: 72px; /* Ajuste conforme necessário */
 }
+
+@media (min-width: 431px) {
+  .mobile-bottom-nav {
+    display: none;
+  }
+}
