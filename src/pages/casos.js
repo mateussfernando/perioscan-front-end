@@ -16,6 +16,7 @@ import {
   Calendar,
 } from "lucide-react";
 import MobileBottomNav from "@/components/MobileBottomNav"
+import ControleDeRota from "@/components/ControleDeRota";
 
 
 export default function MainCasos() {
@@ -398,6 +399,7 @@ export default function MainCasos() {
   };
 
   return (
+    <ControleDeRota>
     <div className="casos-container">
       <AsideNavBar />
       <MobileBottomNav></MobileBottomNav>
@@ -703,5 +705,7 @@ export default function MainCasos() {
         </div>
       )}
     </div>
+
+    </ControleDeRota>
   );
 }

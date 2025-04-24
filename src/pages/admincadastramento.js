@@ -109,7 +109,7 @@ export default function AdminCadastramento() {
   return (
     <ControleDeRota requiredRole="admin">
       {/* <MobileBottomNav></MobileBottomNav> */}
-      <div className="main-container-admincadastramento">
+      <main className="main-container-admincadastramento">
         {/* Barra lateral de navegação */}
         <AsideNavbar />
 
@@ -245,7 +245,7 @@ export default function AdminCadastramento() {
             </form>
           </div>
         </div>
-      </div>
+      </main>
     </ControleDeRota>
   );
 }

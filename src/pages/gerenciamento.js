@@ -8,6 +8,7 @@ import { Pencil, Search, Bell, Trash2, CircleX } from "lucide-react";
 import ModalEditarUsuario from "@/components/usuario/ModalEditarUsuario";
 import ModalConfirmarExclusao from "@/components/usuario/ModalConfirmarExclusao";
 import MobileBottomNav from "@/components/MobileBottomNav"
+import ControleDeRota from "@/components/ControleDeRota";
 
 
 export default function Gerenciamento() {
@@ -359,183 +360,185 @@ export default function Gerenciamento() {
   }
 
   return (
-    <div className="gerenciamento-container">
-      <AsideNavBar />
-      <MobileBottomNav></MobileBottomNav>
+    <ControleDeRota requiredRole="admin">
+      <div className="gerenciamento-container">
+        <AsideNavBar />
+        <MobileBottomNav></MobileBottomNav>
 
-      <main className="gerenciamento-content">
-        <header className="gerenciamento-header">
-          <h1>Gerenciamento de usuários</h1>
-          <div className="notificacao-icon">
-            <Bell alt="Icone de notificação" width={24} height={24} />
+        <main className="gerenciamento-content">
+          <header className="gerenciamento-header">
+            <h1>Gerenciamento de usuários</h1>
+            <div className="notificacao-icon">
+              <Bell alt="Icone de notificação" width={24} height={24} />
+            </div>
+          </header>
+
+          <div className="gerenciamento-filtros">
+            <div className="filtro-tabs">
+              <button
+                className={filtroAtivo === "todos" ? "active" : ""}
+                onClick={() => setFiltroAtivo("todos")}
+              >
+                Todos
+              </button>
+              <button
+                className={filtroAtivo === "peritos" ? "active" : ""}
+                onClick={() => setFiltroAtivo("peritos")}
+              >
+                Peritos
+              </button>
+              <button
+                className={filtroAtivo === "assistentes" ? "active" : ""}
+                onClick={() => setFiltroAtivo("assistentes")}
+              >
+                Assistentes
+              </button>
+            </div>
+
+            <div className="busca-container">
+              <input
+                type="text"
+                placeholder="Buscar usuário"
+                value={termoBusca}
+                onChange={(e) => setTermoBusca(e.target.value)}
+              />
+              <button className="busca-btn">
+                <Search alt="Buscar" width={20} height={20} />
+              </button>
+            </div>
           </div>
-        </header>
 
-        <div className="gerenciamento-filtros">
-          <div className="filtro-tabs">
-            <button
-              className={filtroAtivo === "todos" ? "active" : ""}
-              onClick={() => setFiltroAtivo("todos")}
-            >
-              Todos
-            </button>
-            <button
-              className={filtroAtivo === "peritos" ? "active" : ""}
-              onClick={() => setFiltroAtivo("peritos")}
-            >
-              Peritos
-            </button>
-            <button
-              className={filtroAtivo === "assistentes" ? "active" : ""}
-              onClick={() => setFiltroAtivo("assistentes")}
-            >
-              Assistentes
-            </button>
-          </div>
-
-          <div className="busca-container">
-            <input
-              type="text"
-              placeholder="Buscar usuário"
-              value={termoBusca}
-              onChange={(e) => setTermoBusca(e.target.value)}
-            />
-            <button className="busca-btn">
-              <Search alt="Buscar" width={20} height={20} />
-            </button>
-          </div>
-        </div>
-
-        {carregando ? (
-          <div className="carregando">Carregando usuários...</div>
-        ) : erro ? (
-          <div className="erro">Erro ao carregar usuários: {erro}</div>
-        ) : (
-          <div className="tabela-container">
-            <table className="tabela-usuarios">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Usuário</th>
-                  <th>Email</th>
-                  <th>Cargo</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {usuariosFiltrados.length > 0 ? (
-                  usuariosFiltrados.map((usuario, index) => (
-                    <tr
-                      key={gerarChaveUnica(usuario, index)}
-                      className={
-                        !isUsuarioAtivo(usuario) ? "usuario-inativo" : ""
-                      }
-                    >
-                      <td className="id-cell">{obterIdUsuario(usuario)}</td>
-                      <td>{usuario.name || "Nome não disponível"}</td>
-                      <td>{usuario.email || "Email não disponível"}</td>
-                      <td>{formatarPapel(usuario.role)}</td>
-                      <td>
-                        <span
-                          className={`status-badge ${
-                            isUsuarioAtivo(usuario) ? "ativo" : "inativo"
-                          }`}
-                        >
-                          {isUsuarioAtivo(usuario) ? "Ativo" : "Inativo"}
-                        </span>
-                      </td>
-                      <td className="acoes-cell">
-                        <button
-                          className="acao-btn editar"
-                          onClick={() => abrirModalEditar(usuario)}
-                          title="Editar usuário"
-                        >
-                          <Pencil alt="Editar" width={16} height={16} />
-                        </button>
-                        <button
-                          className="acao-btn status"
-                          onClick={() =>
-                            alternarStatus(obterIdUsuario(usuario))
-                          }
-                          title={
-                            isUsuarioAtivo(usuario)
-                              ? "Desativar usuário"
-                              : "Ativar usuário"
-                          }
-                        >
-                          <CircleX
-                            alt={
-                              isUsuarioAtivo(usuario) ? "Desativar" : "Ativar"
+          {carregando ? (
+            <div className="carregando">Carregando usuários...</div>
+          ) : erro ? (
+            <div className="erro">Erro ao carregar usuários: {erro}</div>
+          ) : (
+            <div className="tabela-container">
+              <table className="tabela-usuarios">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Usuário</th>
+                    <th>Email</th>
+                    <th>Cargo</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usuariosFiltrados.length > 0 ? (
+                    usuariosFiltrados.map((usuario, index) => (
+                      <tr
+                        key={gerarChaveUnica(usuario, index)}
+                        className={
+                          !isUsuarioAtivo(usuario) ? "usuario-inativo" : ""
+                        }
+                      >
+                        <td className="id-cell">{obterIdUsuario(usuario)}</td>
+                        <td>{usuario.name || "Nome não disponível"}</td>
+                        <td>{usuario.email || "Email não disponível"}</td>
+                        <td>{formatarPapel(usuario.role)}</td>
+                        <td>
+                          <span
+                            className={`status-badge ${
+                              isUsuarioAtivo(usuario) ? "ativo" : "inativo"
+                            }`}
+                          >
+                            {isUsuarioAtivo(usuario) ? "Ativo" : "Inativo"}
+                          </span>
+                        </td>
+                        <td className="acoes-cell">
+                          <button
+                            className="acao-btn editar"
+                            onClick={() => abrirModalEditar(usuario)}
+                            title="Editar usuário"
+                          >
+                            <Pencil alt="Editar" width={16} height={16} />
+                          </button>
+                          <button
+                            className="acao-btn status"
+                            onClick={() =>
+                              alternarStatus(obterIdUsuario(usuario))
                             }
-                            width={16}
-                            height={16}
-                          />
-                        </button>
-                        <button
-                          className="acao-btn excluir"
-                          onClick={() => abrirModalExcluir(usuario)}
-                          title="Excluir usuário"
-                        >
-                          <Trash2 alt="Excluir" width={16} height={16} />
-                        </button>
+                            title={
+                              isUsuarioAtivo(usuario)
+                                ? "Desativar usuário"
+                                : "Ativar usuário"
+                            }
+                          >
+                            <CircleX
+                              alt={
+                                isUsuarioAtivo(usuario) ? "Desativar" : "Ativar"
+                              }
+                              width={16}
+                              height={16}
+                            />
+                          </button>
+                          <button
+                            className="acao-btn excluir"
+                            onClick={() => abrirModalExcluir(usuario)}
+                            title="Excluir usuário"
+                          >
+                            <Trash2 alt="Excluir" width={16} height={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="nenhum-resultado">
+                        {usuarios.length === 0
+                          ? "Nenhum usuário encontrado. Verifique a conexão com a API."
+                          : "Nenhum usuário encontrado com os filtros aplicados."}
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="nenhum-resultado">
-                      {usuarios.length === 0
-                        ? "Nenhum usuário encontrado. Verifique a conexão com a API."
-                        : "Nenhum usuário encontrado com os filtros aplicados."}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div className="acoes-gerais">
+            <button
+              className="btn-adicionar-usuario"
+              onClick={() => {
+                const role = localStorage.getItem("role");
+                if (role && role.toLowerCase() === "admin") {
+                  router.push("/admincadastramento");
+                } else {
+                  router.push("/naoautorizado");
+                }
+              }}
+            >
+              <Image
+                src="/images/icons/icone-adicionar.png"
+                alt="Adicionar"
+                width={20}
+                height={20}
+              />
+              Adicionar Usuário
+            </button>
           </div>
+        </main>
+
+        {/* Modal de Edição */}
+        {modalEditarAberto && (
+          <ModalEditarUsuario
+            usuario={usuarioSelecionado}
+            onClose={() => setModalEditarAberto(false)}
+            onSave={salvarUsuarioEditado}
+          />
         )}
 
-        <div className="acoes-gerais">
-          <button
-            className="btn-adicionar-usuario"
-            onClick={() => {
-              const role = localStorage.getItem("role");
-              if (role && role.toLowerCase() === "admin") {
-                router.push("/admincadastramento");
-              } else {
-                router.push("/naoautorizado");
-              }
-            }}
-          >
-            <Image
-              src="/images/icons/icone-adicionar.png"
-              alt="Adicionar"
-              width={20}
-              height={20}
-            />
-            Adicionar Usuário
-          </button>
-        </div>
-      </main>
-
-      {/* Modal de Edição */}
-      {modalEditarAberto && (
-        <ModalEditarUsuario
-          usuario={usuarioSelecionado}
-          onClose={() => setModalEditarAberto(false)}
-          onSave={salvarUsuarioEditado}
-        />
-      )}
-
-      {/* Modal de Confirmação de Exclusão */}
-      {modalExcluirAberto && (
-        <ModalConfirmarExclusao
-          usuario={usuarioSelecionado}
-          onClose={() => setModalExcluirAberto(false)}
-          onConfirm={excluirUsuario}
-        />
-      )}
-    </div>
+        {/* Modal de Confirmação de Exclusão */}
+        {modalExcluirAberto && (
+          <ModalConfirmarExclusao
+            usuario={usuarioSelecionado}
+            onClose={() => setModalExcluirAberto(false)}
+            onConfirm={excluirUsuario}
+          />
+        )}
+      </div>
+    </ControleDeRota>
   );
 }
