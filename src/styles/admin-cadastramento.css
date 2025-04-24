@@ -103,6 +103,13 @@ body {
   flex-direction: column;
   margin-bottom: 5px;
 }
+.admincadastramento-container-titulo {
+  display: flex;
+  flex-direction: column;
+}
+.admincadastramento-btn-voltar {
+  cursor: pointer;
+}
 
 .admincadastramento-grupo-formulario label {
   font-weight: 600;

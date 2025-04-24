@@ -3,7 +3,14 @@
 import "../styles/admin-cadastramento.css";
 import { useState } from "react";
 import AsideNavbar from "../components/AsideNavBar";
-import { AlertCircle, CheckCircle, Eye, EyeOff, Loader } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle,
+  Eye,
+  EyeOff,
+  Loader,
+  ArrowLeft,
+} from "lucide-react";
 import ControleDeRota from "@/components/ControleDeRota";
 import MobileBottomNav from "@/components/MobileBottomNav";
 
@@ -134,7 +141,10 @@ export default function AdminCadastramento() {
         {/* Conteúdo principal da página */}
         <div className="admincadastramento-pagina">
           <div className="admincadastramento-conteudo-principal">
-            <h1 className="admincadastramento-titulo">Cadastro de Usuário</h1>
+            <div className="admincadastramento-container-titulo">
+              <ArrowLeft className="admincadastramento-btn-voltar" />
+              <h1 className="admincadastramento-titulo">Cadastro de Usuário</h1>
+            </div>
 
             {/* Mensagens de feedback */}
             {error && (

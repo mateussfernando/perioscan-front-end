@@ -7,9 +7,8 @@ import Image from "next/image";
 import { Pencil, Search, Bell, Trash2, CircleX } from "lucide-react";
 import ModalEditarUsuario from "@/components/usuario/ModalEditarUsuario";
 import ModalConfirmarExclusao from "@/components/usuario/ModalConfirmarExclusao";
-import MobileBottomNav from "@/components/MobileBottomNav"
+import MobileBottomNav from "@/components/MobileBottomNav";
 import ControleDeRota from "@/components/ControleDeRota";
-
 
 export default function Gerenciamento() {
   const router = useRouter();
@@ -407,6 +406,27 @@ export default function Gerenciamento() {
               </button>
             </div>
           </div>
+          <div className="acoes-gerais">
+            <button
+              className="btn-adicionar-usuario"
+              onClick={() => {
+                const role = localStorage.getItem("role");
+                if (role && role.toLowerCase() === "admin") {
+                  router.push("/admincadastramento");
+                } else {
+                  router.push("/naoautorizado");
+                }
+              }}
+            >
+              <Image
+                src="/images/icons/icone-adicionar.png"
+                alt="Adicionar"
+                width={20}
+                height={20}
+              />
+              Adicionar Usuário
+            </button>
+          </div>
 
           {carregando ? (
             <div className="carregando">Carregando usuários...</div>
@@ -497,28 +517,6 @@ export default function Gerenciamento() {
               </table>
             </div>
           )}
-
-          <div className="acoes-gerais">
-            <button
-              className="btn-adicionar-usuario"
-              onClick={() => {
-                const role = localStorage.getItem("role");
-                if (role && role.toLowerCase() === "admin") {
-                  router.push("/admincadastramento");
-                } else {
-                  router.push("/naoautorizado");
-                }
-              }}
-            >
-              <Image
-                src="/images/icons/icone-adicionar.png"
-                alt="Adicionar"
-                width={20}
-                height={20}
-              />
-              Adicionar Usuário
-            </button>
-          </div>
         </main>
 
         {/* Modal de Edição */}
