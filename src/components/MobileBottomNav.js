@@ -1,19 +1,17 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import BtnMobileBottomNav from "./ui/BtnMobileBottomNav";
-import "../styles/mobile-bottom-nav.css";
+"use client"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
+import BtnMobileBottomNav from "./ui/BtnMobileBottomNav"
+import "../styles/mobile-bottom-nav.css"
 
 export default function MobileBottomNav() {
-  const caminhoAtual = usePathname();
-  const [usuario, setUsuario] = useState({ cargo: "" });
+  const caminhoAtual = usePathname()
+  const [usuario, setUsuario] = useState({ cargo: "" })
 
   useEffect(() => {
-    const cargo = localStorage.getItem("role") || "";
-    setUsuario({ cargo: cargo });
-  }, []);
+    const cargo = localStorage.getItem("role") || ""
+    setUsuario({ cargo: cargo })
+  }, [])
 
   return (
     <nav className="mobile-bottom-nav">
@@ -69,5 +67,5 @@ export default function MobileBottomNav() {
         )}
       </ul>
     </nav>
-  );
+  )
 }
