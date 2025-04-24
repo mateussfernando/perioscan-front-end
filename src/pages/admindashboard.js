@@ -83,7 +83,7 @@ export default function AdminDashboard() {
       datasets: [
         {
           data: [0, 0, 0],
-          backgroundColor: ["#b99f81", "#62725c", "#969696"],
+          backgroundColor: ["#fffff", "#62725c", "#969696"],
         },
       ],
     },
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
       datasets: [
         {
           data: [0, 0, 0],
-          backgroundColor: ["#3498db", "#2ecc71", "#9b59b6"],
+          backgroundColor: ["#fff", "#ffff", "#9b59b6"],
         },
       ],
     },
@@ -269,7 +269,7 @@ export default function AdminDashboard() {
           datasets: [
             {
               data: [usuariosPeritos, usuariosAssistentes, usuariosAdmin],
-              backgroundColor: ["#000000", "#333333", "#666666"],
+              backgroundColor: ["#706C61", "#0C1618", "#EAD2AC"],
             },
           ],
         };
