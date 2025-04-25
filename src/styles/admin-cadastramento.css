@@ -264,6 +264,8 @@ body {
 
   .admincadastramento-formulario {
     grid-template-columns: 1fr;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+
   }
 
   .admincadastramento-opcoes-cargo {

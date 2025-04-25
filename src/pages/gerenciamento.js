@@ -9,6 +9,7 @@ import ModalEditarUsuario from "@/components/usuario/ModalEditarUsuario";
 import ModalConfirmarExclusao from "@/components/usuario/ModalConfirmarExclusao";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import ControleDeRota from "@/components/ControleDeRota";
+import MobileHeader from "@/components/MobileHeader";
 
 export default function Gerenciamento() {
   const router = useRouter();
@@ -361,6 +362,7 @@ export default function Gerenciamento() {
   return (
     <ControleDeRota requiredRole="admin">
       <div className="gerenciamento-container">
+        <MobileHeader></MobileHeader>
         <AsideNavBar />
         <MobileBottomNav></MobileBottomNav>
 
@@ -368,7 +370,7 @@ export default function Gerenciamento() {
           <header className="gerenciamento-header">
             <h1>Gerenciamento de usuários</h1>
             <div className="notificacao-icon">
-              <Bell alt="Icone de notificação" width={24} height={24} />
+              {/* <Bell alt="Icone de notificação" width={24} height={24} /> */}
             </div>
           </header>
 

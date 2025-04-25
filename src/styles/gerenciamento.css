@@ -229,7 +229,7 @@
 
   .gerenciamento-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: cemter;
     gap: 15px;
   }
 

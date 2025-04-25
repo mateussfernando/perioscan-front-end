@@ -117,14 +117,14 @@ export default function AsideNavBar() {
               ) : (
                 // Menu para Assistentes e Peritos
                 <>
-                  <BotaoAsideNav
+                  {/* <BotaoAsideNav
                     logo="/images/icons/icone-dashboard.png"
                     src="/dashboard"
                     alt="Ícone para Dashboard"
                     label="Dashboard"
                     isOpen={aberto}
                     active={caminhoAtual === "/dashboard"}
-                  />
+                  /> */}
                   <BotaoAsideNav
                     logo="/images/icons/icone-casos.png"
                     src="/casos"

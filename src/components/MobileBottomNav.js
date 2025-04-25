@@ -67,12 +67,12 @@ export default function MobileBottomNav() {
           </>
         ) : (
           <>
-            <BtnMobileBottomNav
+            {/* <BtnMobileBottomNav
               icon="/images/icons/icone-dashboard.png"
               src="/dashboard"
               text="Dashboard"
               active={caminhoAtual === "/dashboard"}
-            />
+            /> */}
             <BtnMobileBottomNav
               icon="/images/icons/icone-casos.png"
               src="/casos"

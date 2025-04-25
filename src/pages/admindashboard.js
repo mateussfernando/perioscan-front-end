@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import AsideNavbar from "@/components/AsideNavBar";
 import MobileBottomNav from "@/components/MobileBottomNav"
+import MobileHeader from "@/components/MobileHeader"
 
 import {
   Bell,
@@ -715,6 +716,7 @@ export default function AdminDashboard() {
   // Renderizar componente
   return (
     <ControleDeRota requiredRole="admin">
+      <MobileHeader></MobileHeader>
       <MobileBottomNav></MobileBottomNav>
       <main className="admin-dashboard-main-container">
         <AsideNavbar />
@@ -723,7 +725,7 @@ export default function AdminDashboard() {
           <div className="admin-dashboard-header-dashboard">
             <h2>Dashboard de Gestão</h2>
             <div className="admin-dashboard-header-icons-dashboard">
-              <Bell size={24} className="admin-dashboard-header-icon" />
+              {/* <Bell size={24} className="admin-dashboard-header-icon" /> */}
             </div>
           </div>
 

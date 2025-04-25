@@ -497,13 +497,14 @@ body {
   .casos-content {
     margin-left: 0;
     padding: 15px;
-    margin-top: 60px; /* Espaço para a navbar mobile */
   }
 
   .casos-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
+    display: flex;
+    align-items: center;
   }
 
   .casos-filtros {
@@ -572,6 +573,8 @@ body {
 
   .modal-body {
     padding: 12px;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+
   }
 }
 
@@ -655,7 +658,7 @@ body {
 /* Ajustes específicos para iPhone SE e dispositivos muito pequenos */
 @media (max-width: 375px) {
   .casos-header h1 {
-    font-size: 16px;
+    font-size: 20px;
   }
 
   .filtro-tabs button {
@@ -680,24 +683,24 @@ body {
     background: transparent;
     box-shadow: none;
   }
-  
+
   .tabela-casos {
     display: block;
     min-width: 0;
     border: none;
   }
-  
+
   .tabela-casos thead {
     display: none;
   }
-  
+
   .tabela-casos tbody {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
     padding: 0 8px;
   }
-  
+
   .tabela-casos tr {
     display: flex;
     flex-direction: column;
@@ -708,11 +711,11 @@ body {
     transition: transform 0.2s, box-shadow 0.2s;
     text-align: center;
   }
-  
+
   .tabela-casos tr:active {
     transform: scale(0.98);
   }
-  
+
   .tabela-casos td {
     padding: 12px 16px;
     border-bottom: 1px solid #f0f0f0;
@@ -721,7 +724,7 @@ body {
     align-items: center;
     width: 100%;
   }
-  
+
   .tabela-casos td:before {
     content: attr(data-label);
     font-weight: 600;
@@ -731,25 +734,25 @@ body {
     text-align: center;
     width: 100%;
   }
-  
+
   .tabela-casos td > span:not(.status-badge) {
     text-align: center;
     word-break: break-word;
     width: 100%;
   }
-  
+
   .tabela-casos td:last-child {
     border-bottom: none;
     padding: 12px 16px;
     background: #fafafa;
   }
-  
+
   .acoes-cell {
     justify-content: center;
     gap: 12px;
     width: 100%;
   }
-  
+
   .acao-btn {
     padding: 8px;
     border-radius: 4px;
@@ -761,7 +764,7 @@ body {
     color: inherit;
     margin: 0 2px;
   }
-  
+
   /* Ajustes específicos para status */
   .status-badge {
     padding: 6px 12px;
@@ -773,7 +776,7 @@ body {
     margin: 0 auto;
     width: fit-content;
   }
-  
+
   /* Efeito de hover nos cards */
   @media (hover: hover) {
     .tabela-casos tr:hover {

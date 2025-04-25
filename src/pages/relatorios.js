@@ -6,6 +6,8 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import ControleDeRota from "@/components/ControleDeRota";
 import ModalExcluirRelatorio from "@/components/casos/ModalExcluirRelatorio";
 import "../styles/relatorios.css";
+import MobileHeader from "@/components/MobileHeader";
+
 import {
   FileText,
   Download,
@@ -209,6 +211,7 @@ export default function Relatorios() {
 
   return (
     <ControleDeRota>
+      <MobileHeader></MobileHeader>
       <div className="relatorios-page">
         <AsideNavBar />
 

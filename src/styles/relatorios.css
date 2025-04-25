@@ -24,6 +24,7 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
+  justify-content: center;
 }
 
 .header-title-container h1 {

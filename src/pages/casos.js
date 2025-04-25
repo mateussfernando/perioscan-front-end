@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AsideNavBar from "@/components/AsideNavBar";
 import "../styles/casos.css";
+import MobileHeader from "@/components/MobileHeader"
+
 import {
   Eye,
   Plus,
@@ -399,6 +401,7 @@ export default function MainCasos() {
 
   return (
     <ControleDeRota>
+      <MobileHeader></MobileHeader>
       <div className="casos-container">
         <AsideNavBar />
         <MobileBottomNav></MobileBottomNav>
@@ -407,7 +410,7 @@ export default function MainCasos() {
           <header className="casos-header">
             <h1>Gerenciamento de Casos</h1>
             <div className="notificacao-icon">
-              <Bell size={24} />
+              {/* <Bell size={24} /> */}
             </div>
           </header>
 
