@@ -17,15 +17,6 @@ A plataforma possui funcionalidades completas para:
 
 ---
 
-## 🎨 Estética e Diretrizes Visuais
-
-- Interface padronizada entre todas as telas.
-- Cores informativas:
-  - Arquivados: 🟡 Amarelo
-  - Concluído: ✅ Verde
-  - Em andamento: 🔵 Azul
-
----
 
 ## 👥 Perfis de Usuário
 
