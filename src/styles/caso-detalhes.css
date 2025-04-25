@@ -1245,3 +1245,128 @@
   flex-wrap: wrap;
   gap: 15px;
 }
+@media (max-width: 768px) {
+  /* Ajustes no cabeçalho do card */
+  .caso-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn-editar,
+  .btn-voltar,
+  .btn-excluir {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+
+  /* Reduzir tamanho do título */
+  .caso-card-header h1 {
+    font-size: 1.25rem;
+  }
+
+  /* Layout de colunas para mobile */
+  .caso-content {
+    flex-direction: column;
+  }
+
+  .info-coluna,
+  .descricao-coluna {
+    width: 100%;
+    border-right: none;
+  }
+
+  .info-coluna {
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  /* Ajustes gerais de espaçamento */
+  .container-caso-detalhes {
+    padding: 10px;
+  }
+
+  /* Tabelas responsivas */
+  .evidencias-tabela {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Botões de ação em tabelas */
+  .acoes-cell {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .btn-criar-laudo,
+  .btn-baixar-pdf {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  /* Modal de evidência */
+  .evidencia-modal-content {
+    width: 95%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Ajustes finos para telas muito pequenas */
+  .caso-card-header {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .btn-excluir-evidencia {
+    width: 32px;
+    height: 32px;
+  }
+
+  .info-section,
+  .evidencias-section,
+  .observacao-section {
+    padding: 12px;
+  }
+
+  .info-item {
+    font-size: 13px;
+  }
+
+  /* Campos de filtro */
+  .filters-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Melhorias de hover para dispositivos touch */
+@media (hover: none) {
+  .btn-editar:hover,
+  .btn-excluir:hover,
+  .btn-voltar:hover {
+    background-color: initial;
+    transform: none;
+  }
+
+  .evidencia-row:hover {
+    background-color: initial;
+  }
+}
+
+/* Mantenha todos os estilos originais abaixo */
+/* Estilos para a página de detalhes do caso */
+.main-container-caso-detalhes {
+  display: flex;
+  min-height: 100vh;
+  height: 100%;
+  flex-direction: row;
+  background-color: #f5f7fa;
+}
