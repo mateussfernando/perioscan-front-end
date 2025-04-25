@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🦷 OdontoScan - Plataforma de Perícia Odonto-Legal
 
-## Getting Started
+OdontoScan é um sistema web para gerenciamento de casos periciais odonto-legais, voltado para profissionais como peritos, assistentes e administradores. A aplicação permite cadastro, análise, organização e emissão de laudos relacionados à identificação odontológica forense.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 📌 Visão Geral
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+A plataforma possui funcionalidades completas para:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- Gerenciamento de casos periciais;
+- Upload e análise de evidências odontológicas;
+- Geração automatizada de laudos com assinatura digital;
+- Registro e cruzamento de dados dentários;
+- Gerenciamento de usuários e permissões;
+- Integração com sistemas externos via API.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🎨 Estética e Diretrizes Visuais
 
-To learn more about Next.js, take a look at the following resources:
+- Interface padronizada entre todas as telas.
+- Cores informativas:
+  - Arquivados: 🟡 Amarelo
+  - Concluído: ✅ Verde
+  - Em andamento: 🔵 Azul
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 👥 Perfis de Usuário
 
-## Deploy on Vercel
+### 🔧 Administrador
+- Dashboard com visão global por região;
+- Gerenciar casos (em andamento, arquivados, finalizados);
+- Gráficos estatísticos por mês;
+- Gerenciamento de usuários e permissões;
+- Consulta rápida, filtros por cargo e exclusão de casos.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 👨‍⚕️ Perito
+- Dashboard pessoal com casos atribuídos;
+- Acesso rápido a casos urgentes;
+- Upload de evidências (imagens, áudios, descrições);
+- Assinatura digital em laudos;
+- Geração e exportação de PDF;
+- Registro de pacientes e comparação de dados dentários via IA.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 👩‍💼 Assistente
+- Dashboard simplificado;
+- Atribuir informações a casos;
+- Adicionar evidências (descrições, imagens, áudios);
+- Upload de imagens para análise via IA.
+
+---
