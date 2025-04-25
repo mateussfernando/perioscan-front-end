@@ -399,6 +399,8 @@
     padding-top: 8px;
     padding-bottom: 8px;
     background: #fafafa;
+    display: flex;
+    justify-content: center;
   }
 
   .id-cell {
