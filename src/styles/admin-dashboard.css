@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
 * {
   margin: 0;
   padding: 0;
@@ -9,6 +10,8 @@
   min-height: 100vh;
   display: flex;
   background-color: #f5f7fa;
+  font-family: "Inter", sans-serif;
+
 }
 
 /* Cabecalho do dashboard */
@@ -52,6 +55,8 @@
   overflow-x: hidden;
   transition: margin-left 0.3s ease;
   padding: 0 0 24px 0;
+  padding-bottom: calc(56px + env(safe-area-inset-bottom));
+
 }
 
 /* Loading e Error states */
@@ -566,7 +571,4 @@
   .admin-dashboard-casos-recentes .admin-dashboard-list-item-details {
     grid-template-columns: 1fr;
   }
-}
-.admin-dashboard-main-container {
-  padding-bottom: calc(56px + env(safe-area-inset-bottom));
 }
