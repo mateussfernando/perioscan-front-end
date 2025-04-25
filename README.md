@@ -1,4 +1,4 @@
-# 🦷 OdontoScan - Plataforma de Perícia Odonto-Legal
+# 🦷 PerioScan - Plataforma de Perícia Odonto-Legal
 
 OdontoScan é um sistema web para gerenciamento de casos periciais odonto-legais, voltado para profissionais como peritos, assistentes e administradores. A aplicação permite cadastro, análise, organização e emissão de laudos relacionados à identificação odontológica forense.
 
