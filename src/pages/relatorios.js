@@ -17,7 +17,9 @@ import {
 } from "lucide-react";
 
 export default function Relatorios() {
-  // Inicializar relatorios como um array vazio
+  const router = useRouter();
+
+  // Estados
   const [relatorios, setRelatorios] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
@@ -30,10 +32,10 @@ export default function Relatorios() {
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false);
   const [relatorioParaExcluir, setRelatorioParaExcluir] = useState(null);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
-  const itensPorPagina = 10;
-  const router = useRouter();
 
-  // Buscar todos os relatórios
+  const itensPorPagina = 10;
+
+  // Buscar relatórios
   const buscarRelatorios = async () => {
     try {
       setCarregando(true);
@@ -46,7 +48,6 @@ export default function Relatorios() {
       const resposta = await fetch(
         "https://perioscan-back-end-fhhq.onrender.com/api/reports",
         {
-          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -54,31 +55,21 @@ export default function Relatorios() {
         }
       );
 
-      if (!resposta.ok) {
-        throw new Error(`Erro ao buscar relatórios: ${resposta.status}`);
-      }
+      if (!resposta.ok) throw new Error(`Erro: ${resposta.status}`);
 
       const dados = await resposta.json();
 
-      // Verificar o formato dos dados e extrair os relatórios corretamente
-      if (Array.isArray(dados)) {
-        setRelatorios(dados);
-      } else if (dados && Array.isArray(dados.data)) {
-        // Se os relatórios estiverem na propriedade 'data' (formato atual)
+      if (Array.isArray(dados.data)) {
         setRelatorios(dados.data);
-      } else if (dados && Array.isArray(dados.reports)) {
-        // Se os relatórios estiverem na propriedade 'reports'
+      } else if (Array.isArray(dados.reports)) {
         setRelatorios(dados.reports);
       } else {
-        // Se não encontrarmos os relatórios em nenhum formato esperado
-        console.error("Formato de dados inesperado:", dados);
         setRelatorios([]);
-        setErro("Os dados retornados pela API não estão no formato esperado.");
+        setErro("Formato de dados inválido");
       }
     } catch (erro) {
-      console.error("Erro ao buscar relatórios:", erro);
-      setErro("Falha ao carregar os relatórios. Por favor, tente novamente.");
-      // Garantir que relatorios seja um array vazio em caso de erro
+      console.error("Erro:", erro);
+      setErro("Falha ao carregar relatórios");
       setRelatorios([]);
     } finally {
       setCarregando(false);
@@ -86,110 +77,58 @@ export default function Relatorios() {
     }
   };
 
-  // Carregar relatórios ao montar o componente
+  // Efeitos
   useEffect(() => {
     buscarRelatorios();
   }, []);
 
-  // Efeito para esconder a mensagem de sucesso após 5 segundos
   useEffect(() => {
     if (mensagemSucesso) {
-      const timer = setTimeout(() => {
-        setMensagemSucesso("");
-      }, 5000);
+      const timer = setTimeout(() => setMensagemSucesso(""), 5000);
       return () => clearTimeout(timer);
     }
   }, [mensagemSucesso]);
 
-  // Função para atualizar a lista de relatórios
-  const atualizarRelatorios = () => {
-    setAtualizando(true);
-    buscarRelatorios();
-  };
-
-  // Função para exportar relatório como PDF
+  // Exportar PDF
   const exportarPDF = async (relatorioId) => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/");
-        return;
-      }
+      if (!token) return router.push("/");
 
-      // Notificar o usuário que o download está começando
-      alert("Iniciando download do relatório em PDF...");
-
-      // Fazer a requisição para a API de exportação de PDF
       const resposta = await fetch(
         `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}/pdf`,
         {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      if (!resposta.ok) {
-        throw new Error(`Erro ao exportar relatório: ${resposta.status}`);
-      }
+      if (!resposta.ok) throw new Error("Falha ao exportar");
 
-      // Obter o blob do PDF
       const blob = await resposta.blob();
-
-      // Criar URL para o blob
       const url = window.URL.createObjectURL(blob);
-
-      // Criar um elemento <a> para download
       const a = document.createElement("a");
-      a.style.display = "none";
       a.href = url;
       a.download = `relatorio-${relatorioId}.pdf`;
-
-      // Adicionar ao DOM, clicar e remover
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (erro) {
-      console.error("Erro ao exportar relatório como PDF:", erro);
-      alert("Falha ao exportar o relatório. Por favor, tente novamente.");
+      console.error("Erro:", erro);
+      alert("Falha ao exportar PDF");
     }
   };
 
-  // Função para abrir o modal de exclusão
-  const abrirModalExcluir = (relatorio) => {
-    setRelatorioParaExcluir(relatorio);
-    setModalExcluirAberto(true);
-  };
-
-  // Função para fechar o modal de exclusão
-  const fecharModalExcluir = () => {
-    setModalExcluirAberto(false);
-    setRelatorioParaExcluir(null);
-  };
-
-  // Função para excluir relatório
+  // Excluir relatório
   const excluirRelatorio = async (relatorioId) => {
     try {
       setExcluindo((prev) => ({ ...prev, [relatorioId]: true }));
 
       const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/");
-        return;
-      }
+      if (!token) return router.push("/");
 
-      console.log(`Tentando excluir relatório com ID: ${relatorioId}`);
-
-      // Garantir que o ID do relatório seja uma string válida
-      if (!relatorioId) {
-        throw new Error("ID do relatório inválido ou não fornecido");
-      }
-
-      // Forçar a exclusão do relatório, mesmo que esteja assinado
       const resposta = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}/force-delete`,
+        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}`,
         {
           method: "DELETE",
           headers: {
@@ -199,164 +138,81 @@ export default function Relatorios() {
         }
       );
 
-      // Se a rota force-delete não existir, tentar a rota padrão
-      if (resposta.status === 404) {
-        const respostaPadrao = await fetch(
-          `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+      if (!resposta.ok) throw new Error("Falha ao excluir");
 
-        if (!respostaPadrao.ok) {
-          // Tentar obter mais detalhes do erro
-          let mensagemErro = `Erro ao excluir relatório: ${respostaPadrao.status}`;
-          try {
-            const erroJson = await respostaPadrao.json();
-            if (erroJson && erroJson.message) {
-              mensagemErro += ` - ${erroJson.message}`;
-            }
-          } catch (e) {
-            // Se não conseguir obter o JSON, apenas continua com a mensagem básica
-          }
-          throw new Error(mensagemErro);
-        }
-      } else if (!resposta.ok) {
-        // Tentar obter mais detalhes do erro
-        let mensagemErro = `Erro ao excluir relatório: ${resposta.status}`;
-        try {
-          const erroJson = await resposta.json();
-          if (erroJson && erroJson.message) {
-            mensagemErro += ` - ${erroJson.message}`;
-          }
-        } catch (e) {
-          // Se não conseguir obter o JSON, apenas continua com a mensagem básica
-        }
-        throw new Error(mensagemErro);
-      }
-
-      // Atualizar a lista de relatórios após exclusão
-      setRelatorios(
-        relatorios.filter((relatorio) => relatorio._id !== relatorioId)
-      );
-
-      // Mostrar mensagem de sucesso
+      setRelatorios((prev) => prev.filter((r) => r._id !== relatorioId));
       setMensagemSucesso("Relatório excluído com sucesso!");
-
-      // Recarregar a lista de relatórios para garantir que está atualizada
       buscarRelatorios();
-
-      return true;
     } catch (erro) {
-      console.error("Erro ao excluir relatório:", erro);
-      alert(
-        `Falha ao excluir o relatório: ${erro.message}. Por favor, tente novamente ou contate o suporte.`
-      );
-      return false;
+      console.error("Erro:", erro);
+      alert(`Erro: ${erro.message}`);
     } finally {
       setExcluindo((prev) => ({ ...prev, [relatorioId]: false }));
     }
   };
 
-  // Função para navegar para a página de detalhes do caso
+  // Navegação para caso
   const navegarParaCaso = (casoId) => {
-    // Verificar se casoId é um objeto ou uma string
-    if (typeof casoId === "object" && casoId !== null) {
-      // Se for um objeto, extrair o ID usando _id ou id
-      const id = casoId._id || casoId.id;
-      if (id) {
-        router.push(`/casos/${id}`);
-      } else {
-        console.error("ID do caso não encontrado no objeto:", casoId);
-        alert("Não foi possível encontrar o ID do caso para navegação.");
-      }
-    } else {
-      // Se já for uma string ou outro valor primitivo, usar diretamente
-      router.push(`/casos/${casoId}`);
-    }
+    const id = casoId?._id || casoId;
+    if (id) router.push(`/casos/${id}`);
+    else alert("ID do caso inválido");
   };
 
-  // Garantir que relatorios seja um array antes de filtrar
-  const relatoriosFiltrados = Array.isArray(relatorios)
-    ? relatorios.filter((relatorio) => {
-        // Verificar se o relatório tem as propriedades necessárias
-        if (!relatorio || typeof relatorio !== "object") return false;
-
-        const titulo = relatorio.title || "";
-        const conteudo = relatorio.content || "";
-        const status = relatorio.status || "";
-
-        // Filtro por texto (título ou conteúdo)
-        const correspondeTexto =
-          titulo.toLowerCase().includes(filtro.toLowerCase()) ||
-          conteudo.toLowerCase().includes(filtro.toLowerCase());
-
-        // Filtro por status
-        const correspondeStatus =
-          statusFiltro === "todos" ||
-          (statusFiltro === "rascunho" && status === "rascunho") ||
-          (statusFiltro === "finalizado" && status === "finalizado");
-
-        return correspondeTexto && correspondeStatus;
-      })
-    : [];
-
-  // Ordenar relatórios (garantindo que é um array)
-  const relatoriosOrdenados = [...relatoriosFiltrados].sort((a, b) => {
-    if (ordenacao === "recentes") {
-      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-    } else if (ordenacao === "antigos") {
-      return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
-    } else if (ordenacao === "alfabetica") {
-      return (a.title || "").localeCompare(b.title || "");
-    }
-    return 0;
-  });
+  // Filtragem e ordenação
+  const relatoriosFiltrados = relatorios
+    .filter((relatorio) => {
+      const busca = filtro.toLowerCase();
+      return (
+        (relatorio.title?.toLowerCase().includes(busca) ||
+          relatorio.content?.toLowerCase().includes(busca)) &&
+        (statusFiltro === "todos" || relatorio.status === statusFiltro)
+      );
+    })
+    .sort((a, b) => {
+      if (ordenacao === "recentes")
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      if (ordenacao === "antigos")
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      return a.title?.localeCompare(b.title);
+    });
 
   // Paginação
-  const indiceUltimoItem = paginaAtual * itensPorPagina;
-  const indicePrimeiroItem = indiceUltimoItem - itensPorPagina;
-  const relatoriosPaginados = relatoriosOrdenados.slice(
+  const indicePrimeiroItem = (paginaAtual - 1) * itensPorPagina;
+  const relatoriosPaginados = relatoriosFiltrados.slice(
     indicePrimeiroItem,
-    indiceUltimoItem
+    indicePrimeiroItem + itensPorPagina
   );
-  const totalPaginas = Math.ceil(relatoriosOrdenados.length / itensPorPagina);
+  const totalPaginas = Math.ceil(relatoriosFiltrados.length / itensPorPagina);
 
-  // Formatar data
+  // Formatação
   const formatarData = (dataString) => {
-    if (!dataString) return "Data não disponível";
     try {
-      const data = new Date(dataString);
-      return data.toLocaleDateString("pt-BR", {
+      return new Date(dataString).toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
       });
-    } catch (e) {
-      console.error("Erro ao formatar data:", e);
+    } catch {
       return "Data inválida";
     }
   };
 
-  // Formatar status para exibição
   const formatarStatus = (status) => {
-    if (status === "rascunho") return "Rascunho";
-    if (status === "finalizado") return "Finalizado";
-    return status || "Não definido";
+    const statusMap = {
+      rascunho: "Rascunho",
+      finalizado: "Finalizado",
+    };
+    return statusMap[status] || "Desconhecido";
   };
 
   return (
     <ControleDeRota>
       <div className="relatorios-page">
         <AsideNavBar />
+
         <main className="relatorios-content">
-          {/* Mensagem de sucesso */}
           {mensagemSucesso && (
             <div className="mensagem-sucesso">
               <AlertCircle size={20} />
@@ -369,13 +225,13 @@ export default function Relatorios() {
               <h1>Relatórios</h1>
               <button
                 className="btn-atualizar"
-                onClick={atualizarRelatorios}
+                onClick={buscarRelatorios}
                 disabled={carregando || atualizando}
-                title="Atualizar relatórios"
               >
                 <RefreshCw size={20} className={atualizando ? "girando" : ""} />
               </button>
             </div>
+
             <div className="relatorios-filtros">
               <div className="filtro-busca">
                 <Search size={18} />
@@ -393,7 +249,7 @@ export default function Relatorios() {
                   value={statusFiltro}
                   onChange={(e) => setStatusFiltro(e.target.value)}
                 >
-                  <option value="todos">Todos os status</option>
+                  <option value="todos">Todos</option>
                   <option value="rascunho">Rascunho</option>
                   <option value="finalizado">Finalizado</option>
                 </select>
@@ -404,9 +260,9 @@ export default function Relatorios() {
                   value={ordenacao}
                   onChange={(e) => setOrdenacao(e.target.value)}
                 >
-                  <option value="recentes">Mais recentes</option>
-                  <option value="antigos">Mais antigos</option>
-                  <option value="alfabetica">Ordem alfabética</option>
+                  <option value="recentes">Recentes</option>
+                  <option value="antigos">Antigos</option>
+                  <option value="alfabetica">A-Z</option>
                 </select>
               </div>
             </div>
@@ -414,7 +270,7 @@ export default function Relatorios() {
 
           {carregando ? (
             <div className="relatorios-loading">
-              <p>Carregando relatórios...</p>
+              <p>Carregando...</p>
             </div>
           ) : erro ? (
             <div className="relatorios-error">
@@ -424,8 +280,8 @@ export default function Relatorios() {
           ) : relatoriosFiltrados.length === 0 ? (
             <div className="relatorios-empty">
               <FileText size={48} />
-              <p>Nenhum relatório encontrado.</p>
-              {filtro || statusFiltro !== "todos" ? (
+              <p>Nenhum relatório encontrado</p>
+              {(filtro || statusFiltro !== "todos") && (
                 <button
                   onClick={() => {
                     setFiltro("");
@@ -434,7 +290,7 @@ export default function Relatorios() {
                 >
                   Limpar filtros
                 </button>
-              ) : null}
+              )}
             </div>
           ) : (
             <>
@@ -445,18 +301,19 @@ export default function Relatorios() {
                       <th>Título</th>
                       <th>Caso</th>
                       <th>Status</th>
-                      <th>Data de Criação</th>
+                      <th>Criação</th>
                       <th>Assinado</th>
                       <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {relatoriosPaginados.map((relatorio) => (
-                      <tr key={relatorio._id || `relatorio-${Math.random()}`}>
-                        <td className="relatorio-titulo">
+                      <tr key={relatorio._id}>
+                        <td data-label="Título">
                           {relatorio.title || "Sem título"}
                         </td>
-                        <td>
+
+                        <td data-label="Caso">
                           {relatorio.case ? (
                             <button
                               className="btn-ver-caso"
@@ -465,21 +322,23 @@ export default function Relatorios() {
                               Ver caso
                             </button>
                           ) : (
-                            "Caso não vinculado"
+                            "Não vinculado"
                           )}
                         </td>
-                        <td>
+
+                        <td data-label="Status">
                           <span
-                            className={`status-badge status-${
-                              relatorio.status || "indefinido"
-                            }`}
+                            className={`status-badge status-${relatorio.status}`}
                           >
                             {formatarStatus(relatorio.status)}
                           </span>
                         </td>
-                        <td>{formatarData(relatorio.createdAt)}</td>
-                        <td>
-                          {/* Mostrar "Sim" para status finalizado e "Não" para rascunho */}
+
+                        <td data-label="Criação">
+                          {formatarData(relatorio.createdAt)}
+                        </td>
+
+                        <td data-label="Assinado">
                           <span
                             className={
                               relatorio.status === "finalizado"
@@ -490,23 +349,26 @@ export default function Relatorios() {
                             {relatorio.status === "finalizado" ? "Sim" : "Não"}
                           </span>
                         </td>
-                        <td className="acoes-coluna">
+
+                        <td className="acoes-coluna" data-label="Ações">
                           <button
                             className="btn-acao"
                             onClick={() => exportarPDF(relatorio._id)}
-                            title="Exportar como PDF"
+                            title="Exportar PDF"
                           >
                             <Download size={18} />
                           </button>
 
                           <button
                             className="btn-acao btn-excluir"
-                            onClick={() => abrirModalExcluir(relatorio)}
-                            title="Excluir relatório"
+                            onClick={() => {
+                              setRelatorioParaExcluir(relatorio);
+                              setModalExcluirAberto(true);
+                            }}
                             disabled={excluindo[relatorio._id]}
                           >
                             {excluindo[relatorio._id] ? (
-                              <span className="spinner"></span>
+                              <span className="spinner" />
                             ) : (
                               <Trash2 size={18} />
                             )}
@@ -518,11 +380,10 @@ export default function Relatorios() {
                 </table>
               </div>
 
-              {/* Paginação */}
               {totalPaginas > 1 && (
                 <div className="paginacao">
                   <button
-                    onClick={() => setPaginaAtual(paginaAtual - 1)}
+                    onClick={() => setPaginaAtual((p) => p - 1)}
                     disabled={paginaAtual === 1}
                     className="btn-pagina"
                   >
@@ -534,7 +395,7 @@ export default function Relatorios() {
                   </span>
 
                   <button
-                    onClick={() => setPaginaAtual(paginaAtual + 1)}
+                    onClick={() => setPaginaAtual((p) => p + 1)}
                     disabled={paginaAtual === totalPaginas}
                     className="btn-pagina"
                   >
@@ -545,13 +406,16 @@ export default function Relatorios() {
             </>
           )}
         </main>
+
         <MobileBottomNav />
 
-        {/* Modal de confirmação de exclusão */}
         <ModalExcluirRelatorio
           isOpen={modalExcluirAberto}
-          onClose={fecharModalExcluir}
-          onConfirm={excluirRelatorio}
+          onClose={() => setModalExcluirAberto(false)}
+          onConfirm={(id) => {
+            excluirRelatorio(id);
+            setModalExcluirAberto(false);
+          }}
           relatorioId={relatorioParaExcluir?._id}
           relatorioTitulo={relatorioParaExcluir?.title}
         />

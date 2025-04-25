@@ -1,9 +1,12 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap");
+
+/* Estilos da navegação inferior */
 .mobile-bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #000000; /* Fundo preto */
+  background-color: #000000;
   border-top: 1px solid #333333;
   z-index: 50;
   padding-bottom: 8px;
@@ -12,16 +15,85 @@
 .nav-list {
   display: flex;
   justify-content: space-around;
-  align-items: stretch; /* Isso faz com que todos os itens tenham a mesma altura */
+  align-items: stretch;
   list-style: none;
   margin: 0;
   padding: 0;
   width: 100%;
 }
 
+/* Estilos dos botões */
+.btn-nav {
+  flex: 1;
+  min-width: 0;
+}
+
+.link-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #ffffff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  background-color: transparent;
+  text-align: center;
+  width: 100%;
+}
+
+.link-nav.ativo {
+  color: #2563eb;
+}
+
+.link-nav:hover:not(.ativo) {
+  background: #6A6464;
+}
+
+.conteudo-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.icone-nav {
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icone-nav.ativo {
+  background-color: rgba(239, 246, 255, 0.1);
+}
+
+.imagem-icone-nav {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.texto-nav {
+  color: #FFF;
+  text-align: center;
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
 /* Espaço para a navegação inferior */
 .main-content {
-  padding-bottom: 72px; /* Ajuste conforme necessário */
+  padding-bottom: 72px;
 }
 
 @media (min-width: 431px) {

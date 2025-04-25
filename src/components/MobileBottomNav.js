@@ -1,17 +1,39 @@
-"use client"
-import { usePathname } from "next/navigation"
-import { useEffect, useState } from "react"
-import BtnMobileBottomNav from "./ui/BtnMobileBottomNav"
-import "../styles/mobile-bottom-nav.css"
+"use client";
+
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import "../styles/mobile-bottom-nav.css";
+function BtnMobileBottomNav({ icon, src, text, active }) {
+  return (
+    <li className="btn-nav">
+      <Link href={src} className={`link-nav ${active ? "ativo" : ""}`}>
+        <div className="conteudo-nav">
+          <div className={`icone-nav ${active ? "ativo" : ""}`}>
+            <Image
+              src={icon}
+              alt={text}
+              width={20}
+              height={20}
+              className="imagem-icone-nav"
+            />
+          </div>
+          <span className="texto-nav">{text}</span>
+        </div>
+      </Link>
+    </li>
+  );
+}
 
 export default function MobileBottomNav() {
-  const caminhoAtual = usePathname()
-  const [usuario, setUsuario] = useState({ cargo: "" })
+  const caminhoAtual = usePathname();
+  const [usuario, setUsuario] = useState({ cargo: "" });
 
   useEffect(() => {
-    const cargo = localStorage.getItem("role") || ""
-    setUsuario({ cargo: cargo })
-  }, [])
+    const cargo = localStorage.getItem("role") || "";
+    setUsuario({ cargo: cargo });
+  }, []);
 
   return (
     <nav className="mobile-bottom-nav">
@@ -67,5 +89,5 @@ export default function MobileBottomNav() {
         )}
       </ul>
     </nav>
-  )
+  );
 }
