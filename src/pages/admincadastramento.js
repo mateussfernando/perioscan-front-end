@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import ControleDeRota from "@/components/ControleDeRota";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { useRouter } from "next/navigation"; // Adicione esta linha no topo
 
 export default function AdminCadastramento() {
   // Estado para armazenar os dados do formulário
@@ -28,6 +29,7 @@ export default function AdminCadastramento() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter(); // Adicione isso dentro do componente
 
   // Manipula mudanças nos campos do formulário
   function handleChange(event) {
@@ -142,7 +144,10 @@ export default function AdminCadastramento() {
         <div className="admincadastramento-pagina">
           <div className="admincadastramento-conteudo-principal">
             <div className="admincadastramento-container-titulo">
-              <ArrowLeft className="admincadastramento-btn-voltar" />
+              <ArrowLeft
+                className="admincadastramento-btn-voltar"
+                onClick={() => router.back()}
+              />{" "}
               <h1 className="admincadastramento-titulo">Cadastro de Usuário</h1>
             </div>
 
