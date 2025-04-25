@@ -158,9 +158,7 @@ export default function ModalEditarCaso({
               >
                 <option value="em andamento">Em Andamento</option>
                 <option value="finalizado">Finalizado</option>
-                <option value="pendente">Pendente</option>
                 <option value="arquivado">Arquivado</option>
-                <option value="cancelado">Cancelado</option>
               </select>
             </div>
 
