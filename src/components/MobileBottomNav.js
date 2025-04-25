@@ -68,19 +68,19 @@ export default function MobileBottomNav() {
         ) : (
           <>
             <BtnMobileBottomNav
-              icon="/icons/dashboard-icon.svg"
+              icon="/images/icons/icone-dashboard.png"
               src="/dashboard"
               text="Dashboard"
               active={caminhoAtual === "/dashboard"}
             />
             <BtnMobileBottomNav
-              icon="/icons/add-icon.svg"
+              icon="/images/icons/icone-casos.png"
               src="/casos"
               text="Casos"
               active={caminhoAtual === "/casos"}
             />
             <BtnMobileBottomNav
-              icon="/icons/reports-icon.svg"
+              icon="/images/icons/icone-relatorios.png"
               src="/relatorios"
               text="Relatórios"
               active={caminhoAtual === "/relatorios"}
