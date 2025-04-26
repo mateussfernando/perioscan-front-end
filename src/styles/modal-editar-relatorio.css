@@ -1,0 +1,54 @@
+.status-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  color: #555;
+  font-size: 12px;
+  cursor: help;
+}
+
+.status-tooltip {
+  position: absolute;
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  max-width: 250px;
+  z-index: 100;
+  margin-top: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.status-select {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 100%;
+  font-size: 14px;
+}
+
+.status-finalizado {
+  background-color: #e6f7e6;
+  border-color: #a3d9a3;
+}
+
+.status-rascunho {
+  background-color: #f7f7e6;
+  border-color: #d9d9a3;
+}
+
+.btn-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

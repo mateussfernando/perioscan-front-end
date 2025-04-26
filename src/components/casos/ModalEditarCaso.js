@@ -175,19 +175,6 @@ export default function ModalEditarCaso({
               ></textarea>
             </div>
 
-            {/* Observação */}
-            <div className="form-group">
-              <label htmlFor="observation">Observação</label>
-              <textarea
-                id="observation"
-                name="observation"
-                value={casoEditado.observation}
-                onChange={onCasoChange}
-                placeholder="Adicione observações relevantes..."
-                rows={3}
-              ></textarea>
-            </div>
-
             {/* Mensagem de erro */}
             {erroEdicao && (
               <div className="upload-error">

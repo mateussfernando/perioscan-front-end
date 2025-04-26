@@ -1,18 +1,20 @@
 "use client";
 
-import { X, FilePlus, Loader } from "lucide-react";
+import { X, Save, Loader } from "lucide-react";
 
-export default function ModalCriarRelatorio({
-  relatorioData,
+export default function ModalEditarRelatorio({
+  relatorio,
   onFechar,
-  onCriar,
+  onSalvar,
   onChange,
-  criando,
+  editando,
   erro,
 }) {
+  if (!relatorio) return null;
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onCriar(e);
+    onSalvar(e);
   };
 
   return (
@@ -22,7 +24,7 @@ export default function ModalCriarRelatorio({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="evidencia-modal-header">
-          <h3>Criar Relatório</h3>
+          <h3>Editar Relatório</h3>
           <button className="btn-fechar-modal" onClick={onFechar}>
             <X size={20} />
           </button>
@@ -37,7 +39,7 @@ export default function ModalCriarRelatorio({
                 type="text"
                 id="title"
                 name="title"
-                value={relatorioData.title}
+                value={relatorio.title}
                 onChange={onChange}
                 placeholder="Ex: Relatório de Análise Odontológica"
                 required
@@ -50,7 +52,7 @@ export default function ModalCriarRelatorio({
               <textarea
                 id="content"
                 name="content"
-                value={relatorioData.content}
+                value={relatorio.content}
                 onChange={onChange}
                 placeholder="Descreva detalhadamente a análise do caso..."
                 rows={8}
@@ -64,7 +66,7 @@ export default function ModalCriarRelatorio({
               <textarea
                 id="methodology"
                 name="methodology"
-                value={relatorioData.methodology}
+                value={relatorio.methodology}
                 onChange={onChange}
                 placeholder="Descreva a metodologia utilizada..."
                 rows={4}
@@ -77,7 +79,7 @@ export default function ModalCriarRelatorio({
               <textarea
                 id="conclusion"
                 name="conclusion"
-                value={relatorioData.conclusion}
+                value={relatorio.conclusion}
                 onChange={onChange}
                 placeholder="Descreva a conclusão da análise..."
                 rows={4}
@@ -90,12 +92,16 @@ export default function ModalCriarRelatorio({
               <select
                 id="status"
                 name="status"
-                value={relatorioData.status}
+                value={relatorio.status}
                 onChange={onChange}
               >
                 <option value="rascunho">Rascunho</option>
                 <option value="finalizado">Finalizado</option>
               </select>
+              <p className="status-info">
+                <strong>Nota:</strong> Apenas relatórios com status Finalizado
+                podem ser assinados.
+              </p>
             </div>
 
             {/* Mensagem de erro */}
@@ -111,20 +117,20 @@ export default function ModalCriarRelatorio({
                 type="button"
                 className="btn-cancelar"
                 onClick={onFechar}
-                disabled={criando}
+                disabled={editando}
               >
                 Cancelar
               </button>
-              <button type="submit" className="btn-salvar" disabled={criando}>
-                {criando ? (
+              <button type="submit" className="btn-salvar" disabled={editando}>
+                {editando ? (
                   <>
                     <Loader size={16} className="spinner" />
-                    <span>Criando...</span>
+                    <span>Salvando...</span>
                   </>
                 ) : (
                   <>
-                    <FilePlus size={16} />
-                    <span>Criar Relatório</span>
+                    <Save size={16} />
+                    <span>Salvar Alterações</span>
                   </>
                 )}
               </button>
