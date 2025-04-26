@@ -2,8 +2,6 @@
 
 PerioScan é uma aplicação web progressiva (PWA) desenvolvida para profissionais de odontologia, focada no gerenciamento de casos periodontais. A plataforma permite o cadastro, acompanhamento e análise de casos clínicos, com recursos para gerenciamento de evidências, geração de relatórios e laudos.
 
-![PerioScan Logo](/images/logos/logo-perio-scan.png)
-
 ## 📋 Índice
 
 - [Visão Geral](#visão-geral)
