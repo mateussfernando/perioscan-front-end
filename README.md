@@ -182,6 +182,4 @@ Para contribuir com o projeto:
 
 Este projeto está licenciado sob a [Licença MIT](LICENSE).
 
----
-
 Desenvolvido com ❤️ pela equipe PerioScan
