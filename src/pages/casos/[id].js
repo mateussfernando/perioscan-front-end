@@ -135,11 +135,8 @@ export default function CasoDetalhes() {
     console.log("Iniciando criação de relatório...");
     const sucesso = await criarRelatorio(e);
     console.log("Resultado da criação de relatório:", sucesso);
-
-    if (sucesso) {
-      console.log("Atualizando status do caso para finalizado...");
-      await atualizarStatusCasoParaFinalizado();
-    }
+    // Removemos a chamada para atualizarStatusCasoParaFinalizado pois isso será feito
+    // automaticamente dentro da função criarRelatorio
   };
 
   return (

@@ -121,16 +121,41 @@ export default function Relatorios() {
     }
   };
 
+  // Verificar se um relatório está assinado
+  const verificarRelatorioAssinado = (relatorio) => {
+    return (
+      relatorio.status?.toLowerCase() === "assinado" ||
+      relatorio.status?.toLowerCase() === "finalizado" ||
+      !!relatorio.digitalSignature ||
+      !!relatorio.signed
+    );
+  };
+
   // Excluir relatório
   const excluirRelatorio = async (relatorioId) => {
+    // Encontrar o relatório na lista
+    const relatorio = relatorios.find((r) => r._id === relatorioId);
+
+    // Verificar se o relatório está assinado
+    if (relatorio && verificarRelatorioAssinado(relatorio)) {
+      alert("Não é possível excluir um relatório assinado ou finalizado.");
+      setModalExcluirAberto(false);
+      return;
+    }
+
     try {
       setExcluindo((prev) => ({ ...prev, [relatorioId]: true }));
 
       const token = localStorage.getItem("token");
       if (!token) return router.push("/");
 
+      // Garantir que o ID seja uma string válida
+      const id = relatorioId.toString().trim();
+
+      console.log(`Tentando excluir relatório com ID: ${id}`);
+
       const resposta = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}`,
+        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -140,14 +165,33 @@ export default function Relatorios() {
         }
       );
 
-      if (!resposta.ok) throw new Error("Falha ao excluir");
+      // Verificar resposta detalhada
+      const responseText = await resposta.text();
+      console.log(
+        `Resposta da API ao excluir: Status ${resposta.status}, Corpo:`,
+        responseText
+      );
+
+      if (!resposta.ok) {
+        // Tentar extrair a mensagem de erro da resposta
+        let mensagemErro = `Falha ao excluir: ${resposta.status}`;
+        try {
+          const errorData = JSON.parse(responseText);
+          if (errorData.message) {
+            mensagemErro = errorData.message;
+          }
+        } catch (e) {
+          // Ignorar erro de parsing
+        }
+        throw new Error(mensagemErro);
+      }
 
       setRelatorios((prev) => prev.filter((r) => r._id !== relatorioId));
       setMensagemSucesso("Relatório excluído com sucesso!");
       buscarRelatorios();
     } catch (erro) {
       console.error("Erro:", erro);
-      alert(`Erro: ${erro.message}`);
+      alert(`Erro ao excluir relatório: ${erro.message}`);
     } finally {
       setExcluindo((prev) => ({ ...prev, [relatorioId]: false }));
     }
@@ -201,12 +245,25 @@ export default function Relatorios() {
     }
   };
 
+  // Atualizar a função formatarStatus para lidar corretamente com todos os status possíveis
   const formatarStatus = (status) => {
+    if (!status) return "Rascunho";
+
+    const statusLower = status.toLowerCase();
     const statusMap = {
       rascunho: "Rascunho",
       finalizado: "Finalizado",
+      assinado: "Assinado",
+      "em andamento": "Em Andamento",
+      "em-andamento": "Em Andamento",
+      pendente: "Pendente",
+      arquivado: "Arquivado",
+      cancelado: "Cancelado",
     };
-    return statusMap[status] || "Desconhecido";
+
+    return (
+      statusMap[statusLower] || status.charAt(0).toUpperCase() + status.slice(1)
+    );
   };
 
   return (
@@ -255,6 +312,7 @@ export default function Relatorios() {
                   <option value="todos">Todos</option>
                   <option value="rascunho">Rascunho</option>
                   <option value="finalizado">Finalizado</option>
+                  <option value="assinado">Assinado</option>
                 </select>
               </div>
 
@@ -344,12 +402,14 @@ export default function Relatorios() {
                         <td data-label="Assinado">
                           <span
                             className={
-                              relatorio.status === "finalizado"
+                              verificarRelatorioAssinado(relatorio)
                                 ? "assinado-sim"
                                 : "assinado-nao"
                             }
                           >
-                            {relatorio.status === "finalizado" ? "Sim" : "Não"}
+                            {verificarRelatorioAssinado(relatorio)
+                              ? "Sim"
+                              : "Não"}
                           </span>
                         </td>
 
@@ -365,10 +425,25 @@ export default function Relatorios() {
                           <button
                             className="btn-acao btn-excluir"
                             onClick={() => {
+                              // Verificar se o relatório está assinado antes de abrir o modal
+                              if (verificarRelatorioAssinado(relatorio)) {
+                                alert(
+                                  "Não é possível excluir um relatório assinado ou finalizado."
+                                );
+                                return;
+                              }
                               setRelatorioParaExcluir(relatorio);
                               setModalExcluirAberto(true);
                             }}
-                            disabled={excluindo[relatorio._id]}
+                            disabled={
+                              excluindo[relatorio._id] ||
+                              verificarRelatorioAssinado(relatorio)
+                            }
+                            title={
+                              verificarRelatorioAssinado(relatorio)
+                                ? "Não é possível excluir relatórios assinados"
+                                : "Excluir Relatório"
+                            }
                           >
                             {excluindo[relatorio._id] ? (
                               <span className="spinner" />

@@ -7,7 +7,9 @@ export default function useRelatorios(caso, mostrarNotificacao) {
   const [carregandoRelatorios, setCarregandoRelatorios] = useState(true);
   const [relatorioAtual, setRelatorioAtual] = useState(null);
   const [baixandoPDFRelatorio, setBaixandoPDFRelatorio] = useState(false);
+  const [relatoriosBaixando, setRelatoriosBaixando] = useState({});
   const [assinandoRelatorio, setAssinandoRelatorio] = useState(false);
+  const [relatoriosAssinando, setRelatoriosAssinando] = useState({});
 
   // Estados para o modal de criação de relatório
   const [modalRelatorioAberto, setModalRelatorioAberto] = useState(false);
@@ -169,7 +171,7 @@ export default function useRelatorios(caso, mostrarNotificacao) {
     }));
   };
 
-  // Função para criar relatório
+  // Modificar a função criarRelatorio para atualizar o status do caso
   const criarRelatorio = async (e) => {
     e.preventDefault();
 
@@ -229,6 +231,9 @@ export default function useRelatorios(caso, mostrarNotificacao) {
         const relatorioData = novoRelatorio.data || novoRelatorio;
         setRelatorios((prev) => [...prev, relatorioData]);
         mostrarNotificacao("Relatório criado com sucesso!", "success");
+
+        // Atualizar o status do caso para finalizado
+        await atualizarStatusCaso(casoId);
       }
 
       fecharModalRelatorio();
@@ -328,6 +333,7 @@ export default function useRelatorios(caso, mostrarNotificacao) {
   // Função para baixar o PDF do relatório
   const baixarPDFRelatorio = async (relatorioId) => {
     setBaixandoPDFRelatorio(true);
+    setRelatoriosBaixando((prev) => ({ ...prev, [relatorioId]: true }));
 
     try {
       const token = localStorage.getItem("token");
@@ -371,6 +377,7 @@ export default function useRelatorios(caso, mostrarNotificacao) {
       mostrarNotificacao(error.message, "error");
     } finally {
       setBaixandoPDFRelatorio(false);
+      setRelatoriosBaixando((prev) => ({ ...prev, [relatorioId]: false }));
     }
   };
 
@@ -391,6 +398,7 @@ export default function useRelatorios(caso, mostrarNotificacao) {
     }
 
     setAssinandoRelatorio(true);
+    setRelatoriosAssinando((prev) => ({ ...prev, [relatorioId]: true }));
 
     try {
       const token = localStorage.getItem("token");
@@ -416,7 +424,12 @@ export default function useRelatorios(caso, mostrarNotificacao) {
       setRelatorios((prev) =>
         prev.map((rel) =>
           rel._id === relatorioId || rel.id === relatorioId
-            ? { ...rel, signed: true, signedAt: new Date().toISOString() }
+            ? {
+                ...rel,
+                status: "assinado",
+                signed: true,
+                signedAt: new Date().toISOString(),
+              }
             : rel
         )
       );
@@ -430,30 +443,77 @@ export default function useRelatorios(caso, mostrarNotificacao) {
       );
     } finally {
       setAssinandoRelatorio(false);
+      setRelatoriosAssinando((prev) => ({ ...prev, [relatorioId]: false }));
     }
+  };
+
+  // Função para verificar se um relatório está assinado
+  const verificarRelatorioAssinado = (relatorio) => {
+    return (
+      relatorio.status?.toLowerCase() === "assinado" ||
+      relatorio.status?.toLowerCase() === "finalizado" ||
+      !!relatorio.digitalSignature ||
+      !!relatorio.signed
+    );
   };
 
   // Função para excluir relatório
   const excluirRelatorio = async (relatorioId) => {
+    // Encontrar o relatório na lista
+    const relatorio = relatorios.find(
+      (r) => r._id === relatorioId || r.id === relatorioId
+    );
+
+    // Verificar se o relatório está assinado
+    if (relatorio && verificarRelatorioAssinado(relatorio)) {
+      mostrarNotificacao(
+        "Não é possível excluir um relatório assinado ou finalizado.",
+        "error"
+      );
+      fecharModalExcluirRelatorio();
+      return;
+    }
+
     setExcluindoRelatorio(true);
 
     try {
       const token = localStorage.getItem("token");
 
+      // Garantir que o ID seja uma string válida
+      const id = relatorioId.toString().trim();
+
+      console.log(`Tentando excluir relatório com ID: ${id}`);
+
       const response = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${relatorioId}`,
+        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${id}`,
         {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         }
       );
 
+      // Verificar resposta detalhada
+      const responseText = await response.text();
+      console.log(
+        `Resposta da API ao excluir: Status ${response.status}, Corpo:`,
+        responseText
+      );
+
       if (!response.ok) {
-        throw new Error(
-          `Falha ao excluir relatório: ${response.status} ${response.statusText}`
-        );
+        // Tentar extrair a mensagem de erro da resposta
+        let mensagemErro = `Falha ao excluir relatório: ${response.status}`;
+        try {
+          const errorData = JSON.parse(responseText);
+          if (errorData.message) {
+            mensagemErro = errorData.message;
+          }
+        } catch (e) {
+          // Ignorar erro de parsing
+        }
+        throw new Error(mensagemErro);
       }
 
       // Remover o relatório da lista
@@ -473,12 +533,85 @@ export default function useRelatorios(caso, mostrarNotificacao) {
     }
   };
 
+  // Adicionar função para atualizar o status do caso
+  const atualizarStatusCaso = async (casoId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      // Primeiro, buscar os dados atuais do caso
+      const responseCaso = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!responseCaso.ok) {
+        throw new Error(`Erro ao buscar caso: ${responseCaso.status}`);
+      }
+
+      const casoData = await responseCaso.json();
+      const casoAtual = casoData.data || casoData;
+
+      // Preparar dados para atualização
+      const dadosAtualizados = {
+        ...casoAtual,
+        status: "finalizado",
+      };
+
+      // Remover campos que podem causar conflito
+      delete dadosAtualizados._id;
+      delete dadosAtualizados.id;
+      delete dadosAtualizados.createdAt;
+      delete dadosAtualizados.updatedAt;
+      delete dadosAtualizados.__v;
+
+      // Atualizar o caso
+      const responseUpdate = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dadosAtualizados),
+        }
+      );
+
+      if (!responseUpdate.ok) {
+        throw new Error(
+          `Erro ao atualizar status do caso: ${responseUpdate.status}`
+        );
+      }
+
+      console.log("Status do caso atualizado para finalizado");
+      mostrarNotificacao(
+        "Status do caso atualizado para Finalizado",
+        "success"
+      );
+      return true;
+    } catch (error) {
+      console.error("Erro ao atualizar status do caso:", error);
+      mostrarNotificacao(
+        `Erro ao atualizar status do caso: ${error.message}`,
+        "error"
+      );
+      return false;
+    }
+  };
+
   return {
     relatorios,
     carregandoRelatorios,
     relatorioAtual,
     baixandoPDFRelatorio,
+    relatoriosBaixando,
     assinandoRelatorio,
+    relatoriosAssinando,
     modalRelatorioAberto,
     relatorioData,
     criandoRelatorio,
@@ -507,5 +640,6 @@ export default function useRelatorios(caso, mostrarNotificacao) {
     baixarPDFRelatorio,
     assinarRelatorio,
     excluirRelatorio,
+    verificarRelatorioAssinado,
   };
 }
