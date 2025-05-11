@@ -239,10 +239,11 @@ export default function useCasoDetalhes(casoId) {
     try {
       console.log("Atualizando status do caso para finalizado...");
 
-      // Criar uma cópia do caso atual com status atualizado
+      // Criar uma cópia do caso atual com status atualizado e data de fechamento
       const casoAtualizado = {
         ...casoEditado,
         status: "finalizado",
+        closedAt: caso.closedAt || new Date().toISOString(),
       };
 
       console.log("Dados do caso para atualização:", casoAtualizado);
@@ -257,6 +258,7 @@ export default function useCasoDetalhes(casoId) {
       setCaso((prev) => ({
         ...prev,
         status: "finalizado",
+        closedAt: prev.closedAt || new Date().toISOString(),
       }));
 
       console.log(

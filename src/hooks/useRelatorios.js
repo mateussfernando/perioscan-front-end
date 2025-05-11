@@ -560,6 +560,8 @@ export default function useRelatorios(caso, mostrarNotificacao) {
       const dadosAtualizados = {
         ...casoAtual,
         status: "finalizado",
+        // Adicionar data de fechamento se não existir
+        closedAt: casoAtual.closedAt || new Date().toISOString(),
       };
 
       // Remover campos que podem causar conflito
@@ -568,6 +570,11 @@ export default function useRelatorios(caso, mostrarNotificacao) {
       delete dadosAtualizados.createdAt;
       delete dadosAtualizados.updatedAt;
       delete dadosAtualizados.__v;
+
+      console.log(
+        "Atualizando caso para finalizado com dados:",
+        dadosAtualizados
+      );
 
       // Atualizar o caso
       const responseUpdate = await fetch(
@@ -588,7 +595,9 @@ export default function useRelatorios(caso, mostrarNotificacao) {
         );
       }
 
-      console.log("Status do caso atualizado para finalizado");
+      console.log(
+        "Status do caso atualizado para finalizado com data de fechamento"
+      );
       mostrarNotificacao(
         "Status do caso atualizado para Finalizado",
         "success"
