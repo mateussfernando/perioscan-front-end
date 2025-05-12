@@ -10,6 +10,9 @@ export default function ModalExcluirRelatorio({
 }) {
   if (!relatorio) return null;
 
+  // Garantir que temos um ID válido para exclusão
+  const relatorioId = relatorio._id || relatorio.id;
+
   return (
     <div className="evidencia-modal-overlay" onClick={onFechar}>
       <div
@@ -45,7 +48,7 @@ export default function ModalExcluirRelatorio({
           </button>
           <button
             className="btn-excluir-confirmar"
-            onClick={() => onExcluir(relatorio._id || relatorio.id)}
+            onClick={() => onExcluir(relatorioId)}
             disabled={excluindo}
           >
             {excluindo ? (

@@ -55,11 +55,6 @@ export default function RelatorioItem({
 
   // Função para abrir o modal de exclusão
   const abrirModalExcluir = () => {
-    // Verificar se o relatório está assinado antes de abrir o modal
-    if (estaAssinado) {
-      alert("Não é possível excluir um relatório assinado ou finalizado.");
-      return;
-    }
     setModalExcluirAberto(true);
   };
 
@@ -70,17 +65,15 @@ export default function RelatorioItem({
 
   // Função para excluir relatório
   const excluirRelatorio = async () => {
-    // Verificação adicional antes de tentar excluir
-    if (estaAssinado) {
-      alert("Não é possível excluir um relatório assinado ou finalizado.");
-      fecharModalExcluir();
-      return;
-    }
-
     setExcluindo(true);
     try {
       console.log(`Solicitando exclusão do relatório ID: ${relatorioId}`);
-      await onExcluir(relatorioId);
+
+      // Verificar qual ID está disponível e usar o mais apropriado
+      const reportId = relatorio?._id || relatorio?.id || relatorioId;
+      console.log(`ID final usado para exclusão: ${reportId}`);
+
+      await onExcluir(reportId);
       // A atualização da UI será feita pelo componente pai
     } catch (error) {
       console.error("Erro ao excluir relatório:", error);

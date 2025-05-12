@@ -38,11 +38,64 @@
 }
 
 .caso-card-header h1 {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 600;
   margin: 0;
-  color: #333;
+  color: #000000;
 }
+
+/* NOVO ESTILO MINIMALISTA PARA OS BOTÕES */
+.header-actions-minimalista {
+  display: flex;
+  gap: 24px;
+}
+
+.btn-minimalista {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.btn-minimalista span {
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+.btn-minimalista:hover {
+  color: #000;
+  transform: translateY(-2px);
+}
+
+.btn-excluir-minimalista {
+  color: #a52e40;
+}
+
+.btn-excluir-minimalista:hover {
+  color: #d32f2f;
+}
+
+.btn-voltar-minimalista {
+  color: #555;
+}
+
+.btn-voltar-minimalista:hover {
+  color: #000;
+}
+
+.btn-minimalista:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* FIM DO NOVO ESTILO MINIMALISTA */
 
 .header-actions {
   display: flex;
@@ -1245,6 +1298,26 @@
   flex-wrap: wrap;
   gap: 15px;
 }
+
+/* Responsividade para os novos botões minimalistas */
+@media (max-width: 768px) {
+  .header-actions-minimalista {
+    width: 100%;
+    justify-content: space-around;
+    margin-top: 15px;
+  }
+
+  .caso-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-minimalista svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
 @media (max-width: 768px) {
   /* Ajustes no cabeçalho do card */
   .caso-card-header {

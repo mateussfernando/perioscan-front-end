@@ -457,23 +457,8 @@ export default function useRelatorios(caso, mostrarNotificacao) {
     );
   };
 
-  // Função para excluir relatório
+  // Modificar a função excluirRelatorio para remover a validação de status
   const excluirRelatorio = async (relatorioId) => {
-    // Encontrar o relatório na lista
-    const relatorio = relatorios.find(
-      (r) => r._id === relatorioId || r.id === relatorioId
-    );
-
-    // Verificar se o relatório está assinado
-    if (relatorio && verificarRelatorioAssinado(relatorio)) {
-      mostrarNotificacao(
-        "Não é possível excluir um relatório assinado ou finalizado.",
-        "error"
-      );
-      fecharModalExcluirRelatorio();
-      return;
-    }
-
     setExcluindoRelatorio(true);
 
     try {
@@ -484,8 +469,16 @@ export default function useRelatorios(caso, mostrarNotificacao) {
 
       console.log(`Tentando excluir relatório com ID: ${id}`);
 
+      // Verificar qual ID está disponível e usar o mais apropriado
+      const relatorio = relatorios.find(
+        (rel) => rel._id === relatorioId || rel.id === relatorioId
+      );
+      const reportId = relatorio?._id || relatorio?.id || id;
+      console.log(`ID final usado para exclusão: ${reportId}`);
+
+      // Fazer a requisição DELETE
       const response = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${id}`,
+        `https://perioscan-back-end-fhhq.onrender.com/api/reports/${reportId}`,
         {
           method: "DELETE",
           headers: {
@@ -496,22 +489,45 @@ export default function useRelatorios(caso, mostrarNotificacao) {
       );
 
       // Verificar resposta detalhada
-      const responseText = await response.text();
-      console.log(
-        `Resposta da API ao excluir: Status ${response.status}, Corpo:`,
-        responseText
-      );
+      let responseText;
+      try {
+        responseText = await response.text();
+        console.log(
+          `Resposta da API ao excluir: Status ${response.status}, Corpo:`,
+          responseText
+        );
+      } catch (e) {
+        console.error("Erro ao ler resposta:", e);
+      }
 
       if (!response.ok) {
+        // Se o erro for 404, pode ser que o relatório já tenha sido excluído
+        if (response.status === 404) {
+          console.log(
+            "Relatório não encontrado (404). Pode já ter sido excluído."
+          );
+          // Remover da lista local mesmo assim
+          setRelatorios((prev) =>
+            prev.filter(
+              (rel) => rel._id !== relatorioId && rel.id !== relatorioId
+            )
+          );
+          mostrarNotificacao("Relatório removido da lista.", "success");
+          return;
+        }
+
         // Tentar extrair a mensagem de erro da resposta
         let mensagemErro = `Falha ao excluir relatório: ${response.status}`;
         try {
-          const errorData = JSON.parse(responseText);
-          if (errorData.message) {
-            mensagemErro = errorData.message;
+          if (responseText) {
+            const errorData = JSON.parse(responseText);
+            if (errorData.message) {
+              mensagemErro = errorData.message;
+            }
           }
         } catch (e) {
           // Ignorar erro de parsing
+          console.error("Erro ao analisar resposta JSON:", e);
         }
         throw new Error(mensagemErro);
       }
