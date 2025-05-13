@@ -6,6 +6,7 @@
   height: 100%;
   flex-direction: row;
   background-color: #f5f7fa;
+  font-family: "Inter", sans-serif;
 }
 
 .container-caso-detalhes {
@@ -15,6 +16,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+  font-family: "Inter", sans-serif;
 }
 
 /* Card Principal */
@@ -26,6 +28,7 @@
   margin: 0 auto;
   overflow: hidden;
   border: 1px solid #e0e0e0;
+  font-family: "Inter", sans-serif;
 }
 
 .caso-card-header {
@@ -38,10 +41,11 @@
 }
 
 .caso-card-header h1 {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
   margin: 0;
-  color: #000000;
+  color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 /* NOVO ESTILO MINIMALISTA PARA OS BOTÕES */
@@ -60,12 +64,14 @@
   color: #555;
   transition: all 0.2s ease;
   padding: 0;
+  font-family: "Inter", sans-serif;
 }
 
 .btn-minimalista span {
   font-size: 12px;
   margin-top: 5px;
   font-weight: 500;
+  font-family: "Inter", sans-serif;
 }
 
 .btn-minimalista:hover {
@@ -115,6 +121,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
+  font-family: "Inter", sans-serif;
 }
 .btn-editar:hover {
   background-color: #555;
@@ -201,17 +208,20 @@
   margin-bottom: 15px;
   font-weight: 600;
   color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 .info-item {
   margin-bottom: 8px;
   font-size: 14px;
   line-height: 1.4;
+  font-family: "Inter", sans-serif;
 }
 
 .info-item strong {
   font-weight: 600;
   margin-right: 5px;
+  font-family: "Inter", sans-serif;
 }
 
 /* Classes de status */
@@ -226,6 +236,7 @@
   border-radius: 3px;
   font-size: 12px;
   font-weight: 500;
+  font-family: "Inter", sans-serif;
 }
 
 .status-em-andamento {
@@ -270,6 +281,7 @@
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  font-family: "Inter", sans-serif;
 }
 
 .search-container {
@@ -299,6 +311,7 @@
   border-radius: 4px;
   font-size: 14px;
   transition: border-color 0.2s;
+  font-family: "Inter", sans-serif;
 }
 
 .search-input:focus {
@@ -337,6 +350,7 @@
   font-size: 13px;
   color: #333;
   transition: background-color 0.2s;
+  font-family: "Inter", sans-serif;
 }
 
 .filter-toggle:hover {
@@ -362,6 +376,7 @@
   font-size: 12px;
   font-weight: 600;
   color: #555;
+  font-family: "Inter", sans-serif;
 }
 
 .filter-group select,
@@ -371,6 +386,7 @@
   border-radius: 4px;
   font-size: 13px;
   background-color: white;
+  font-family: "Inter", sans-serif;
 }
 
 .filter-group select:focus,
@@ -391,6 +407,7 @@
   transition: background-color 0.2s;
   width: fit-content;
   justify-self: end;
+  font-family: "Inter", sans-serif;
 }
 
 .clear-filters:hover {
@@ -400,12 +417,14 @@
 /* Tabela de Evidências */
 .evidencias-tabela {
   margin-bottom: 15px;
+  font-family: "Inter", sans-serif;
 }
 
 .evidencias-tabela table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  font-family: "Inter", sans-serif;
 }
 
 .evidencias-tabela th,
@@ -413,6 +432,7 @@
   padding: 8px;
   text-align: left;
   border-bottom: 1px solid #e0e0e0;
+  font-family: "Inter", sans-serif;
 }
 
 .evidencias-tabela th {
@@ -461,6 +481,7 @@
   font-size: 13px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-width: 80px;
+  font-family: "Inter", sans-serif;
 }
 
 .btn-criar-laudo {
@@ -495,6 +516,7 @@
 
 .btn-text {
   display: inline-block;
+  font-family: "Inter", sans-serif;
 }
 
 /* Ajustar o estilo do botão de visualização para garantir que o ícone não fique esticado */
@@ -542,12 +564,14 @@
   text-align: center;
   padding: 10px;
   font-style: italic;
+  font-family: "Inter", sans-serif;
 }
 
 .no-evidencias {
   text-align: center;
   color: #666;
   font-style: italic;
+  font-family: "Inter", sans-serif;
 }
 
 .btn-adicionar {
@@ -560,6 +584,7 @@
   font-weight: 500;
   cursor: pointer;
   font-size: 13px;
+  font-family: "Inter", sans-serif;
 }
 
 .btn-adicionar:hover {
@@ -573,6 +598,7 @@
   padding: 12px;
   font-size: 13px;
   color: #444;
+  font-family: "Inter", sans-serif;
 }
 
 /* Coluna de Descrição */
@@ -589,6 +615,7 @@
   border: 1px solid #e0e0e0;
   height: calc(100% - 50px);
   overflow-y: auto;
+  font-family: "Inter", sans-serif;
 }
 
 .descricao-content p {
@@ -596,6 +623,7 @@
   font-size: 14px;
   line-height: 1.5;
   color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 /* Modal de visualização de evidências */
@@ -610,6 +638,7 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  font-family: "Inter", sans-serif;
 }
 
 .evidencia-modal-content {
@@ -622,6 +651,7 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: "Inter", sans-serif;
 }
 
 .evidencia-modal-header {
@@ -642,6 +672,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 600;
+  font-family: "Inter", sans-serif;
 }
 
 .btn-fechar-modal {
@@ -662,6 +693,7 @@
   padding: 20px;
   overflow-y: auto;
   flex-grow: 1;
+  font-family: "Inter", sans-serif;
 }
 
 /* Conteúdo da evidência - Imagem */
@@ -684,11 +716,13 @@
   color: #444;
   text-align: center;
   margin-top: 10px;
+  font-family: "Inter", sans-serif;
 }
 
 /* Conteúdo da evidência - Texto */
 .evidencia-texto-container {
   padding: 10px;
+  font-family: "Inter", sans-serif;
 }
 
 .evidencia-texto-container h3 {
@@ -697,6 +731,7 @@
   font-size: 16px;
   font-weight: 600;
   color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 .evidencia-texto-content {
@@ -709,12 +744,14 @@
   line-height: 1.6;
   white-space: pre-wrap;
   color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 .evidencia-info {
   font-size: 13px;
   color: #666;
   margin-top: 15px;
+  font-family: "Inter", sans-serif;
 }
 
 /* Estados de carregamento e erro */
@@ -728,6 +765,7 @@
   padding: 40px;
   text-align: center;
   gap: 16px;
+  font-family: "Inter", sans-serif;
 }
 
 /* Estilos para o modal de adicionar evidência */
@@ -735,6 +773,7 @@
 .modal-editar,
 .modal-excluir {
   max-width: 600px;
+  font-family: "Inter", sans-serif;
 }
 
 .form-adicionar-evidencia,
@@ -742,6 +781,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  font-family: "Inter", sans-serif;
 }
 
 .tipo-evidencia-selector {
@@ -762,6 +802,7 @@
   background-color: #f8f8f8;
   cursor: pointer;
   transition: all 0.2s;
+  font-family: "Inter", sans-serif;
 }
 
 .tipo-btn.active {
@@ -774,6 +815,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  font-family: "Inter", sans-serif;
 }
 
 .form-group label {
@@ -783,6 +825,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
+  font-family: "Inter", sans-serif;
 }
 
 .form-group input,
@@ -791,6 +834,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
+  font-family: "Inter", sans-serif;
 }
 
 /* Adicionando estilo para o select de tipo de imagem */
@@ -801,6 +845,7 @@
   font-size: 14px;
   background-color: white;
   width: 100%;
+  font-family: "Inter", sans-serif;
 }
 
 .form-group select:focus {
@@ -828,6 +873,7 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  font-family: "Inter", sans-serif;
 }
 
 .upload-area:hover {
@@ -838,11 +884,13 @@
   margin: 10px 0 0;
   font-size: 14px;
   color: #555;
+  font-family: "Inter", sans-serif;
 }
 
 .upload-hint {
   font-size: 12px;
   color: #888;
+  font-family: "Inter", sans-serif;
 }
 
 .preview-container {
@@ -881,6 +929,7 @@
   padding: 10px;
   color: #c00;
   font-size: 13px;
+  font-family: "Inter", sans-serif;
 }
 
 .form-actions {
@@ -901,6 +950,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
+  font-family: "Inter", sans-serif;
 }
 
 .btn-cancelar {
@@ -940,6 +990,7 @@
   text-align: center;
   gap: 15px;
   margin-bottom: 20px;
+  font-family: "Inter", sans-serif;
 }
 
 .excluir-icone {
@@ -950,6 +1001,7 @@
   font-size: 15px;
   line-height: 1.5;
   color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 .spinner {
@@ -969,6 +1021,7 @@
 .modal-criar-laudo {
   max-width: 600px;
   width: 90%;
+  font-family: "Inter", sans-serif;
 }
 
 .form-criar-laudo .form-group {
@@ -979,6 +1032,7 @@
   display: block;
   margin-bottom: 6px;
   font-weight: 500;
+  font-family: "Inter", sans-serif;
 }
 
 .form-criar-laudo input,
@@ -989,6 +1043,7 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
+  font-family: "Inter", sans-serif;
 }
 
 .form-criar-laudo textarea {
@@ -1016,6 +1071,7 @@
   margin: 0 auto;
   width: auto;
   min-width: 200px;
+  font-family: "Inter", sans-serif;
 }
 
 .btn-criar-laudo-modal:hover,
@@ -1046,6 +1102,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   animation: slideIn 0.3s ease-out;
+  font-family: "Inter", sans-serif;
 }
 
 .notificacao-laudo.success {
@@ -1068,6 +1125,7 @@
   margin-left: 8px;
   color: inherit;
   opacity: 0.7;
+  font-family: "Inter", sans-serif;
 }
 
 .fechar-notificacao:hover {
@@ -1081,6 +1139,7 @@
   padding: 15px 20px;
   border-top: 1px solid #e0e0e0;
   background-color: #f8f8f8;
+  font-family: "Inter", sans-serif;
 }
 
 @keyframes slideIn {
@@ -1099,16 +1158,19 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  font-family: "Inter", sans-serif;
 }
 
 .evidencia-titulo {
   font-weight: 500;
   color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 .evidencia-data {
   font-size: 11px;
   color: #666;
+  font-family: "Inter", sans-serif;
 }
 
 .evidencia-tipo {
@@ -1118,6 +1180,7 @@
   font-size: 11px;
   font-weight: 500;
   text-align: center;
+  font-family: "Inter", sans-serif;
 }
 
 .tipo-imagem {
@@ -1134,6 +1197,7 @@
 .relatorios-section {
   padding: 15px;
   border-bottom: 1px solid #e0e0e0;
+  font-family: "Inter", sans-serif;
 }
 
 .relatorios-section h2 {
@@ -1142,16 +1206,19 @@
   margin-bottom: 15px;
   font-weight: 600;
   color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 .relatorios-tabela {
   margin-bottom: 15px;
+  font-family: "Inter", sans-serif;
 }
 
 .relatorios-tabela table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  font-family: "Inter", sans-serif;
 }
 
 .relatorios-tabela th,
@@ -1159,6 +1226,7 @@
   padding: 8px;
   text-align: left;
   border-bottom: 1px solid #e0e0e0;
+  font-family: "Inter", sans-serif;
 }
 
 .relatorios-tabela th {
@@ -1180,11 +1248,13 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  font-family: "Inter", sans-serif;
 }
 
 .relatorio-titulo {
   font-weight: 500;
   color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 .relatorio-assinado {
@@ -1193,6 +1263,7 @@
   gap: 4px;
   font-size: 11px;
   color: #2e7d32;
+  font-family: "Inter", sans-serif;
 }
 
 .loading-relatorios {
@@ -1201,12 +1272,14 @@
   text-align: center;
   padding: 10px;
   font-style: italic;
+  font-family: "Inter", sans-serif;
 }
 
 .no-relatorios {
   text-align: center;
   color: #666;
   font-style: italic;
+  font-family: "Inter", sans-serif;
 }
 
 /* Estilos para os botões de ação */
@@ -1228,6 +1301,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-width: 36px;
   height: 36px;
+  font-family: "Inter", sans-serif;
 }
 
 .btn-assinar:hover {
@@ -1254,6 +1328,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   min-width: 36px;
   height: 36px;
+  font-family: "Inter", sans-serif;
 }
 
 .btn-excluir-relatorio:hover {
@@ -1267,23 +1342,27 @@
 .modal-visualizar-relatorio {
   max-width: 700px;
   width: 90%;
+  font-family: "Inter", sans-serif;
 }
 
 .form-criar-relatorio {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  font-family: "Inter", sans-serif;
 }
 
 /* Estilos para a visualização do relatório */
 .relatorio-visualizacao {
   padding: 20px;
+  font-family: "Inter", sans-serif;
 }
 
 .relatorio-header {
   margin-bottom: 20px;
   border-bottom: 1px solid #e0e0e0;
   padding-bottom: 15px;
+  font-family: "Inter", sans-serif;
 }
 
 .relatorio-header h2 {
@@ -1291,12 +1370,14 @@
   font-weight: 600;
   margin-bottom: 10px;
   color: #333;
+  font-family: "Inter", sans-serif;
 }
 
 .relatorio-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 15px;
+  font-family: "Inter", sans-serif;
 }
 
 /* Responsividade para os novos botões minimalistas */
