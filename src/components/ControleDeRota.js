@@ -32,10 +32,28 @@ export default function ControleDeRota({ children, requiredRole }) {
         }
 
         // Verifica a role se necessário
-        if (requiredRole && role !== requiredRole) {
-          console.log(`Permissão necessária: ${requiredRole}, possui: ${role}`);
-          setAuthStatus("naoAutorizado");
-          return;
+        if (requiredRole) {
+          // Se requiredRole for um array, verifica se o usuário tem uma das roles requeridas
+          if (Array.isArray(requiredRole)) {
+            if (!requiredRole.includes(role)) {
+              console.log(
+                `Permissão necessária: uma de ${requiredRole.join(
+                  ", "
+                )}, possui: ${role}`
+              );
+              setAuthStatus("naoAutorizado");
+              return;
+            }
+          } else {
+            // Caso seja uma string única
+            if (role !== requiredRole) {
+              console.log(
+                `Permissão necessária: ${requiredRole}, possui: ${role}`
+              );
+              setAuthStatus("naoAutorizado");
+              return;
+            }
+          }
         }
 
         // Tudo ok

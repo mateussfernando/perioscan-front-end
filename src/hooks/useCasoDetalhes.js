@@ -1,63 +1,63 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
 
 export default function useCasoDetalhes(casoId) {
-  const router = useRouter();
   const [caso, setCaso] = useState(null);
   const [loadingCaso, setLoadingCaso] = useState(true);
   const [error, setError] = useState(null);
   const [userRole, setUserRole] = useState("");
-
-  // Estados para o modal de edição de caso
+  const [userId, setUserId] = useState("");
+  const [casoEditado, setCasoEditado] = useState(null);
   const [modalEditarAberto, setModalEditarAberto] = useState(false);
-  const [casoEditado, setCasoEditado] = useState({
-    title: "",
-    description: "",
-    location: "",
-    status: "em andamento",
-    observation: "",
-    occurrenceDate: "",
-    type: "outro",
-  });
-  const [salvandoCaso, setSalvandoCaso] = useState(false);
-  const [erroEdicao, setErroEdicao] = useState(null);
-
-  // Estados para o modal de exclusão de caso
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false);
+  const [salvandoCaso, setSalvandoCaso] = useState(false);
   const [excluindoCaso, setExcluindoCaso] = useState(false);
+  const [erroEdicao, setErroEdicao] = useState(null);
   const [erroExclusao, setErroExclusao] = useState(null);
-
-  // Estado para notificações
   const [notificacao, setNotificacao] = useState({
-    visible: false,
-    message: "",
-    type: "",
+    mensagem: "",
+    tipo: "",
+    visivel: false,
   });
 
-  // Buscar detalhes do caso
+  // Função para mostrar notificações
+  const mostrarNotificacao = (mensagem, tipo, visivel = true) => {
+    setNotificacao({
+      mensagem,
+      tipo,
+      visivel,
+    });
+
+    if (visivel) {
+      setTimeout(() => {
+        setNotificacao((prev) => ({ ...prev, visivel: false }));
+      }, 5000);
+    }
+  };
+
+  // Carregar detalhes do caso
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    const fetchCasoDetalhes = async () => {
+      if (!casoId) {
+        setLoadingCaso(false);
+        return;
+      }
 
-    setUserRole(role || "");
-
-    if (!token) {
-      router.push("/");
-      return;
-    }
-
-    if (!casoId) {
-      setError("ID do caso não encontrado");
-      setLoadingCaso(false);
-      return;
-    }
-
-    async function fetchCasoDetalhes() {
       try {
         setLoadingCaso(true);
-        console.log(`Buscando detalhes do caso ${casoId}...`);
+        setError(null);
+
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
+        const userId = localStorage.getItem("userId");
+
+        setUserRole(role || "");
+        setUserId(userId || "");
+
+        if (!token) {
+          throw new Error("Usuário não autenticado");
+        }
 
         const response = await fetch(
           `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}`,
@@ -70,65 +70,46 @@ export default function useCasoDetalhes(casoId) {
         );
 
         if (response.status === 401) {
-          localStorage.removeItem("token");
-          router.push("/");
-          return;
+          throw new Error("Não autorizado");
+        }
+
+        if (response.status === 404) {
+          throw new Error("Caso não encontrado");
         }
 
         if (!response.ok) {
-          throw new Error(`Erro HTTP! status: ${response.status}`);
+          throw new Error(`Erro ao carregar caso: ${response.status}`);
         }
 
-        const textData = await response.text();
-        const responseObject = textData ? JSON.parse(textData) : {};
+        const data = await response.json();
 
-        if (responseObject.success && responseObject.data) {
-          setCaso(responseObject.data);
-          const statusNormalizado = normalizarStatus(
-            responseObject.data.status || "em andamento"
-          );
-
+        if (data.success && data.data) {
+          setCaso(data.data);
+          // Inicializar o estado de edição com os dados do caso
           setCasoEditado({
-            title: responseObject.data.title || "",
-            description: responseObject.data.description || "",
-            location: responseObject.data.location || "",
-            status: statusNormalizado,
-            observation: responseObject.data.observation || "",
-            occurrenceDate: responseObject.data.occurrenceDate || "",
-            type: responseObject.data.type || "outro",
+            title: data.data.title || "",
+            description: data.data.description || "",
+            location: data.data.location || "",
+            status: data.data.status || "em andamento",
+            type: data.data.type || "outro",
+            occurrenceDate: data.data.occurrenceDate
+              ? new Date(data.data.occurrenceDate).toISOString().split("T")[0]
+              : "",
           });
         } else {
-          console.error("Formato de resposta inesperado:", responseObject);
-          setError("Formato de resposta inesperado");
+          throw new Error("Formato de resposta inválido");
         }
       } catch (error) {
-        console.error("Erro ao buscar detalhes do caso:", error);
+        console.error("Erro ao carregar detalhes do caso:", error);
         setError(`Falha ao carregar detalhes do caso: ${error.message}`);
+        setCaso(null);
       } finally {
         setLoadingCaso(false);
       }
-    }
+    };
 
     fetchCasoDetalhes();
-  }, [casoId, router]);
-
-  // Função para normalizar status
-  const normalizarStatus = (status) => {
-    const statusLower = status.toLowerCase();
-    if (statusLower === "em andamento" || statusLower === "em-andamento") {
-      return "em andamento";
-    } else if (statusLower === "finalizado") {
-      return "finalizado";
-    } else if (statusLower === "pendente") {
-      return "pendente";
-    } else if (statusLower === "arquivado") {
-      return "arquivado";
-    } else if (statusLower === "cancelado") {
-      return "cancelado";
-    } else {
-      return "em andamento"; // Default
-    }
-  };
+  }, [casoId]);
 
   // Função para lidar com mudanças nos campos do formulário de edição
   const handleCasoChange = (e) => {
@@ -139,61 +120,67 @@ export default function useCasoDetalhes(casoId) {
     }));
   };
 
-  // Função para salvar o caso
-  const salvarCaso = async (e, casoModificado) => {
+  // Função para salvar as alterações do caso
+  const salvarCaso = async (e) => {
     e.preventDefault();
     setSalvandoCaso(true);
     setErroEdicao(null);
 
     try {
       const token = localStorage.getItem("token");
-      const id = caso._id || caso.id;
 
-      const dadosParaEnviar = {
-        ...(casoModificado || casoEditado),
-        status: normalizarStatus(casoEditado.status),
-      };
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      // Verificar permissões para editar
+      if (
+        userRole !== "admin" &&
+        userRole !== "perito" &&
+        userRole !== "assistente"
+      ) {
+        throw new Error("Você não tem permissão para editar casos");
+      }
 
       const response = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${id}`,
+        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}`,
         {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(dadosParaEnviar),
+          body: JSON.stringify(casoEditado),
         }
       );
 
-      const responseText = await response.text();
-
       if (!response.ok) {
+        const errorText = await response.text();
         throw new Error(
-          `Falha ao atualizar caso: ${response.status} ${response.statusText}`
+          `Falha ao atualizar caso: ${response.status} - ${errorText}`
         );
       }
 
-      let casoAtualizado;
-      try {
-        casoAtualizado = JSON.parse(responseText);
-      } catch (e) {
-        console.error(
-          "Erro ao analisar resposta JSON da atualização do caso:",
-          e
-        );
-      }
+      const data = await response.json();
 
-      if (casoAtualizado && casoAtualizado.data) {
-        setCaso(casoAtualizado.data);
+      if (data.success) {
+        // Atualizar o caso no estado
+        setCaso((prevCaso) => ({
+          ...prevCaso,
+          ...casoEditado,
+        }));
+
+        // Fechar o modal
+        setModalEditarAberto(false);
+
+        // Mostrar notificação de sucesso
+        mostrarNotificacao("Caso atualizado com sucesso!", "sucesso");
       } else {
-        window.location.reload();
+        throw new Error(data.message || "Erro ao atualizar caso");
       }
-
-      fecharModalEditar();
     } catch (error) {
-      console.error("Erro ao atualizar caso:", error);
-      setErroEdicao(`Falha ao atualizar caso: ${error.message}`);
+      console.error("Erro ao salvar caso:", error);
+      setErroEdicao(`Falha ao salvar alterações: ${error.message}`);
     } finally {
       setSalvandoCaso(false);
     }
@@ -206,10 +193,18 @@ export default function useCasoDetalhes(casoId) {
 
     try {
       const token = localStorage.getItem("token");
-      const id = caso._id || caso.id;
+
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      // Verificar permissões para excluir
+      if (userRole !== "admin" && userRole !== "perito") {
+        throw new Error("Você não tem permissão para excluir casos");
+      }
 
       const response = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${id}`,
+        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}`,
         {
           method: "DELETE",
           headers: {
@@ -220,12 +215,14 @@ export default function useCasoDetalhes(casoId) {
       );
 
       if (!response.ok) {
+        const errorText = await response.text();
         throw new Error(
-          `Falha ao excluir caso: ${response.status} ${response.statusText}`
+          `Falha ao excluir caso: ${response.status} - ${errorText}`
         );
       }
 
-      router.push("/casos");
+      // Redirecionar para a lista de casos após exclusão bem-sucedida
+      window.location.href = "/casos";
     } catch (error) {
       console.error("Erro ao excluir caso:", error);
       setErroExclusao(`Falha ao excluir caso: ${error.message}`);
@@ -234,91 +231,113 @@ export default function useCasoDetalhes(casoId) {
     }
   };
 
-  // Função para atualizar o status do caso para finalizado após criar um relatório
-  const atualizarStatusCasoParaFinalizado = async () => {
+  // Função para atualizar o status do caso para finalizado
+  const atualizarStatusCasoParaFinalizado = useCallback(async () => {
     try {
-      console.log("Atualizando status do caso para finalizado...");
+      const token = localStorage.getItem("token");
 
-      // Criar uma cópia do caso atual com status atualizado e data de fechamento
-      const casoAtualizado = {
-        ...casoEditado,
+      if (!token) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      // Verificar se o caso já está finalizado
+      if (caso?.status === "finalizado") {
+        console.log("Caso já está finalizado, não é necessário atualizar");
+        return true;
+      }
+
+      // Preparar dados para atualização
+      const dadosAtualizacao = {
         status: "finalizado",
-        closedAt: caso.closedAt || new Date().toISOString(),
+        closeDate: new Date().toISOString(), // Definir data de fechamento
       };
 
-      console.log("Dados do caso para atualização:", casoAtualizado);
-
-      // Criar um evento sintético para passar para salvarCaso
-      const syntheticEvent = { preventDefault: () => {} };
-
-      // Chamar a função existente para salvar o caso
-      await salvarCaso(syntheticEvent, casoAtualizado);
-
-      // Atualizar o estado local do caso
-      setCaso((prev) => ({
-        ...prev,
-        status: "finalizado",
-        closedAt: prev.closedAt || new Date().toISOString(),
-      }));
-
       console.log(
-        "Status do caso atualizado para finalizado após criar relatório"
+        "Atualizando status do caso para finalizado:",
+        dadosAtualizacao
       );
 
-      // Mostrar notificação adicional
-      mostrarNotificacao(
-        "Status do caso atualizado para Finalizado",
-        "success"
+      const response = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dadosAtualizacao),
+        }
       );
 
-      return true;
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Falha ao atualizar status do caso: ${response.status} - ${errorText}`
+        );
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Atualizar o caso no estado
+        setCaso((prevCaso) => ({
+          ...prevCaso,
+          status: "finalizado",
+          closeDate: dadosAtualizacao.closeDate,
+        }));
+
+        // Mostrar notificação de sucesso
+        mostrarNotificacao("Caso finalizado com sucesso!", "sucesso");
+        return true;
+      } else {
+        throw new Error(data.message || "Erro ao atualizar status do caso");
+      }
     } catch (error) {
       console.error("Erro ao atualizar status do caso:", error);
-      mostrarNotificacao("Erro ao atualizar status do caso", "error");
+      mostrarNotificacao(`Falha ao finalizar caso: ${error.message}`, "erro");
       return false;
     }
-  };
+  }, [casoId, caso]);
 
-  // Verifica se o usuário tem permissão para excluir casos
+  // Verificar se o usuário pode excluir o caso
   const podeExcluirCaso = () => {
-    return (
-      userRole === "admin" ||
-      (userRole === "perito" &&
-        caso?.createdBy?.id === localStorage.getItem("userId"))
-    );
+    // Apenas admin e perito podem excluir casos
+    return userRole === "admin" || userRole === "perito";
   };
 
   // Funções para abrir/fechar modais
   const abrirModalEditar = () => {
-    setErroEdicao(null);
+    // Verificar permissões para editar
+    if (
+      userRole !== "admin" &&
+      userRole !== "perito" &&
+      userRole !== "assistente"
+    ) {
+      mostrarNotificacao("Você não tem permissão para editar casos", "erro");
+      return;
+    }
+
     setModalEditarAberto(true);
   };
 
   const fecharModalEditar = () => {
     setModalEditarAberto(false);
+    setErroEdicao(null);
   };
 
   const abrirModalExcluir = () => {
+    // Verificar permissões para excluir
     if (!podeExcluirCaso()) {
-      alert("Você não tem permissão para excluir este caso.");
+      mostrarNotificacao("Você não tem permissão para excluir casos", "erro");
       return;
     }
-    setErroExclusao(null);
+
     setModalExcluirAberto(true);
   };
 
   const fecharModalExcluir = () => {
     setModalExcluirAberto(false);
-  };
-
-  // Função para mostrar notificações
-  const mostrarNotificacao = (message, type = "info", visible = true) => {
-    setNotificacao({ message, type, visible });
-    if (visible) {
-      setTimeout(() => {
-        setNotificacao((prev) => ({ ...prev, visible: false }));
-      }, 5000);
-    }
+    setErroExclusao(null);
   };
 
   return {
@@ -326,6 +345,7 @@ export default function useCasoDetalhes(casoId) {
     loadingCaso,
     error,
     userRole,
+    userId,
     casoEditado,
     modalEditarAberto,
     modalExcluirAberto,

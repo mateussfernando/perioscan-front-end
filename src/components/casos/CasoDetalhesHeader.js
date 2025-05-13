@@ -17,14 +17,15 @@ export default function CasoDetalhesHeader({
           <Pencil size={24} strokeWidth={1.5} />
           <span>Editar</span>
         </button>
-        <button
-          className="btn-minimalista btn-excluir-minimalista"
-          onClick={onExcluir}
-          disabled={!podeExcluir}
-        >
-          <Trash2 size={24} strokeWidth={1.5} />
-          <span>Excluir</span>
-        </button>
+        {podeExcluir && (
+          <button
+            className="btn-minimalista btn-excluir-minimalista"
+            onClick={onExcluir}
+          >
+            <Trash2 size={24} strokeWidth={1.5} />
+            <span>Excluir</span>
+          </button>
+        )}
         <button
           className="btn-minimalista btn-voltar-minimalista"
           onClick={onVoltar}

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AsideNavBar from "@/components/AsideNavBar";
 import "../styles/casos.css";
-import MobileHeader from "@/components/MobileHeader"
+import MobileHeader from "@/components/MobileHeader";
 
 import {
   Eye,
@@ -13,7 +13,6 @@ import {
   Loader,
   MapPin,
   FileText,
-  Bell,
   Search,
   Calendar,
 } from "lucide-react";
@@ -409,9 +408,7 @@ export default function MainCasos() {
         <main className="casos-content">
           <header className="casos-header">
             <h1>Gerenciamento de Casos</h1>
-            <div className="notificacao-icon">
-              {/* <Bell size={24} /> */}
-            </div>
+            <div className="notificacao-icon">{/* <Bell size={24} /> */}</div>
           </header>
 
           <div className="casos-filtros">
