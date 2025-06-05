@@ -6,6 +6,8 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
   const [evidencias, setEvidencias] = useState([])
   const [evidenciasFiltradas, setEvidenciasFiltradas] = useState([])
   const [loadingEvidencias, setLoadingEvidencias] = useState(true)
+  const [loadingLaudos, setLoadingLaudos] = useState(true)
+  const [tentativaCarregamento, setTentativaCarregamento] = useState(false)
   const [evidenciaAtiva, setEvidenciaAtiva] = useState(null)
   const [modalAberto, setModalAberto] = useState(false)
   const [modalAdicionarAberto, setModalAdicionarAberto] = useState(false)
@@ -14,8 +16,8 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
   const [evidenciaParaLaudo, setEvidenciaParaLaudo] = useState(null)
   const [evidenciaParaExcluir, setEvidenciaParaExcluir] = useState(null)
   const [laudosEvidencias, setLaudosEvidencias] = useState({})
-  const [gerandoLaudo, setGerandoLaudo] = useState(false)
-  const [baixandoPDF, setBaixandoPDF] = useState(false)
+  const [gerandoLaudo, setGerandoLaudo] = useState({})
+  const [baixandoPDF, setBaixandoPDF] = useState({})
   const [enviandoEvidencia, setEnviandoEvidencia] = useState(false)
   const [excluindoEvidencia, setExcluindoEvidencia] = useState(false)
   const [criandoLaudo, setCriandoLaudo] = useState(false)
@@ -38,7 +40,7 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
         throw new Error("Usuário não autenticado")
       }
 
-      // Usar a nova rota específica do caso
+      // Usar a rota específica do caso
       const response = await fetch(`https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}/evidence`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -49,6 +51,7 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
       if (!response.ok) {
         if (response.status === 404) {
           // Caso não tenha evidências, retornar array vazio
+          console.log("Nenhuma evidência encontrada para este caso")
           setEvidencias([])
           setEvidenciasFiltradas([])
           return
@@ -56,85 +59,155 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
         throw new Error(`Erro ao buscar evidências: ${response.status}`)
       }
 
-      const data = await response.json()
+      const textData = await response.text()
 
-      if (data.success && Array.isArray(data.data)) {
-        setEvidencias(data.data)
-        setEvidenciasFiltradas(data.data)
-      } else {
-        console.warn("Formato de resposta inesperado para evidências:", data)
+      // Verificar se a resposta está vazia
+      if (!textData) {
+        console.log("Resposta vazia ao buscar evidências")
+        setEvidencias([])
+        setEvidenciasFiltradas([])
+        return
+      }
+
+      try {
+        const data = JSON.parse(textData)
+
+        if (data.success && Array.isArray(data.data)) {
+          console.log(`Carregadas ${data.data.length} evidências`)
+          setEvidencias(data.data)
+          setEvidenciasFiltradas(data.data)
+        } else {
+          console.warn("Formato de resposta inesperado para evidências:", data)
+          setEvidencias([])
+          setEvidenciasFiltradas([])
+        }
+      } catch (parseError) {
+        console.error("Erro ao analisar resposta JSON:", parseError, "Texto recebido:", textData)
         setEvidencias([])
         setEvidenciasFiltradas([])
       }
     } catch (error) {
       console.error("Erro ao buscar evidências:", error)
-      mostrarNotificacao(`Erro ao carregar evidências: ${error.message}`, "erro")
       setEvidencias([])
       setEvidenciasFiltradas([])
     } finally {
       setLoadingEvidencias(false)
+      setTentativaCarregamento(true)
     }
-  }, [casoId, mostrarNotificacao])
+  }, [casoId])
 
   // Buscar relatórios de evidência do caso específico
   const fetchRelatoriosEvidencia = useCallback(async () => {
-    if (!casoId) return
+    if (!casoId) {
+      setLoadingLaudos(false)
+      return
+    }
 
     try {
+      setLoadingLaudos(true)
       const token = localStorage.getItem("token")
 
       if (!token) {
         throw new Error("Usuário não autenticado")
       }
 
-      // Usar a nova rota para relatórios de evidência específicos do caso
-      const response = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}/evidence-reports`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+      // Verificar se a rota de relatórios específicos do caso existe
+      try {
+        const response = await fetch(
+          `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}/evidence-reports`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           },
+        )
+
+        if (response.ok) {
+          const data = await response.json()
+
+          if (data.success && Array.isArray(data.data)) {
+            console.log(`Carregados ${data.data.length} relatórios de evidência`)
+            // Mapear relatórios por evidência
+            const laudosMap = {}
+            data.data.forEach((relatorio) => {
+              if (relatorio.evidence) {
+                laudosMap[relatorio.evidence] = relatorio._id || relatorio.id
+              }
+            })
+            setLaudosEvidencias(laudosMap)
+            return
+          }
+        }
+
+        // Se a nova rota não funcionar ou retornar erro, usar a abordagem alternativa
+        console.log("Usando abordagem alternativa para buscar relatórios")
+        await buscarRelatoriosPorEvidencia()
+      } catch (error) {
+        console.warn("Erro ao usar nova rota de relatórios, tentando abordagem alternativa:", error)
+        await buscarRelatoriosPorEvidencia()
+      }
+    } catch (error) {
+      console.error("Erro ao buscar relatórios de evidência:", error)
+      setLaudosEvidencias({})
+    } finally {
+      setLoadingLaudos(false)
+    }
+  }, [casoId])
+
+  // Método alternativo para buscar relatórios por evidência
+  const buscarRelatoriosPorEvidencia = async () => {
+    try {
+      const token = localStorage.getItem("token")
+
+      // Buscar todos os relatórios e filtrar manualmente
+      const response = await fetch(`https://perioscan-back-end-fhhq.onrender.com/api/evidence-reports`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      )
+      })
 
       if (!response.ok) {
-        if (response.status === 404) {
-          // Caso não tenha relatórios, retornar objeto vazio
-          setLaudosEvidencias({})
-          return
-        }
-        throw new Error(`Erro ao buscar relatórios de evidência: ${response.status}`)
+        throw new Error(`Erro ao buscar relatórios: ${response.status}`)
       }
 
       const data = await response.json()
 
       if (data.success && Array.isArray(data.data)) {
+        // Filtrar apenas relatórios relacionados às evidências do caso atual
+        const evidenciaIds = evidencias.map((ev) => ev._id || ev.id)
+
         // Mapear relatórios por evidência
         const laudosMap = {}
         data.data.forEach((relatorio) => {
-          if (relatorio.evidenceId) {
-            laudosMap[relatorio.evidenceId] = relatorio._id || relatorio.id
+          if (relatorio.evidence && evidenciaIds.includes(relatorio.evidence)) {
+            laudosMap[relatorio.evidence] = relatorio._id || relatorio.id
           }
         })
         setLaudosEvidencias(laudosMap)
-      } else {
-        console.warn("Formato de resposta inesperado para relatórios de evidência:", data)
-        setLaudosEvidencias({})
       }
     } catch (error) {
-      console.error("Erro ao buscar relatórios de evidência:", error)
+      console.error("Erro na abordagem alternativa:", error)
       setLaudosEvidencias({})
     }
-  }, [casoId])
+  }
 
   // Carregar dados quando o casoId mudar
   useEffect(() => {
     if (casoId) {
+      // Resetar estado de tentativa para permitir nova carga
+      setTentativaCarregamento(false)
       fetchEvidencias()
+    }
+  }, [casoId, fetchEvidencias])
+
+  // Carregar relatórios apenas após carregar evidências
+  useEffect(() => {
+    if (casoId && tentativaCarregamento && !loadingEvidencias) {
       fetchRelatoriosEvidencia()
     }
-  }, [casoId, fetchEvidencias, fetchRelatoriosEvidencia])
+  }, [casoId, tentativaCarregamento, loadingEvidencias, fetchRelatoriosEvidencia])
 
   // Função de busca
   const handleSearch = (termo) => {
@@ -145,8 +218,8 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
 
     const filtradas = evidencias.filter(
       (evidencia) =>
-        evidencia.name?.toLowerCase().includes(termo.toLowerCase()) ||
-        evidencia.description?.toLowerCase().includes(termo.toLowerCase()),
+        (evidencia.name?.toLowerCase() || "").includes(termo.toLowerCase()) ||
+        (evidencia.description?.toLowerCase() || "").includes(termo.toLowerCase()),
     )
     setEvidenciasFiltradas(filtradas)
   }
@@ -234,8 +307,8 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
         },
         body: JSON.stringify({
           ...dadosLaudo,
-          evidenceId: evidenciaParaLaudo._id || evidenciaParaLaudo.id,
-          caseId: casoId,
+          evidence: evidenciaParaLaudo._id || evidenciaParaLaudo.id,
+          case: casoId,
         }),
       })
 
@@ -270,12 +343,12 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
   }
 
   // Função para baixar PDF do laudo
-  const baixarPDF = async (evidenciaId) => {
-    setBaixandoPDF(true)
+  const baixarPDF = async (evidenciaId, laudoId) => {
+    // Atualizar estado para mostrar o loader para este laudo específico
+    setBaixandoPDF((prev) => ({ ...prev, [laudoId]: true }))
 
     try {
       const token = localStorage.getItem("token")
-      const laudoId = laudosEvidencias[evidenciaId]
 
       if (!token) {
         throw new Error("Usuário não autenticado")
@@ -311,7 +384,12 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
       console.error("Erro ao baixar PDF:", error)
       mostrarNotificacao(`Erro ao baixar PDF: ${error.message}`, "erro")
     } finally {
-      setBaixandoPDF(false)
+      // Remover o estado de loading para este laudo
+      setBaixandoPDF((prev) => {
+        const newState = { ...prev }
+        delete newState[laudoId]
+        return newState
+      })
     }
   }
 
@@ -371,7 +449,8 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
   }
 
   // Função para enviar evidência
-  const enviarEvidencia = async (formData) => {
+  const enviarEvidencia = async (e, dadosEvidencia) => {
+    e.preventDefault()
     setEnviandoEvidencia(true)
     setErroUpload(null)
 
@@ -382,36 +461,93 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
         throw new Error("Usuário não autenticado")
       }
 
-      // Adicionar o caseId ao formData
-      formData.append("caseId", casoId)
+      const { tipoEvidencia, descricaoEvidencia, conteudoTexto, imagemSelecionada, tipoImagem } = dadosEvidencia
+
+      // Validações
+      if (tipoEvidencia === "image" && !imagemSelecionada) {
+        throw new Error("Por favor, selecione uma imagem para upload")
+      }
+
+      if (tipoEvidencia === "text" && !conteudoTexto) {
+        throw new Error("Por favor, insira o conteúdo do texto")
+      }
+
+      if (!descricaoEvidencia) {
+        throw new Error("Por favor, insira uma descrição para a evidência")
+      }
+
+      // Para evidências do tipo imagem, primeiro fazemos upload da imagem
+      let imageUrl = null
+      if (tipoEvidencia === "image" && imagemSelecionada) {
+        const formData = new FormData()
+        formData.append("image", imagemSelecionada)
+        formData.append("evidenceType", "caso")
+        formData.append("case", casoId)
+
+        const uploadResponse = await fetch("https://perioscan-back-end-fhhq.onrender.com/api/upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        })
+
+        if (!uploadResponse.ok) {
+          throw new Error(`Falha ao fazer upload da imagem: ${uploadResponse.status}`)
+        }
+
+        const uploadData = await uploadResponse.json()
+
+        // Tentar encontrar a URL da imagem
+        if (uploadData.data && uploadData.data.url) {
+          imageUrl = uploadData.data.url
+        } else if (uploadData.url) {
+          imageUrl = uploadData.url
+        } else if (uploadData.imageUrl) {
+          imageUrl = uploadData.imageUrl
+        } else if (uploadData.data && uploadData.data.imageUrl) {
+          imageUrl = uploadData.data.imageUrl
+        } else {
+          throw new Error("A API de upload não retornou uma URL de imagem válida")
+        }
+      }
+
+      // Agora criamos a evidência
+      const evidenciaData = {
+        type: tipoEvidencia,
+        case: casoId,
+        description: descricaoEvidencia,
+        content: tipoEvidencia === "text" ? conteudoTexto : "",
+      }
+
+      // Adicionar campos específicos para evidências de imagem
+      if (tipoEvidencia === "image" && imageUrl) {
+        evidenciaData.imageUrl = imageUrl
+        evidenciaData.imageType = tipoImagem
+      }
 
       const response = await fetch("https://perioscan-back-end-fhhq.onrender.com/api/evidence", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: formData,
+        body: JSON.stringify(evidenciaData),
       })
 
       if (!response.ok) {
         const errorText = await response.text()
-        throw new Error(`Falha ao enviar evidência: ${response.status} - ${errorText}`)
+        throw new Error(`Falha ao criar evidência: ${response.status} - ${errorText}`)
       }
 
-      const data = await response.json()
+      // Recarregar evidências
+      await fetchEvidencias()
 
-      if (data.success) {
-        // Recarregar evidências
-        await fetchEvidencias()
+      // Fechar modal
+      fecharModalAdicionar()
 
-        // Fechar modal
-        fecharModalAdicionar()
-
-        // Mostrar notificação de sucesso
-        mostrarNotificacao("Evidência adicionada com sucesso!", "sucesso")
-      } else {
-        throw new Error(data.message || "Erro ao enviar evidência")
-      }
+      // Mostrar notificação de sucesso
+      mostrarNotificacao("Evidência adicionada com sucesso!", "sucesso")
     } catch (error) {
       console.error("Erro ao enviar evidência:", error)
       setErroUpload(`Falha ao enviar evidência: ${error.message}`)
@@ -423,7 +559,7 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
   return {
     evidencias,
     evidenciasFiltradas,
-    loadingEvidencias,
+    loadingEvidencias: loadingEvidencias || loadingLaudos,
     evidenciaAtiva,
     modalAberto,
     modalAdicionarAberto,
