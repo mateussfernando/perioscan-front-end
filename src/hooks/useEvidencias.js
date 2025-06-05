@@ -75,7 +75,7 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
             const data = JSON.parse(textData);
 
             if (data.success && Array.isArray(data.data)) {
-              // console.log("Evidências recebidas do backend:", data.data); // <-- pode remover
+              console.log("Evidências recebidas do backend:", data.data); // <-- pode remover
               setEvidencias(data.data);
               setEvidenciasFiltradas(data.data);
             } else {
@@ -123,40 +123,33 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
         throw new Error("Usuário não autenticado");
       }
 
-      try {
-        // Tenta buscar relatórios do caso específico
-        const response = await fetch(
-          `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}/evidence-reports`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-
-          if (data.success && Array.isArray(data.data)) {
-            const laudosMap = {};
-            data.data.forEach((relatorio) => {
-              if (relatorio.evidence) {
-                laudosMap[relatorio.evidence] = relatorio._id || relatorio.id;
-              }
-            });
-            setLaudosEvidencias(laudosMap);
-            return;
-          }
-        } else if (response.status !== 404) {
-          // Se não for 404, tenta abordagem alternativa
-          throw new Error(`Erro ao buscar relatórios: ${response.status}`);
+      // Sempre buscar laudos pela rota do caso específico
+      const response = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}/evidence-reports`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-        // Se 404, cai para abordagem alternativa
-        await buscarRelatoriosPorEvidencia(evidencias);
-      } catch (error) {
-        // Se erro na rota específica, tenta abordagem alternativa
-        await buscarRelatoriosPorEvidencia(evidencias);
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+
+        if (data.success && Array.isArray(data.data)) {
+          const laudosMap = {};
+          data.data.forEach((relatorio) => {
+            if (relatorio.evidence) {
+              laudosMap[relatorio.evidence] = relatorio._id || relatorio.id;
+            }
+          });
+          setLaudosEvidencias(laudosMap);
+        } else {
+          setLaudosEvidencias({});
+        }
+      } else {
+        setLaudosEvidencias({});
       }
     } catch (error) {
       console.error("Erro ao buscar relatórios de evidência:", error);
@@ -164,7 +157,7 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
     } finally {
       setLoadingLaudos(false);
     }
-  }, [casoId, evidencias]);
+  }, [casoId]);
 
   // Método alternativo para buscar relatórios por evidência
   const buscarRelatoriosPorEvidencia = async (evidenciasDoCaso = []) => {
