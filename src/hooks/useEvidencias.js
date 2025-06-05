@@ -123,9 +123,9 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
         throw new Error("Usuário não autenticado");
       }
 
-      // Sempre buscar laudos pela rota do caso específico
+      // Buscar laudos pela rota correta do backend
       const response = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}/evidence-reports`,
+        `https://perioscan-back-end-fhhq.onrender.com/api/evidence-reports/case/${casoId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
