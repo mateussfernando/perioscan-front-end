@@ -55,10 +55,8 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
       if (!response.ok) {
         if (response.status === 404) {
           // Caso não tenha evidências, retornar array vazio
-          console.log("Nenhuma evidência encontrada para este caso");
           setEvidencias([]);
           setEvidenciasFiltradas([]);
-          // Removido o return aqui para garantir que o finally sempre execute
         } else {
           throw new Error(`Erro ao buscar evidências: ${response.status}`);
         }
@@ -67,7 +65,6 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
 
         // Verificar se a resposta está vazia
         if (!textData) {
-          console.log("Resposta vazia ao buscar evidências");
           setEvidencias([]);
           setEvidenciasFiltradas([]);
         } else {
@@ -75,24 +72,21 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
             const data = JSON.parse(textData);
 
             if (data.success && Array.isArray(data.data)) {
-              console.log("Evidências recebidas do backend:", data.data); // <-- pode remover
-              setEvidencias(data.data);
-              setEvidenciasFiltradas(data.data);
+              // FILTRO EXTRA DE SEGURANÇA: só evidências do caso atual
+              const evidenciasDoCaso = data.data.filter((ev) => {
+                // ev.case pode ser string ou objeto
+                if (typeof ev.case === "string") return ev.case === casoId;
+                if (typeof ev.case === "object" && ev.case !== null)
+                  return ev.case._id === casoId || ev.case.id === casoId;
+                return false;
+              });
+              setEvidencias(evidenciasDoCaso);
+              setEvidenciasFiltradas(evidenciasDoCaso);
             } else {
-              console.warn(
-                "Formato de resposta inesperado para evidências:",
-                data
-              );
               setEvidencias([]);
               setEvidenciasFiltradas([]);
             }
           } catch (parseError) {
-            console.error(
-              "Erro ao analisar resposta JSON:",
-              parseError,
-              "Texto recebido:",
-              textData
-            );
             setEvidencias([]);
             setEvidenciasFiltradas([]);
           }
