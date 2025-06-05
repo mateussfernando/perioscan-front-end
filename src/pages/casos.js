@@ -1,402 +1,431 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import AsideNavBar from "@/components/AsideNavBar";
-import "../styles/casos.css";
-import MobileHeader from "@/components/MobileHeader";
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import AsideNavBar from "@/components/AsideNavBar"
+import "../styles/casos.css"
+import MobileHeader from "@/components/MobileHeader"
 
-import {
-  Eye,
-  Plus,
-  X,
-  Loader,
-  MapPin,
-  FileText,
-  Search,
-  Calendar,
-} from "lucide-react";
-import MobileBottomNav from "@/components/MobileBottomNav";
-import ControleDeRota from "@/components/ControleDeRota";
+import { Eye, Plus, X, Loader, MapPin, FileText, Search, Calendar } from "lucide-react"
+import MobileBottomNav from "@/components/MobileBottomNav"
+import ControleDeRota from "@/components/ControleDeRota"
 
 export default function MainCasos() {
-  const [casos, setCasos] = useState([]);
-  const [casosFiltrados, setCasosFiltrados] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [userRole, setUserRole] = useState("");
-  const [modalNovoAberto, setModalNovoAberto] = useState(false);
+  const [casos, setCasos] = useState([])
+  const [casosFiltrados, setCasosFiltrados] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [userRole, setUserRole] = useState("")
+  const [modalNovoAberto, setModalNovoAberto] = useState(false)
   const [novoCaso, setNovoCaso] = useState({
     title: "",
     description: "",
     location: "",
     status: "em andamento",
     occurrenceDate: "",
-    type: "outro", // Valor padrão
-    tipoPersonalizado: "", // Novo campo para armazenar o tipo personalizado
-  });
-  const [criandoCaso, setCriandoCaso] = useState(false);
-  const [erroCriacao, setErroCriacao] = useState(null);
-  const [termoBusca, setTermoBusca] = useState("");
-  const [filtroAtivo, setFiltroAtivo] = useState("todos");
+    type: "outro",
+    tipoPersonalizado: "",
+    victim: {
+      nic: "",
+      name: "",
+      gender: "",
+      age: "",
+      birthDate: "",
+      estimatedAge: {
+        min: "",
+        max: "",
+        methodology: "",
+      },
+      document: {
+        type: "",
+        number: "",
+      },
+      ethnicity: "não_declarada",
+      identificationType: "",
+      referenceCode: "",
+    },
+  })
+  const [criandoCaso, setCriandoCaso] = useState(false)
+  const [erroCriacao, setErroCriacao] = useState(null)
+  const [termoBusca, setTermoBusca] = useState("")
+  const [filtroAtivo, setFiltroAtivo] = useState("todos")
   const [filtrosAtivos, setFiltrosAtivos] = useState({
     status: "",
     dataInicio: "",
     dataFim: "",
     criadoPor: "",
-  });
-  const router = useRouter();
+  })
+  const router = useRouter()
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    const token = localStorage.getItem("token")
+    const role = localStorage.getItem("role")
 
-    setUserRole(role || "");
+    setUserRole(role || "")
 
     if (!token) {
-      router.push("/login");
-      return;
+      router.push("/login")
+      return
     }
 
     async function fetchCasos() {
       try {
-        console.log("Iniciando busca de casos...");
+        console.log("Iniciando busca de casos...")
 
-        const response = await fetch(
-          "https://perioscan-back-end-fhhq.onrender.com/api/cases",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch("https://perioscan-back-end-fhhq.onrender.com/api/cases", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
 
-        console.log("Resposta recebida:", response);
+        console.log("Resposta recebida:", response)
 
         if (response.status === 401) {
-          localStorage.removeItem("token");
-          router.push("/login");
-          return;
+          localStorage.removeItem("token")
+          router.push("/login")
+          return
         }
 
         if (response.status === 404) {
-          setError("Endpoint não encontrado (404) - Verifique a URL da API");
-          setCasos([]);
-          return;
+          setError("Endpoint não encontrado (404) - Verifique a URL da API")
+          setCasos([])
+          return
         }
 
         if (!response.ok) {
-          throw new Error(`Erro HTTP! status: ${response.status}`);
+          throw new Error(`Erro HTTP! status: ${response.status}`)
         }
 
-        const textData = await response.text();
-        console.log("Resposta em texto:", textData);
+        const textData = await response.text()
+        console.log("Resposta em texto:", textData)
 
-        const responseObject = textData ? JSON.parse(textData) : {};
-        console.log("Dados recebidos:", responseObject);
+        const responseObject = textData ? JSON.parse(textData) : {}
+        console.log("Dados recebidos:", responseObject)
 
         // Verificar se a resposta tem a propriedade 'data' e é um array
         if (responseObject.success && Array.isArray(responseObject.data)) {
           // Adicionar log para verificar os status dos casos recebidos
-          const statusList = responseObject.data.map((caso) => caso.status);
-          console.log("Status dos casos recebidos:", statusList);
+          const statusList = responseObject.data.map((caso) => caso.status)
+          console.log("Status dos casos recebidos:", statusList)
 
-          setCasos(responseObject.data);
-          setCasosFiltrados(responseObject.data);
+          setCasos(responseObject.data)
+          setCasosFiltrados(responseObject.data)
         } else {
-          console.error("Formato de resposta inesperado:", responseObject);
-          setCasos([]);
-          setCasosFiltrados([]);
+          console.error("Formato de resposta inesperado:", responseObject)
+          setCasos([])
+          setCasosFiltrados([])
         }
 
-        setError(null);
+        setError(null)
       } catch (error) {
-        console.error("Erro completo:", error);
-        setError(`Falha ao carregar casos: ${error.message}`);
-        setCasos([]);
-        setCasosFiltrados([]);
+        console.error("Erro completo:", error)
+        setError(`Falha ao carregar casos: ${error.message}`)
+        setCasos([])
+        setCasosFiltrados([])
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    fetchCasos();
-  }, [router]);
+    fetchCasos()
+  }, [router])
 
   // Efeito para filtrar casos quando os filtros ou termo de busca mudam
   useEffect(() => {
-    filtrarCasos();
-  }, [casos, termoBusca, filtrosAtivos, filtroAtivo]);
+    filtrarCasos()
+  }, [casos, termoBusca, filtrosAtivos, filtroAtivo])
 
   // Função para filtrar casos
   const filtrarCasos = () => {
     if (!casos.length) {
-      setCasosFiltrados([]);
-      return;
+      setCasosFiltrados([])
+      return
     }
 
-    console.log("Aplicando filtros aos casos:", casos.length);
-    console.log("Filtro ativo:", filtroAtivo);
-    console.log("Filtros ativos:", filtrosAtivos);
+    console.log("Aplicando filtros aos casos:", casos.length)
+    console.log("Filtro ativo:", filtroAtivo)
+    console.log("Filtros ativos:", filtrosAtivos)
 
     // Fazer uma cópia dos casos para não modificar o original
-    let resultado = [...casos];
+    let resultado = [...casos]
 
     // Filtrar por termo de busca
     if (termoBusca) {
-      const termo = termoBusca.toLowerCase();
+      const termo = termoBusca.toLowerCase()
       resultado = resultado.filter(
         (caso) =>
           (caso.title && caso.title.toLowerCase().includes(termo)) ||
-          (caso.location && caso.location.toLowerCase().includes(termo))
-      );
+          (caso.location && caso.location.toLowerCase().includes(termo)),
+      )
     }
 
     // Filtrar por status - corrigir a comparação para ser case-insensitive
     if (filtrosAtivos.status) {
-      console.log("Filtrando por status:", filtrosAtivos.status);
+      console.log("Filtrando por status:", filtrosAtivos.status)
       resultado = resultado.filter((caso) => {
         // Normalizar ambos os valores para comparação case-insensitive
-        const casoStatus = caso.status ? caso.status.toLowerCase() : "";
-        const filtroStatus = filtrosAtivos.status.toLowerCase();
+        const casoStatus = caso.status ? caso.status.toLowerCase() : ""
+        const filtroStatus = filtrosAtivos.status.toLowerCase()
 
-        console.log(
-          `Comparando status do caso: "${casoStatus}" com filtro: "${filtroStatus}"`
-        );
-        return casoStatus === filtroStatus;
-      });
+        console.log(`Comparando status do caso: "${casoStatus}" com filtro: "${filtroStatus}"`)
+        return casoStatus === filtroStatus
+      })
     }
 
     // Filtrar por data de abertura
     if (filtrosAtivos.dataInicio) {
-      const dataInicio = new Date(filtrosAtivos.dataInicio);
+      const dataInicio = new Date(filtrosAtivos.dataInicio)
       resultado = resultado.filter((caso) => {
-        const dataCaso = new Date(caso.openDate);
-        return dataCaso >= dataInicio;
-      });
+        const dataCaso = new Date(caso.openDate)
+        return dataCaso >= dataInicio
+      })
     }
 
     if (filtrosAtivos.dataFim) {
-      const dataFim = new Date(filtrosAtivos.dataFim);
-      dataFim.setHours(23, 59, 59, 999); // Fim do dia
+      const dataFim = new Date(filtrosAtivos.dataFim)
+      dataFim.setHours(23, 59, 59, 999) // Fim do dia
       resultado = resultado.filter((caso) => {
-        const dataCaso = new Date(caso.openDate);
-        return dataCaso <= dataFim;
-      });
+        const dataCaso = new Date(caso.openDate)
+        return dataCaso <= dataFim
+      })
     }
 
     // Filtrar por criador
     if (filtrosAtivos.criadoPor) {
-      const termoCriador = filtrosAtivos.criadoPor.toLowerCase();
+      const termoCriador = filtrosAtivos.criadoPor.toLowerCase()
       resultado = resultado.filter(
-        (caso) =>
-          caso.createdBy?.name &&
-          caso.createdBy.name.toLowerCase().includes(termoCriador)
-      );
+        (caso) => caso.createdBy?.name && caso.createdBy.name.toLowerCase().includes(termoCriador),
+      )
     }
 
-    console.log("Casos filtrados:", resultado.length);
-    setCasosFiltrados(resultado);
-  };
+    console.log("Casos filtrados:", resultado.length)
+    setCasosFiltrados(resultado)
+  }
 
   // Funções para lidar com busca e filtros
   const handleSearch = (termo) => {
-    setTermoBusca(termo);
-  };
+    setTermoBusca(termo)
+  }
 
   const handleFilter = (filtros) => {
-    setFiltrosAtivos(filtros);
-  };
+    setFiltrosAtivos(filtros)
+  }
 
   // Verifica se o usuário tem permissão para criar casos
   const podeAdicionarCaso = () => {
-    return userRole === "admin" || userRole === "perito";
-  };
+    return userRole === "admin" || userRole === "perito"
+  }
 
   const formatarData = (dataISO) => {
-    if (!dataISO) return "--";
-    const data = new Date(dataISO);
+    if (!dataISO) return "--"
+    const data = new Date(dataISO)
     return data.toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
-    });
-  };
+    })
+  }
 
   // Função para visualizar detalhes de um caso
   const verDetalhesCaso = (id) => {
     // Navegar para a página de detalhes do caso
-    router.push(`/casos/${id}`);
-  };
+    router.push(`/casos/${id}`)
+  }
 
   // Função para obter a classe CSS baseada no status
   const getStatusClassName = (status) => {
-    if (!status) return "status-desconhecido";
+    if (!status) return "status-desconhecido"
 
     // Normalize o status para minúsculas e sem espaços
-    const normalizedStatus = status.toLowerCase().replace(/\s+/g, "-");
+    const normalizedStatus = status.toLowerCase().replace(/\s+/g, "-")
 
     switch (normalizedStatus) {
       case "em-andamento":
-        return "status-em-andamento";
+        return "status-em-andamento"
       case "finalizado":
-        return "status-finalizado";
+        return "status-finalizado"
       case "pendente":
-        return "status-pendente";
+        return "status-pendente"
       case "arquivado":
-        return "status-arquivado";
+        return "status-arquivado"
       case "cancelado":
-        return "status-cancelado";
+        return "status-cancelado"
       default:
-        return "status-outro";
+        return "status-outro"
     }
-  };
+  }
 
   // Função para formatar o tipo do caso
   const formatarTipoCaso = (tipo) => {
-    if (!tipo) return "Outro";
+    if (!tipo) return "Outro"
 
     const tipos = {
       acidente: "Acidente",
       "identificação de vítima": "Identificação de Vítima",
       "exame criminal": "Exame Criminal",
       outro: "Outro",
-    };
+    }
 
-    return tipos[tipo] || tipo;
-  };
+    return tipos[tipo] || tipo
+  }
 
   // Função para abrir o modal de novo caso
   const abrirModalNovo = () => {
     if (!podeAdicionarCaso()) {
-      alert("Apenas administradores e peritos podem criar novos casos.");
-      return;
+      alert("Apenas administradores e peritos podem criar novos casos.")
+      return
     }
 
-    // Resetar o formulário com o valor correto
     setNovoCaso({
       title: "",
       description: "",
       location: "",
-      status: "em andamento", // Valor correto em minúsculas
+      status: "em andamento",
       occurrenceDate: "",
       type: "outro",
       tipoPersonalizado: "",
-    });
-    setErroCriacao(null);
-    setModalNovoAberto(true);
-  };
+      victim: {
+        nic: "",
+        name: "",
+        gender: "",
+        age: "",
+        birthDate: "",
+        estimatedAge: {
+          min: "",
+          max: "",
+          methodology: "",
+        },
+        document: {
+          type: "",
+          number: "",
+        },
+        ethnicity: "não_declarada",
+        identificationType: "",
+        referenceCode: "",
+      },
+    })
+    setErroCriacao(null)
+    setModalNovoAberto(true)
+  }
 
   // Função para fechar o modal de novo caso
   const fecharModalNovo = () => {
-    setModalNovoAberto(false);
-  };
+    setModalNovoAberto(false)
+  }
 
   // Função para lidar com mudanças nos campos do formulário
   const handleCasoChange = (e) => {
-    const { name, value } = e.target;
-    setNovoCaso((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+    const { name, value } = e.target
+
+    if (name.startsWith("victim.")) {
+      const fieldPath = name.split(".")
+      setNovoCaso((prev) => {
+        const newState = { ...prev }
+        let current = newState
+
+        for (let i = 0; i < fieldPath.length - 1; i++) {
+          if (!current[fieldPath[i]]) {
+            current[fieldPath[i]] = {}
+          }
+          current = current[fieldPath[i]]
+        }
+
+        current[fieldPath[fieldPath.length - 1]] = value
+        return newState
+      })
+    } else {
+      setNovoCaso((prev) => ({
+        ...prev,
+        [name]: value,
+      }))
+    }
+  }
 
   // Função para criar um novo caso
   const criarCaso = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!novoCaso.title) {
-      setErroCriacao("O título do caso é obrigatório.");
-      return;
+      setErroCriacao("O título do caso é obrigatório.")
+      return
     }
 
-    setCriandoCaso(true);
-    setErroCriacao(null);
+    setCriandoCaso(true)
+    setErroCriacao(null)
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token")
 
       // Preparar os dados para envio, tratando o tipo personalizado
-      const dadosParaEnviar = { ...novoCaso };
+      const dadosParaEnviar = { ...novoCaso }
 
       // Se o tipo for "outro" e houver um valor personalizado, use-o como tipo
       if (novoCaso.type === "outro" && novoCaso.tipoPersonalizado.trim()) {
-        dadosParaEnviar.type = novoCaso.tipoPersonalizado.trim();
+        dadosParaEnviar.type = novoCaso.tipoPersonalizado.trim()
       }
 
       // Remover o campo tipoPersonalizado antes de enviar para o backend
-      delete dadosParaEnviar.tipoPersonalizado;
+      delete dadosParaEnviar.tipoPersonalizado
 
       // Log detalhado para depuração
-      console.log(
-        "Enviando dados do novo caso:",
-        JSON.stringify(dadosParaEnviar, null, 2)
-      );
-      console.log("Status sendo enviado:", dadosParaEnviar.status);
+      console.log("Enviando dados do novo caso:", JSON.stringify(dadosParaEnviar, null, 2))
+      console.log("Status sendo enviado:", dadosParaEnviar.status)
 
-      const response = await fetch(
-        "https://perioscan-back-end-fhhq.onrender.com/api/cases",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dadosParaEnviar),
-        }
-      );
+      const response = await fetch("https://perioscan-back-end-fhhq.onrender.com/api/cases", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dadosParaEnviar),
+      })
 
       // Capturar a resposta completa para debug
-      const responseText = await response.text();
-      console.log("Resposta bruta da criação do caso:", responseText);
+      const responseText = await response.text()
+      console.log("Resposta bruta da criação do caso:", responseText)
 
       if (!response.ok) {
-        console.error("Resposta de erro ao criar caso:", responseText);
-        throw new Error(
-          `Falha ao criar caso: ${response.status} ${response.statusText}`
-        );
+        console.error("Resposta de erro ao criar caso:", responseText)
+        throw new Error(`Falha ao criar caso: ${response.status} ${response.statusText}`)
       }
 
       // Tentar analisar a resposta como JSON
-      let casoCriado;
+      let casoCriado
       try {
-        casoCriado = JSON.parse(responseText);
+        casoCriado = JSON.parse(responseText)
       } catch (e) {
-        console.error("Erro ao analisar resposta JSON da criação do caso:", e);
+        console.error("Erro ao analisar resposta JSON da criação do caso:", e)
         // Continuar mesmo com erro de parsing
       }
 
-      console.log("Caso criado com sucesso:", casoCriado);
+      console.log("Caso criado com sucesso:", casoCriado)
 
       // Fechar o modal
-      fecharModalNovo();
+      fecharModalNovo()
 
       // Recarregar a lista de casos
-      const casosResponse = await fetch(
-        "https://perioscan-back-end-fhhq.onrender.com/api/cases",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const casosResponse = await fetch("https://perioscan-back-end-fhhq.onrender.com/api/cases", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
 
       if (casosResponse.ok) {
-        const casosData = await casosResponse.json();
+        const casosData = await casosResponse.json()
         if (casosData.success && Array.isArray(casosData.data)) {
-          setCasos(casosData.data);
-          setCasosFiltrados(casosData.data);
+          setCasos(casosData.data)
+          setCasosFiltrados(casosData.data)
         }
       }
     } catch (error) {
-      console.error("Erro ao criar caso:", error);
-      setErroCriacao(`Falha ao criar caso: ${error.message}`);
+      console.error("Erro ao criar caso:", error)
+      setErroCriacao(`Falha ao criar caso: ${error.message}`)
     } finally {
-      setCriandoCaso(false);
+      setCriandoCaso(false)
     }
-  };
+  }
 
   return (
     <ControleDeRota>
@@ -416,8 +445,8 @@ export default function MainCasos() {
               <button
                 className={filtroAtivo === "todos" ? "active" : ""}
                 onClick={() => {
-                  setFiltroAtivo("todos");
-                  setFiltrosAtivos({ ...filtrosAtivos, status: "" });
+                  setFiltroAtivo("todos")
+                  setFiltrosAtivos({ ...filtrosAtivos, status: "" })
                 }}
               >
                 Todos
@@ -425,11 +454,11 @@ export default function MainCasos() {
               <button
                 className={filtroAtivo === "andamento" ? "active" : ""}
                 onClick={() => {
-                  setFiltroAtivo("andamento");
+                  setFiltroAtivo("andamento")
                   setFiltrosAtivos({
                     ...filtrosAtivos,
                     status: "em andamento",
-                  }); // Valor correto em minúsculas
+                  }) // Valor correto em minúsculas
                 }}
               >
                 Em Andamento
@@ -437,8 +466,8 @@ export default function MainCasos() {
               <button
                 className={filtroAtivo === "finalizados" ? "active" : ""}
                 onClick={() => {
-                  setFiltroAtivo("finalizados");
-                  setFiltrosAtivos({ ...filtrosAtivos, status: "finalizado" }); // Valor correto em minúsculas
+                  setFiltroAtivo("finalizados")
+                  setFiltrosAtivos({ ...filtrosAtivos, status: "finalizado" }) // Valor correto em minúsculas
                 }}
               >
                 Finalizados
@@ -460,16 +489,10 @@ export default function MainCasos() {
 
           <div className="acoes-topo">
             <button
-              className={`btn-novo-caso ${
-                !podeAdicionarCaso() ? "btn-disabled" : ""
-              }`}
+              className={`btn-novo-caso ${!podeAdicionarCaso() ? "btn-disabled" : ""}`}
               onClick={abrirModalNovo}
               disabled={!podeAdicionarCaso()}
-              title={
-                !podeAdicionarCaso()
-                  ? "Apenas administradores e peritos podem criar casos"
-                  : "Criar novo caso"
-              }
+              title={!podeAdicionarCaso() ? "Apenas administradores e peritos podem criar casos" : "Criar novo caso"}
             >
               <Plus size={16} />
               Novo caso
@@ -486,6 +509,7 @@ export default function MainCasos() {
                 <thead>
                   <tr>
                     <th>Título</th>
+                    <th>Vítima</th>
                     <th>Tipo</th>
                     <th>Local</th>
                     <th>Data abertura</th>
@@ -500,17 +524,31 @@ export default function MainCasos() {
                     casosFiltrados.map((caso) => (
                       <tr key={caso._id}>
                         <td>{caso.title || "--"}</td>
+                        <td>
+                          {caso.victim?.name ? (
+                            <div className="victim-info">
+                              <div className="victim-name">{caso.victim.name}</div>
+                              {caso.victim.identificationType && (
+                                <div className="victim-status">
+                                  <span
+                                    className={`identificacao-${caso.victim.identificationType?.replace("_", "-")}`}
+                                  >
+                                    {caso.victim.identificationType === "identificada" ? "ID" : "NÃO ID"}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            "--"
+                          )}
+                        </td>
                         <td>{formatarTipoCaso(caso.type) || "--"}</td>
                         <td>{caso.location || "--"}</td>
                         <td>{formatarData(caso.openDate)}</td>
                         <td>{formatarData(caso.closeDate)}</td>
                         <td>{caso.createdBy?.name || "--"}</td>
                         <td>
-                          <span
-                            className={`status-badge ${getStatusClassName(
-                              caso.status
-                            )}`}
-                          >
+                          <span className={`status-badge ${getStatusClassName(caso.status)}`}>
                             {caso.status || "--"}
                           </span>
                         </td>
@@ -528,7 +566,7 @@ export default function MainCasos() {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" className="nenhum-resultado">
+                      <td colSpan="9" className="nenhum-resultado">
                         {casos.length === 0
                           ? "Nenhum caso encontrado."
                           : "Nenhum caso corresponde aos filtros aplicados."}
@@ -574,16 +612,9 @@ export default function MainCasos() {
                   {/* Tipo do caso */}
                   <div className="form-group">
                     <label htmlFor="type">Tipo do Caso</label>
-                    <select
-                      id="type"
-                      name="type"
-                      value={novoCaso.type}
-                      onChange={handleCasoChange}
-                    >
+                    <select id="type" name="type" value={novoCaso.type} onChange={handleCasoChange}>
                       <option value="acidente">Acidente</option>
-                      <option value="identificação de vítima">
-                        Identificação de Vítima
-                      </option>
+                      <option value="identificação de vítima">Identificação de Vítima</option>
                       <option value="exame criminal">Exame Criminal</option>
                       <option value="outro">Outro</option>
                     </select>
@@ -592,9 +623,7 @@ export default function MainCasos() {
                   {/* Campo para tipo personalizado - aparece apenas quando "outro" está selecionado */}
                   {novoCaso.type === "outro" && (
                     <div className="form-group">
-                      <label htmlFor="tipoPersonalizado">
-                        Especifique o Tipo
-                      </label>
+                      <label htmlFor="tipoPersonalizado">Especifique o Tipo</label>
                       <input
                         type="text"
                         id="tipoPersonalizado"
@@ -640,12 +669,7 @@ export default function MainCasos() {
                   {/* Status */}
                   <div className="form-group">
                     <label htmlFor="status">Status</label>
-                    <select
-                      id="status"
-                      name="status"
-                      value={novoCaso.status}
-                      onChange={handleCasoChange}
-                    >
+                    <select id="status" name="status" value={novoCaso.status} onChange={handleCasoChange}>
                       <option value="em andamento">Em Andamento</option>
                       <option value="finalizado">Finalizado</option>
                       <option value="arquivado">Arquivado</option>
@@ -665,6 +689,210 @@ export default function MainCasos() {
                     ></textarea>
                   </div>
 
+                  {/* Seção da Vítima */}
+                  <div className="form-section">
+                    <h4>Informações da Vítima</h4>
+
+                    {/* Tipo de Identificação */}
+                    <div className="form-group">
+                      <label htmlFor="victim.identificationType">Tipo de Identificação</label>
+                      <select
+                        id="victim.identificationType"
+                        name="victim.identificationType"
+                        value={novoCaso.victim.identificationType}
+                        onChange={handleCasoChange}
+                        required
+                      >
+                        <option value="">Selecione...</option>
+                        <option value="identificada">Identificada</option>
+                        <option value="não_identificada">Não Identificada</option>
+                      </select>
+                    </div>
+
+                    {/* Nome da Vítima */}
+                    <div className="form-group">
+                      <label htmlFor="victim.name">Nome da Vítima</label>
+                      <input
+                        type="text"
+                        id="victim.name"
+                        name="victim.name"
+                        value={novoCaso.victim.name}
+                        onChange={handleCasoChange}
+                        placeholder="Nome completo da vítima"
+                        required
+                        maxLength={200}
+                      />
+                    </div>
+
+                    {/* NIC */}
+                    <div className="form-group">
+                      <label htmlFor="victim.nic">NIC (Número de Identificação Criminal)</label>
+                      <input
+                        type="text"
+                        id="victim.nic"
+                        name="victim.nic"
+                        value={novoCaso.victim.nic}
+                        onChange={handleCasoChange}
+                        placeholder="Número de identificação criminal"
+                      />
+                    </div>
+
+                    {/* Código de Referência - aparece apenas quando não identificada */}
+                    {novoCaso.victim.identificationType === "não_identificada" && (
+                      <div className="form-group">
+                        <label htmlFor="victim.referenceCode">Código de Referência</label>
+                        <input
+                          type="text"
+                          id="victim.referenceCode"
+                          name="victim.referenceCode"
+                          value={novoCaso.victim.referenceCode}
+                          onChange={handleCasoChange}
+                          placeholder="Código de referência para vítima não identificada"
+                          required
+                        />
+                      </div>
+                    )}
+
+                    {/* Gênero */}
+                    <div className="form-group">
+                      <label htmlFor="victim.gender">Gênero</label>
+                      <select
+                        id="victim.gender"
+                        name="victim.gender"
+                        value={novoCaso.victim.gender}
+                        onChange={handleCasoChange}
+                        required
+                      >
+                        <option value="">Selecione...</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="indeterminado">Indeterminado</option>
+                      </select>
+                    </div>
+
+                    {/* Idade */}
+                    <div className="form-group">
+                      <label htmlFor="victim.age">Idade</label>
+                      <input
+                        type="number"
+                        id="victim.age"
+                        name="victim.age"
+                        value={novoCaso.victim.age}
+                        onChange={handleCasoChange}
+                        placeholder="Idade da vítima"
+                        min="0"
+                        max="150"
+                      />
+                    </div>
+
+                    {/* Data de Nascimento */}
+                    <div className="form-group">
+                      <label htmlFor="victim.birthDate">Data de Nascimento</label>
+                      <input
+                        type="date"
+                        id="victim.birthDate"
+                        name="victim.birthDate"
+                        value={novoCaso.victim.birthDate}
+                        onChange={handleCasoChange}
+                      />
+                    </div>
+
+                    {/* Etnia */}
+                    <div className="form-group">
+                      <label htmlFor="victim.ethnicity">Etnia</label>
+                      <select
+                        id="victim.ethnicity"
+                        name="victim.ethnicity"
+                        value={novoCaso.victim.ethnicity}
+                        onChange={handleCasoChange}
+                      >
+                        <option value="não_declarada">Não Declarada</option>
+                        <option value="branca">Branca</option>
+                        <option value="preta">Preta</option>
+                        <option value="parda">Parda</option>
+                        <option value="amarela">Amarela</option>
+                        <option value="indígena">Indígena</option>
+                        <option value="não_identificada">Não Identificada</option>
+                      </select>
+                    </div>
+
+                    {/* Tipo de Documento */}
+                    <div className="form-group">
+                      <label htmlFor="victim.document.type">Tipo de Documento</label>
+                      <select
+                        id="victim.document.type"
+                        name="victim.document.type"
+                        value={novoCaso.victim.document.type}
+                        onChange={handleCasoChange}
+                      >
+                        <option value="">Selecione...</option>
+                        <option value="cpf">CPF</option>
+                        <option value="rg">RG</option>
+                        <option value="cnh">CNH</option>
+                        <option value="passaporte">Passaporte</option>
+                        <option value="certidao_nascimento">Certidão de Nascimento</option>
+                        <option value="outro">Outro</option>
+                      </select>
+                    </div>
+
+                    {/* Número do Documento */}
+                    <div className="form-group">
+                      <label htmlFor="victim.document.number">Número do Documento</label>
+                      <input
+                        type="text"
+                        id="victim.document.number"
+                        name="victim.document.number"
+                        value={novoCaso.victim.document.number}
+                        onChange={handleCasoChange}
+                        placeholder="Número do documento"
+                        maxLength={50}
+                      />
+                    </div>
+
+                    {/* Idade Estimada */}
+                    <div className="form-group-row">
+                      <div className="form-group">
+                        <label htmlFor="victim.estimatedAge.min">Idade Estimada (Mín)</label>
+                        <input
+                          type="number"
+                          id="victim.estimatedAge.min"
+                          name="victim.estimatedAge.min"
+                          value={novoCaso.victim.estimatedAge.min}
+                          onChange={handleCasoChange}
+                          placeholder="Idade mínima"
+                          min="0"
+                          max="150"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="victim.estimatedAge.max">Idade Estimada (Máx)</label>
+                        <input
+                          type="number"
+                          id="victim.estimatedAge.max"
+                          name="victim.estimatedAge.max"
+                          value={novoCaso.victim.estimatedAge.max}
+                          onChange={handleCasoChange}
+                          placeholder="Idade máxima"
+                          min="0"
+                          max="150"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Metodologia da Idade Estimada */}
+                    <div className="form-group">
+                      <label htmlFor="victim.estimatedAge.methodology">Metodologia da Idade Estimada</label>
+                      <textarea
+                        id="victim.estimatedAge.methodology"
+                        name="victim.estimatedAge.methodology"
+                        value={novoCaso.victim.estimatedAge.methodology}
+                        onChange={handleCasoChange}
+                        placeholder="Descreva a metodologia utilizada para estimar a idade"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
                   {/* Mensagem de erro */}
                   {erroCriacao && (
                     <div className="form-error">
@@ -674,19 +902,10 @@ export default function MainCasos() {
 
                   {/* Botões de ação */}
                   <div className="form-actions">
-                    <button
-                      type="button"
-                      className="btn-cancelar"
-                      onClick={fecharModalNovo}
-                      disabled={criandoCaso}
-                    >
+                    <button type="button" className="btn-cancelar" onClick={fecharModalNovo} disabled={criandoCaso}>
                       Cancelar
                     </button>
-                    <button
-                      type="submit"
-                      className="btn-salvar"
-                      disabled={criandoCaso}
-                    >
+                    <button type="submit" className="btn-salvar" disabled={criandoCaso}>
                       {criandoCaso ? (
                         <>
                           <Loader size={16} className="spinner" />
@@ -707,5 +926,5 @@ export default function MainCasos() {
         )}
       </div>
     </ControleDeRota>
-  );
+  )
 }

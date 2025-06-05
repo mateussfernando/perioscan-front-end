@@ -224,6 +224,50 @@
   font-family: "Inter", sans-serif;
 }
 
+/* Estilos específicos para informações da vítima na página de detalhes */
+.victim-section {
+  background-color: #f8f8f8;
+  border-left: 4px solid #b99f81;
+  margin-top: 2rem;
+}
+
+.victim-section h2 {
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.victim-section h2::before {
+  content: "👤";
+  font-size: 1.2em;
+}
+
+.victim-section .info-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.victim-section .info-item:last-child {
+  border-bottom: none;
+}
+
+.identificacao-identificada {
+  background-color: #e8eee6;
+  color: #62725c;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.identificacao-não-identificada {
+  background-color: #f8e6e8;
+  color: #a52e40;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
 /* Classes de status */
 .status-em-andamento,
 .status-finalizado,
