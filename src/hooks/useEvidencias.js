@@ -108,6 +108,47 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
     }
   }, [casoId]);
 
+  // Método alternativo para buscar relatórios por evidência
+  const buscarRelatoriosPorEvidencia = async (evidenciasDoCaso = []) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      // Buscar todos os relatórios e filtrar manualmente
+      const response = await fetch(
+        `https://perioscan-back-end-fhhq.onrender.com/api/evidence-reports`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Erro ao buscar relatórios: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success && Array.isArray(data.data)) {
+        // Filtrar apenas relatórios relacionados às evidências do caso atual
+        const evidenciaIds = evidenciasDoCaso.map((ev) => ev._id || ev.id);
+
+        // Mapear relatórios por evidência
+        const laudosMap = {};
+        data.data.forEach((relatorio) => {
+          if (relatorio.evidence && evidenciaIds.includes(relatorio.evidence)) {
+            laudosMap[relatorio.evidence] = relatorio._id || relatorio.id;
+          }
+        });
+        setLaudosEvidencias(laudosMap);
+      }
+    } catch (error) {
+      console.error("Erro na abordagem alternativa:", error);
+      setLaudosEvidencias({});
+    }
+  };
+
   // Buscar relatórios de evidência do caso específico
   const fetchRelatoriosEvidencia = useCallback(async () => {
     if (!casoId) {
@@ -156,13 +197,13 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
 
         // Se a nova rota não funcionar ou retornar erro, usar a abordagem alternativa
         console.log("Usando abordagem alternativa para buscar relatórios");
-        await buscarRelatoriosPorEvidencia();
+        await buscarRelatoriosPorEvidencia(evidencias);
       } catch (error) {
         console.warn(
           "Erro ao usar nova rota de relatórios, tentando abordagem alternativa:",
           error
         );
-        await buscarRelatoriosPorEvidencia();
+        await buscarRelatoriosPorEvidencia(evidencias);
       }
     } catch (error) {
       console.error("Erro ao buscar relatórios de evidência:", error);
@@ -170,48 +211,7 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
     } finally {
       setLoadingLaudos(false);
     }
-  }, [casoId]);
-
-  // Método alternativo para buscar relatórios por evidência
-  const buscarRelatoriosPorEvidencia = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      // Buscar todos os relatórios e filtrar manualmente
-      const response = await fetch(
-        `https://perioscan-back-end-fhhq.onrender.com/api/evidence-reports`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar relatórios: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.success && Array.isArray(data.data)) {
-        // Filtrar apenas relatórios relacionados às evidências do caso atual
-        const evidenciaIds = evidencias.map((ev) => ev._id || ev.id);
-
-        // Mapear relatórios por evidência
-        const laudosMap = {};
-        data.data.forEach((relatorio) => {
-          if (relatorio.evidence && evidenciaIds.includes(relatorio.evidence)) {
-            laudosMap[relatorio.evidence] = relatorio._id || relatorio.id;
-          }
-        });
-        setLaudosEvidencias(laudosMap);
-      }
-    } catch (error) {
-      console.error("Erro na abordagem alternativa:", error);
-      setLaudosEvidencias({});
-    }
-  };
+  }, [casoId, evidencias]);
 
   // Carregar dados quando o casoId mudar
   useEffect(() => {
