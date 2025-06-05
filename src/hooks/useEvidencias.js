@@ -75,7 +75,7 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
             const data = JSON.parse(textData);
 
             if (data.success && Array.isArray(data.data)) {
-              console.log(`Carregadas ${data.data.length} evidências`);
+              // console.log("Evidências recebidas do backend:", data.data); // <-- pode remover
               setEvidencias(data.data);
               setEvidenciasFiltradas(data.data);
             } else {
