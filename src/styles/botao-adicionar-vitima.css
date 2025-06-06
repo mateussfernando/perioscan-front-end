@@ -1,0 +1,37 @@
+.botao-adicionar-vitima {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 16px;
+  width: 100%;
+}
+
+.botao-adicionar-vitima:hover {
+  background-color: #34495e;
+}
+
+.botao-adicionar-vitima:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.botao-adicionar-vitima svg {
+  stroke-width: 2px;
+}
+
+@media (max-width: 768px) {
+  .botao-adicionar-vitima {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
