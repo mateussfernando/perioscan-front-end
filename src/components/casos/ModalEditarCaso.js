@@ -12,7 +12,45 @@ export default function ModalEditarCaso({ casoEditado, onFechar, onSalvar, onCas
     if (casoEditado?.type && !tiposPadrao.includes(casoEditado.type)) {
       setTipoPersonalizado(casoEditado.type)
     }
-  }, [casoEditado.type])
+
+    // Inicializar campos da vítima se não existirem
+    if (!casoEditado?.victim) {
+      casoEditado.victim = {
+        nic: "",
+        name: "",
+        gender: "",
+        age: "",
+        birthDate: "",
+        estimatedAge: {
+          min: "",
+          max: "",
+          methodology: "",
+        },
+        document: {
+          type: "",
+          number: "",
+        },
+        ethnicity: "não_declarada",
+        identificationType: "",
+        referenceCode: "",
+      }
+    }
+  }, [
+    casoEditado.type,
+    casoEditado.victim?.age,
+    casoEditado.victim?.birthDate,
+    casoEditado.victim?.document?.number,
+    casoEditado.victim?.document?.type,
+    casoEditado.victim?.estimatedAge?.max,
+    casoEditado.victim?.estimatedAge?.methodology,
+    casoEditado.victim?.estimatedAge?.min,
+    casoEditado.victim?.ethnicity,
+    casoEditado.victim?.gender,
+    casoEditado.victim?.identificationType,
+    casoEditado.victim?.name,
+    casoEditado.victim?.nic,
+    casoEditado,
+  ])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -30,6 +68,29 @@ export default function ModalEditarCaso({ casoEditado, onFechar, onSalvar, onCas
 
   const handleTipoPersonalizadoChange = (e) => {
     setTipoPersonalizado(e.target.value)
+  }
+
+  const handleVictimChange = (e) => {
+    const { name, value } = e.target
+
+    if (name.startsWith("victim.")) {
+      const fieldPath = name.split(".")
+      onCasoChange({
+        target: {
+          name: "victim",
+          value: {
+            ...casoEditado.victim,
+            [fieldPath[1]]:
+              fieldPath.length === 3
+                ? {
+                    ...casoEditado.victim[fieldPath[1]],
+                    [fieldPath[2]]: value,
+                  }
+                : value,
+          },
+        },
+      })
+    }
   }
 
   return (
@@ -138,6 +199,210 @@ export default function ModalEditarCaso({ casoEditado, onFechar, onSalvar, onCas
                 placeholder="Descreva os detalhes do caso..."
                 rows={6}
               ></textarea>
+            </div>
+
+            {/* Seção da Vítima */}
+            <div className="form-section">
+              <h4>Informações da Vítima</h4>
+
+              {/* Tipo de Identificação */}
+              <div className="form-group">
+                <label htmlFor="victim.identificationType">Tipo de Identificação</label>
+                <select
+                  id="victim.identificationType"
+                  name="victim.identificationType"
+                  value={casoEditado.victim?.identificationType || ""}
+                  onChange={handleVictimChange}
+                  required
+                >
+                  <option value="">Selecione...</option>
+                  <option value="identificada">Identificada</option>
+                  <option value="não_identificada">Não Identificada</option>
+                </select>
+              </div>
+
+              {/* Nome da Vítima */}
+              <div className="form-group">
+                <label htmlFor="victim.name">Nome da Vítima</label>
+                <input
+                  type="text"
+                  id="victim.name"
+                  name="victim.name"
+                  value={casoEditado.victim?.name || ""}
+                  onChange={handleVictimChange}
+                  placeholder="Nome completo da vítima"
+                  required
+                  maxLength={200}
+                />
+              </div>
+
+              {/* NIC */}
+              <div className="form-group">
+                <label htmlFor="victim.nic">NIC (Número de Identificação Criminal)</label>
+                <input
+                  type="text"
+                  id="victim.nic"
+                  name="victim.nic"
+                  value={casoEditado.victim?.nic || ""}
+                  onChange={handleVictimChange}
+                  placeholder="Número de identificação criminal"
+                />
+              </div>
+
+              {/* Código de Referência - aparece apenas quando não identificada */}
+              {casoEditado.victim?.identificationType === "não_identificada" && (
+                <div className="form-group">
+                  <label htmlFor="victim.referenceCode">Código de Referência</label>
+                  <input
+                    type="text"
+                    id="victim.referenceCode"
+                    name="victim.referenceCode"
+                    value={casoEditado.victim?.referenceCode || ""}
+                    onChange={handleVictimChange}
+                    placeholder="Código de referência para vítima não identificada"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Gênero */}
+              <div className="form-group">
+                <label htmlFor="victim.gender">Gênero</label>
+                <select
+                  id="victim.gender"
+                  name="victim.gender"
+                  value={casoEditado.victim?.gender || ""}
+                  onChange={handleVictimChange}
+                  required
+                >
+                  <option value="">Selecione...</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="feminino">Feminino</option>
+                  <option value="indeterminado">Indeterminado</option>
+                </select>
+              </div>
+
+              {/* Idade */}
+              <div className="form-group">
+                <label htmlFor="victim.age">Idade</label>
+                <input
+                  type="number"
+                  id="victim.age"
+                  name="victim.age"
+                  value={casoEditado.victim?.age || ""}
+                  onChange={handleVictimChange}
+                  placeholder="Idade da vítima"
+                  min="0"
+                  max="150"
+                />
+              </div>
+
+              {/* Data de Nascimento */}
+              <div className="form-group">
+                <label htmlFor="victim.birthDate">Data de Nascimento</label>
+                <input
+                  type="date"
+                  id="victim.birthDate"
+                  name="victim.birthDate"
+                  value={casoEditado.victim?.birthDate ? casoEditado.victim.birthDate.substring(0, 10) : ""}
+                  onChange={handleVictimChange}
+                />
+              </div>
+
+              {/* Etnia */}
+              <div className="form-group">
+                <label htmlFor="victim.ethnicity">Etnia</label>
+                <select
+                  id="victim.ethnicity"
+                  name="victim.ethnicity"
+                  value={casoEditado.victim?.ethnicity || "não_declarada"}
+                  onChange={handleVictimChange}
+                >
+                  <option value="não_declarada">Não Declarada</option>
+                  <option value="branca">Branca</option>
+                  <option value="preta">Preta</option>
+                  <option value="parda">Parda</option>
+                  <option value="amarela">Amarela</option>
+                  <option value="indígena">Indígena</option>
+                  <option value="não_identificada">Não Identificada</option>
+                </select>
+              </div>
+
+              {/* Tipo de Documento */}
+              <div className="form-group">
+                <label htmlFor="victim.document.type">Tipo de Documento</label>
+                <select
+                  id="victim.document.type"
+                  name="victim.document.type"
+                  value={casoEditado.victim?.document?.type || ""}
+                  onChange={handleVictimChange}
+                >
+                  <option value="">Selecione...</option>
+                  <option value="cpf">CPF</option>
+                  <option value="rg">RG</option>
+                  <option value="cnh">CNH</option>
+                  <option value="passaporte">Passaporte</option>
+                  <option value="certidao_nascimento">Certidão de Nascimento</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+
+              {/* Número do Documento */}
+              <div className="form-group">
+                <label htmlFor="victim.document.number">Número do Documento</label>
+                <input
+                  type="text"
+                  id="victim.document.number"
+                  name="victim.document.number"
+                  value={casoEditado.victim?.document?.number || ""}
+                  onChange={handleVictimChange}
+                  placeholder="Número do documento"
+                  maxLength={50}
+                />
+              </div>
+
+              {/* Idade Estimada */}
+              <div className="form-group-row">
+                <div className="form-group">
+                  <label htmlFor="victim.estimatedAge.min">Idade Estimada (Mín)</label>
+                  <input
+                    type="number"
+                    id="victim.estimatedAge.min"
+                    name="victim.estimatedAge.min"
+                    value={casoEditado.victim?.estimatedAge?.min || ""}
+                    onChange={handleVictimChange}
+                    placeholder="Idade mínima"
+                    min="0"
+                    max="150"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="victim.estimatedAge.max">Idade Estimada (Máx)</label>
+                  <input
+                    type="number"
+                    id="victim.estimatedAge.max"
+                    name="victim.estimatedAge.max"
+                    value={casoEditado.victim?.estimatedAge?.max || ""}
+                    onChange={handleVictimChange}
+                    placeholder="Idade máxima"
+                    min="0"
+                    max="150"
+                  />
+                </div>
+              </div>
+
+              {/* Metodologia da Idade Estimada */}
+              <div className="form-group">
+                <label htmlFor="victim.estimatedAge.methodology">Metodologia da Idade Estimada</label>
+                <textarea
+                  id="victim.estimatedAge.methodology"
+                  name="victim.estimatedAge.methodology"
+                  value={casoEditado.victim?.estimatedAge?.methodology || ""}
+                  onChange={handleVictimChange}
+                  placeholder="Descreva a metodologia utilizada para estimar a idade"
+                  rows={3}
+                />
+              </div>
             </div>
 
             {/* Mensagem de erro */}

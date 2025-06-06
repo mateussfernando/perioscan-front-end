@@ -1,41 +1,36 @@
-"use client"
-import { useRouter } from "next/navigation"
-import { useParams } from "next/navigation"
-import AsideNavbar from "@/components/AsideNavBar"
-import "../../styles/caso-detalhes.css"
+"use client";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import AsideNavbar from "@/components/AsideNavBar";
+import "../../styles/caso-detalhes.css";
 
 // Hooks personalizados
-import useCasoDetalhes from "@/hooks/useCasoDetalhes"
-import useEvidencias from "@/hooks/useEvidencias"
-import useRelatorios from "@/hooks/useRelatorios"
+import useCasoDetalhes from "@/hooks/useCasoDetalhes";
+import useEvidencias from "@/hooks/useEvidencias";
+import useRelatorios from "@/hooks/useRelatorios";
 
 // Componentes
-import CasoDetalhesHeader from "@/components/casos/CasoDetalhesHeader"
-import CasoInfoGeral from "@/components/casos/CasoInfoGeral"
-import CasoDescricao from "@/components/casos/CasoDescricao"
-import EvidenciasLista from "@/components/casos/EvidenciasLista"
-import RelatoriosLista from "@/components/casos/RelatoriosLista"
-import NotificacaoLaudo from "@/components/casos/NotificacaoLaudo"
-import ModalVisualizarEvidencia from "@/components/casos/ModalVisualizarEvidencia"
-import ModalCriarLaudo from "@/components/casos/ModalCriarLaudo"
-import ModalAdicionarEvidencia from "@/components/casos/ModalAdicionarEvidencia"
-import ModalEditarCaso from "@/components/casos/ModalEditarCaso"
-import ModalExcluirCaso from "@/components/casos/ModalExcluirCaso"
-import ModalExcluirEvidencia from "@/components/casos/ModalExcluirEvidencia"
-import ModalVisualizarRelatorio from "@/components/casos/ModalVisualizarRelatorio"
-import ModalExcluirRelatorio from "@/components/casos/ModalExcluirRelatorio"
-import ModalCriarRelatorio from "@/components/casos/ModalCriarRelatorio"
-import ModalEditarRelatorio from "@/components/casos/ModalEditarRelatorio"
-
-// Importar os novos componentes e hooks
-import BotaoAdicionarVitima from "@/components/casos/BotaoAdicionarVitima"
-import ModalAdicionarVitima from "@/components/casos/ModalAdicionarVitima"
-import useVitima from "@/hooks/useVitima"
+import CasoDetalhesHeader from "@/components/casos/CasoDetalhesHeader";
+import CasoInfoGeral from "@/components/casos/CasoInfoGeral";
+import CasoDescricao from "@/components/casos/CasoDescricao";
+import EvidenciasLista from "@/components/casos/EvidenciasLista";
+import RelatoriosLista from "@/components/casos/RelatoriosLista";
+import NotificacaoLaudo from "@/components/casos/NotificacaoLaudo";
+import ModalVisualizarEvidencia from "@/components/casos/ModalVisualizarEvidencia";
+import ModalCriarLaudo from "@/components/casos/ModalCriarLaudo";
+import ModalAdicionarEvidencia from "@/components/casos/ModalAdicionarEvidencia";
+import ModalEditarCaso from "@/components/casos/ModalEditarCaso";
+import ModalExcluirCaso from "@/components/casos/ModalExcluirCaso";
+import ModalExcluirEvidencia from "@/components/casos/ModalExcluirEvidencia";
+import ModalVisualizarRelatorio from "@/components/casos/ModalVisualizarRelatorio";
+import ModalExcluirRelatorio from "@/components/casos/ModalExcluirRelatorio";
+import ModalCriarRelatorio from "@/components/casos/ModalCriarRelatorio";
+import ModalEditarRelatorio from "@/components/casos/ModalEditarRelatorio";
 
 export default function CasoDetalhes() {
-  const router = useRouter()
-  const params = useParams()
-  const casoId = params?.id
+  const router = useRouter();
+  const params = useParams();
+  const casoId = params?.id;
 
   // Inicializar hooks personalizados
   const {
@@ -61,7 +56,7 @@ export default function CasoDetalhes() {
     abrirModalExcluir,
     fecharModalExcluir,
     mostrarNotificacao,
-  } = useCasoDetalhes(casoId)
+  } = useCasoDetalhes(casoId);
 
   const {
     evidencias,
@@ -97,7 +92,7 @@ export default function CasoDetalhes() {
     baixarPDF,
     excluirEvidencia,
     enviarEvidencia,
-  } = useEvidencias(casoId, mostrarNotificacao)
+  } = useEvidencias(casoId, mostrarNotificacao);
 
   const {
     relatorios,
@@ -133,18 +128,14 @@ export default function CasoDetalhes() {
     baixarPDFRelatorio,
     assinarRelatorio,
     excluirRelatorio,
-  } = useRelatorios(caso, mostrarNotificacao)
-
-  // Adicionar o hook useVitima dentro da função CasoDetalhes
-  const { modalVitimaAberto, salvandoVitima, erroSalvarVitima, abrirModalVitima, fecharModalVitima, salvarVitima } =
-    useVitima(casoId, mostrarNotificacao)
+  } = useRelatorios(caso, mostrarNotificacao);
 
   // Atualizar status do caso após criar relatório
   const handleCriarRelatorio = async (e) => {
-    console.log("Iniciando criação de relatório...")
-    const sucesso = await criarRelatorio(e)
-    console.log("Resultado da criação de relatório:", sucesso)
-  }
+    console.log("Iniciando criação de relatório...");
+    const sucesso = await criarRelatorio(e);
+    console.log("Resultado da criação de relatório:", sucesso);
+  };
 
   return (
     <div className="main-container-caso-detalhes">
@@ -152,7 +143,10 @@ export default function CasoDetalhes() {
 
       <div className="container-caso-detalhes">
         {/* Notificação */}
-        <NotificacaoLaudo notificacao={notificacao} onFechar={() => mostrarNotificacao("", "", false)} />
+        <NotificacaoLaudo
+          notificacao={notificacao}
+          onFechar={() => mostrarNotificacao("", "", false)}
+        />
 
         {loadingCaso ? (
           <div className="loading-container">
@@ -161,7 +155,10 @@ export default function CasoDetalhes() {
         ) : error ? (
           <div className="error-container">
             <p>{error}</p>
-            <button onClick={() => router.push("/casos")} className="voltar-button">
+            <button
+              onClick={() => router.push("/casos")}
+              className="voltar-button"
+            >
               Voltar para lista de casos
             </button>
           </div>
@@ -178,11 +175,6 @@ export default function CasoDetalhes() {
             <div className="caso-content">
               <div className="info-coluna">
                 <CasoInfoGeral caso={caso} />
-
-                {/* Botão para adicionar vítima */}
-                {(userRole === "admin" || userRole === "perito" || userRole === "assistente") && (
-                  <BotaoAdicionarVitima onClick={abrirModalVitima} disabled={caso.status === "arquivado"} />
-                )}
 
                 <EvidenciasLista
                   evidencias={evidencias}
@@ -221,7 +213,10 @@ export default function CasoDetalhes() {
         ) : (
           <div className="not-found-container">
             <p>Caso não encontrado</p>
-            <button onClick={() => router.push("/casos")} className="voltar-button">
+            <button
+              onClick={() => router.push("/casos")}
+              className="voltar-button"
+            >
               Voltar para lista de casos
             </button>
           </div>
@@ -231,7 +226,9 @@ export default function CasoDetalhes() {
         {modalAberto && evidenciaAtiva && (
           <ModalVisualizarEvidencia
             evidenciaAtiva={evidenciaAtiva}
-            temLaudo={!!laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id]}
+            temLaudo={
+              !!laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id]
+            }
             laudoId={laudosEvidencias[evidenciaAtiva._id || evidenciaAtiva.id]}
             baixandoPDF={baixandoPDF}
             gerandoLaudo={gerandoLaudo}
@@ -332,17 +329,7 @@ export default function CasoDetalhes() {
             excluindo={excluindoRelatorio}
           />
         )}
-
-        {modalVitimaAberto && (
-          <ModalAdicionarVitima
-            casoId={casoId}
-            onFechar={fecharModalVitima}
-            onSalvar={salvarVitima}
-            salvandoVitima={salvandoVitima}
-            erroSalvar={erroSalvarVitima}
-          />
-        )}
       </div>
     </div>
-  )
+  );
 }
