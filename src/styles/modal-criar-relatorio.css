@@ -1,144 +1,159 @@
-.relatorio-modal {
+.modal-criar-relatorio {
   max-width: 700px;
   width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
 }
 
-.relatorio-modal .modal-content {
-  padding: 20px;
+.modal-criar-relatorio .evidencia-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.relatorio-modal .form-group {
-  margin-bottom: 15px;
+.modal-criar-relatorio .modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.relatorio-modal label {
-  display: block;
-  margin-bottom: 5px;
+.modal-criar-relatorio .btn-gerar-ia {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 4px;
   font-weight: 500;
-  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #000000, #333333);
+  color: #ffd700;
+  border: 1px solid #444;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.relatorio-modal input,
-.relatorio-modal textarea,
-.relatorio-modal select {
-  width: 100%;
+.modal-criar-relatorio .btn-gerar-ia:hover {
+  background: linear-gradient(135deg, #222222, #444444);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.modal-criar-relatorio .btn-gerar-ia:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.modal-criar-relatorio .btn-gerar-ia svg {
+  color: #ffd700;
+  filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
+}
+
+.modal-criar-relatorio .btn-gerar-ia:disabled {
+  background: #555;
+  color: #aaa;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.modal-criar-relatorio .btn-gerar-ia:disabled svg {
+  color: #aaa;
+  filter: none;
+}
+
+.modal-criar-relatorio .spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.form-criar-relatorio {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-criar-relatorio .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-criar-relatorio label {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-criar-relatorio input,
+.form-criar-relatorio textarea,
+.form-criar-relatorio select {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 14px;
 }
 
-.relatorio-modal textarea {
+.form-criar-relatorio textarea {
   resize: vertical;
-  min-height: 100px;
 }
 
-.relatorio-modal .form-actions {
+.form-criar-relatorio .form-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
+  gap: 12px;
+  margin-top: 16px;
 }
 
-.relatorio-modal .report-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-end;
-  width: 100%;
-}
-
-.relatorio-modal .btn-primary {
-  background-color: #0066cc;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.relatorio-modal .btn-secondary {
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.relatorio-modal .btn-outline {
-  background-color: transparent;
-  color: #333;
+.form-criar-relatorio .btn-cancelar {
+  padding: 10px 16px;
   border: 1px solid #ddd;
-  padding: 10px 20px;
   border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.relatorio-modal .btn-primary:hover,
-.relatorio-modal .btn-secondary:hover {
-  opacity: 0.9;
-}
-
-.relatorio-modal .btn-outline:hover {
   background-color: #f5f5f5;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.relatorio-modal .btn-primary:disabled,
-.relatorio-modal .btn-secondary:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+.form-criar-relatorio .btn-cancelar:hover {
+  background-color: #e5e5e5;
 }
 
-/* Adicionar estilos para o botão desabilitado */
-.btn-disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  position: relative;
-}
-
-.btn-disabled:hover::after {
-  content: attr(title);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.8);
+.form-criar-relatorio .btn-salvar {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
   color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  z-index: 10;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.relatorio-modal .error-message {
-  color: #d32f2f;
-  background-color: #ffebee;
+.form-criar-relatorio .btn-salvar:hover {
+  background-color: #0069d9;
+}
+
+.form-criar-relatorio .btn-salvar:disabled,
+.form-criar-relatorio .btn-cancelar:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.upload-error {
+  background-color: #fff1f0;
+  border: 1px solid #ffccc7;
   padding: 10px;
   border-radius: 4px;
-  margin-bottom: 15px;
-}
-
-.relatorio-modal .success-message {
-  color: #388e3c;
-  background-color: #e8f5e9;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 15px;
-}
-
-/* Estilos para a mensagem de informação sobre status */
-.status-info {
-  font-size: 12px;
-  color: #666;
-  margin-top: 5px;
-  background-color: #f8f9fa;
-  padding: 8px;
-  border-radius: 4px;
-  border-left: 3px solid #0d6efd;
+  color: #cf1322;
+  margin-bottom: 16px;
 }

@@ -162,6 +162,15 @@ export default function useRelatorios(caso, mostrarNotificacao) {
     }));
   };
 
+  // Função para atualizar dados do relatório diretamente (para IA)
+  const atualizarRelatorioData = (novosDados) => {
+    console.log("Atualizando relatorioData com:", novosDados);
+    setRelatorioData((prev) => ({
+      ...prev,
+      ...novosDados,
+    }));
+  };
+
   // Função para lidar com mudanças nos campos do formulário de edição de relatório
   const handleEditarRelatorioChange = (e) => {
     const { name, value } = e.target;
@@ -660,6 +669,7 @@ export default function useRelatorios(caso, mostrarNotificacao) {
     fecharModalExcluirRelatorio,
     handleRelatorioChange,
     handleEditarRelatorioChange,
+    atualizarRelatorioData, // Nova função para atualizar dados diretamente
     criarRelatorio,
     editarRelatorio,
     baixarPDFRelatorio,

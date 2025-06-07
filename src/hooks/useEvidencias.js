@@ -300,7 +300,7 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
   };
 
   // Função para criar laudo
-  const criarLaudo = async (dadosLaudo) => {
+  const criarLaudo = async (evidencia, dadosLaudo) => {
     setCriandoLaudo(true);
     setErroLaudo(null);
 
@@ -320,8 +320,11 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            ...dadosLaudo,
-            evidence: evidenciaParaLaudo._id || evidenciaParaLaudo.id,
+            title: dadosLaudo.titulo,
+            content: dadosLaudo.conteudo,
+            findings: dadosLaudo.achados,
+            methodology: dadosLaudo.metodologia,
+            evidence: evidencia._id || evidencia.id,
             case: casoId,
           }),
         }
@@ -340,8 +343,7 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
         // Atualizar o mapeamento de laudos
         setLaudosEvidencias((prev) => ({
           ...prev,
-          [evidenciaParaLaudo._id || evidenciaParaLaudo.id]:
-            data.data._id || data.data.id,
+          [evidencia._id || evidencia.id]: data.data._id || data.data.id,
         }));
 
         // Fechar modal
@@ -360,7 +362,7 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
     }
   };
 
-  // Função para baixar PDF do laudo
+  // Função para baixar PDF do laudo - seguindo a especificação da API
   const baixarPDF = async (evidenciaId, laudoId) => {
     // Atualizar estado para mostrar o loader para este laudo específico
     setBaixandoPDF((prev) => ({ ...prev, [laudoId]: true }));
@@ -376,9 +378,11 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
         throw new Error("Laudo não encontrado para esta evidência");
       }
 
+      // Fazer requisição seguindo a especificação da API
       const response = await fetch(
         `https://perioscan-back-end-fhhq.onrender.com/api/evidence-reports/${laudoId}/pdf`,
         {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -389,16 +393,22 @@ export default function useEvidencias(casoId, mostrarNotificacao) {
         throw new Error(`Falha ao baixar PDF: ${response.status}`);
       }
 
+      // Converter resposta para blob
       const blob = await response.blob();
+
+      // Criar URL temporária para o blob
       const url = window.URL.createObjectURL(blob);
+
+      // Criar elemento de link para download
       const a = document.createElement("a");
-      a.style.display = "none";
       a.href = url;
-      a.download = `laudo-evidencia-${evidenciaId}.pdf`;
+      a.download = `evidence-report-${laudoId}.pdf`;
       document.body.appendChild(a);
       a.click();
+
+      // Limpar recursos
+      a.remove();
       window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
 
       mostrarNotificacao("PDF baixado com sucesso!", "sucesso");
     } catch (error) {

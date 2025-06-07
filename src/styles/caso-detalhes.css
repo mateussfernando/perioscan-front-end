@@ -275,7 +275,9 @@
 .status-arquivado,
 .status-cancelado,
 .status-outro,
-.status-desconhecido {
+.status-desconhecido,
+.status-identificada,
+.status-nao-identificada {
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 12px;
@@ -316,6 +318,25 @@
 .status-desconhecido {
   background-color: #95a5a6;
   color: white;
+}
+
+.status-identificada {
+  background-color: #c6f6d5;
+  color: #22543d;
+  border: 1px solid #9ae6b4;
+}
+
+.status-nao-identificada {
+  background-color: #fed7d7;
+  color: #822727;
+  border: 1px solid #feb2b2;
+}
+
+.status-desconhecido,
+.status-outro {
+  background-color: #e2e8f0;
+  color: #4a5568;
+  border: 1px solid #cbd5e0;
 }
 
 /* Adicionar estilos para o componente de filtro */
@@ -1235,6 +1256,43 @@
 .tipo-texto {
   background-color: #e8f5e9;
   color: #1b5e20;
+}
+
+/* Estilos para tipos de identificação das vítimas */
+.tipo-identificada {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+}
+
+.tipo-nao-identificada {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.tipo-outro {
+  background-color: #f3e5f5;
+  color: #4a148c;
+}
+
+.evidencia-tipo svg {
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.evidencias-section .empty-state .empty-icon {
+  color: #a0aec0;
+  margin-bottom: 1rem;
+}
+
+.evidencias-section .empty-state p {
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
+.evidencias-section .empty-state span {
+  color: #718096;
+  font-size: 0.875rem;
 }
 
 /* Adicionar estilos para a seção de relatórios */

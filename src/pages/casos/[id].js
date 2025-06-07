@@ -8,11 +8,13 @@ import "../../styles/caso-detalhes.css";
 import useCasoDetalhes from "@/hooks/useCasoDetalhes";
 import useEvidencias from "@/hooks/useEvidencias";
 import useRelatorios from "@/hooks/useRelatorios";
+import useVitimas from "@/hooks/useVitimas";
 
 // Componentes
 import CasoDetalhesHeader from "@/components/casos/CasoDetalhesHeader";
 import CasoInfoGeral from "@/components/casos/CasoInfoGeral";
 import CasoDescricao from "@/components/casos/CasoDescricao";
+import VitimasLista from "@/components/casos/VitimasLista";
 import EvidenciasLista from "@/components/casos/EvidenciasLista";
 import RelatoriosLista from "@/components/casos/RelatoriosLista";
 import NotificacaoLaudo from "@/components/casos/NotificacaoLaudo";
@@ -57,6 +59,9 @@ export default function CasoDetalhes() {
     fecharModalExcluir,
     mostrarNotificacao,
   } = useCasoDetalhes(casoId);
+
+  // Hook para vítimas
+  const { vitimas, loadingVitimas, errorVitimas } = useVitimas(casoId);
 
   const {
     evidencias,
@@ -123,11 +128,13 @@ export default function CasoDetalhes() {
     fecharModalExcluirRelatorio,
     handleRelatorioChange,
     handleEditarRelatorioChange,
+    atualizarRelatorioData,
     criarRelatorio,
     editarRelatorio,
     baixarPDFRelatorio,
     assinarRelatorio,
     excluirRelatorio,
+    verificarRelatorioAssinado,
   } = useRelatorios(caso, mostrarNotificacao);
 
   // Atualizar status do caso após criar relatório
@@ -175,6 +182,13 @@ export default function CasoDetalhes() {
             <div className="caso-content">
               <div className="info-coluna">
                 <CasoInfoGeral caso={caso} />
+
+                {/* Seção de vítimas */}
+                <VitimasLista
+                  vitimas={vitimas}
+                  loadingVitimas={loadingVitimas}
+                  errorVitimas={errorVitimas}
+                />
 
                 <EvidenciasLista
                   evidencias={evidencias}
@@ -293,8 +307,10 @@ export default function CasoDetalhes() {
             onFechar={fecharModalRelatorio}
             onCriar={handleCriarRelatorio}
             onChange={handleRelatorioChange}
+            atualizarRelatorioData={atualizarRelatorioData}
             criando={criandoRelatorio}
             erro={erroRelatorio}
+            caso={caso}
           />
         )}
 

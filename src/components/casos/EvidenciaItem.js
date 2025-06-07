@@ -59,7 +59,13 @@ export default function EvidenciaItem({
         {temLaudo ? (
           <button
             className="btn-baixar-pdf"
-            onClick={() => onBaixarPDF(evidenciaId, laudoId)}
+            onClick={() => {
+              console.log("Clicando para baixar PDF");
+              console.log("evidenciaId:", evidenciaId);
+              console.log("laudoId:", laudoId);
+              console.log("temLaudo:", temLaudo);
+              onBaixarPDF(evidenciaId, laudoId);
+            }}
             disabled={baixandoPDF[laudoId]}
             title="Baixar PDF do laudo"
           >
