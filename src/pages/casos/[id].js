@@ -9,6 +9,7 @@ import useCasoDetalhes from "@/hooks/useCasoDetalhes";
 import useEvidencias from "@/hooks/useEvidencias";
 import useRelatorios from "@/hooks/useRelatorios";
 import useVitimas from "@/hooks/useVitimas";
+import useVitima from "@/hooks/useVitima";
 
 // Componentes
 import CasoDetalhesHeader from "@/components/casos/CasoDetalhesHeader";
@@ -28,6 +29,7 @@ import ModalVisualizarRelatorio from "@/components/casos/ModalVisualizarRelatori
 import ModalExcluirRelatorio from "@/components/casos/ModalExcluirRelatorio";
 import ModalCriarRelatorio from "@/components/casos/ModalCriarRelatorio";
 import ModalEditarRelatorio from "@/components/casos/ModalEditarRelatorio";
+import ModalAdicionarVitima from "@/components/casos/ModalAdicionarVitima";
 
 export default function CasoDetalhes() {
   const router = useRouter();
@@ -62,6 +64,16 @@ export default function CasoDetalhes() {
 
   // Hook para vítimas
   const { vitimas, loadingVitimas, errorVitimas } = useVitimas(casoId);
+
+  // Hook para adicionar vítima
+  const {
+    modalVitimaAberto,
+    salvandoVitima,
+    erroSalvarVitima,
+    abrirModalVitima,
+    fecharModalVitima,
+    salvarVitima,
+  } = useVitima(casoId, mostrarNotificacao);
 
   const {
     evidencias,
@@ -188,6 +200,7 @@ export default function CasoDetalhes() {
                   vitimas={vitimas}
                   loadingVitimas={loadingVitimas}
                   errorVitimas={errorVitimas}
+                  onAdicionarVitima={abrirModalVitima}
                 />
 
                 <EvidenciasLista
@@ -343,6 +356,16 @@ export default function CasoDetalhes() {
             onFechar={fecharModalExcluirRelatorio}
             onExcluir={excluirRelatorio}
             excluindo={excluindoRelatorio}
+          />
+        )}
+
+        {/* Modal de adicionar vítima */}
+        {modalVitimaAberto && (
+          <ModalAdicionarVitima
+            onFechar={fecharModalVitima}
+            onSalvar={salvarVitima}
+            salvando={salvandoVitima}
+            erro={erroSalvarVitima}
           />
         )}
       </div>

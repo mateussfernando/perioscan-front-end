@@ -6,6 +6,7 @@ export default function VitimasLista({
   vitimas,
   loadingVitimas,
   errorVitimas,
+  onAdicionarVitima,
 }) {
   // Função para formatar o tipo de identificação
   const formatarTipoIdentificacao = (tipo) => {
@@ -57,6 +58,16 @@ export default function VitimasLista({
   return (
     <div className="evidencias-section">
       <h2>Vítimas</h2>
+
+      {/* Botão de adicionar vítima */}
+      <button
+        className="btn-adicionar-vitima"
+        onClick={onAdicionarVitima}
+        style={{ marginBottom: 16, background: '#000', color: '#fff', borderRadius: 4, padding: '10px 18px', fontWeight: 600, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+      >
+        <User style={{ color: '#fff' }} size={18} />
+        Adicionar Vítima
+      </button>
 
       {/* Filtro de busca igual ao das evidências */}
       <div className="evidencias-filtro">
