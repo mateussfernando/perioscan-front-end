@@ -1,12 +1,14 @@
 "use client";
 
-import { User, Search, Filter } from "lucide-react";
+import { User, Search, Filter, Edit, Trash } from "lucide-react";
 
 export default function VitimasLista({
   vitimas,
   loadingVitimas,
   errorVitimas,
   onAdicionarVitima,
+  onEditarVitima,
+  onExcluirVitima,
 }) {
   // Função para formatar o tipo de identificação
   const formatarTipoIdentificacao = (tipo) => {
@@ -136,10 +138,20 @@ export default function VitimasLista({
                   <td>
                     <div className="acoes-cell">
                       <button
-                        className="btn-ver-caso"
-                        title="Visualizar Vítima"
+                        className="btn-acao"
+                        title="Editar Vítima"
+                        onClick={() => onEditarVitima && onEditarVitima(vitima)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, marginRight: 4 }}
                       >
-                        <User size={16} />
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        className="btn-acao"
+                        title="Excluir Vítima"
+                        onClick={() => onExcluirVitima && onExcluirVitima(vitima)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: '#a52e40' }}
+                      >
+                        <Trash size={16} />
                       </button>
                     </div>
                   </td>

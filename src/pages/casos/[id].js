@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import AsideNavbar from "@/components/AsideNavBar";
 import "../../styles/caso-detalhes.css";
+import { useState } from "react";
 
 // Hooks personalizados
 import useCasoDetalhes from "@/hooks/useCasoDetalhes";
@@ -30,6 +31,8 @@ import ModalExcluirRelatorio from "@/components/casos/ModalExcluirRelatorio";
 import ModalCriarRelatorio from "@/components/casos/ModalCriarRelatorio";
 import ModalEditarRelatorio from "@/components/casos/ModalEditarRelatorio";
 import ModalAdicionarVitima from "@/components/casos/ModalAdicionarVitima";
+import ModalEditarVitima from "@/components/casos/ModalEditarVitima";
+import ModalExcluirVitima from "@/components/casos/ModalExcluirVitima";
 
 export default function CasoDetalhes() {
   const router = useRouter();
@@ -149,6 +152,83 @@ export default function CasoDetalhes() {
     verificarRelatorioAssinado,
   } = useRelatorios(caso, mostrarNotificacao);
 
+  const [vitimaParaEditar, setVitimaParaEditar] = useState(null);
+  const [vitimaParaExcluir, setVitimaParaExcluir] = useState(null);
+  const [editandoVitima, setEditandoVitima] = useState(false);
+  const [excluindoVitima, setExcluindoVitima] = useState(false);
+  const [erroEdicaoVitima, setErroEdicaoVitima] = useState(null);
+  const [erroExclusaoVitima, setErroExclusaoVitima] = useState(null);
+
+  // Handlers para editar vítima
+  const abrirModalEditarVitima = (vitima) => {
+    setVitimaParaEditar(vitima);
+    setErroEdicaoVitima(null);
+  };
+  const fecharModalEditarVitima = () => {
+    setVitimaParaEditar(null);
+    setErroEdicaoVitima(null);
+  };
+  const salvarEdicaoVitima = async (dadosVitima) => {
+    setEditandoVitima(true);
+    setErroEdicaoVitima(null);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Usuário não autenticado");
+      const response = await fetch(`https://perioscan-back-end-fhhq.onrender.com/api/victims/${vitimaParaEditar._id || vitimaParaEditar.id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dadosVitima),
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Falha ao editar vítima: ${response.status} - ${errorText}`);
+      }
+      fecharModalEditarVitima();
+      window.location.reload();
+    } catch (error) {
+      setErroEdicaoVitima(error.message);
+    } finally {
+      setEditandoVitima(false);
+    }
+  };
+
+  // Handlers para excluir vítima
+  const abrirModalExcluirVitima = (vitima) => {
+    setVitimaParaExcluir(vitima);
+    setErroExclusaoVitima(null);
+  };
+  const fecharModalExcluirVitima = () => {
+    setVitimaParaExcluir(null);
+    setErroExclusaoVitima(null);
+  };
+  const excluirVitima = async () => {
+    setExcluindoVitima(true);
+    setErroExclusaoVitima(null);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Usuário não autenticado");
+      const response = await fetch(`https://perioscan-back-end-fhhq.onrender.com/api/victims/${vitimaParaExcluir._id || vitimaParaExcluir.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Falha ao excluir vítima: ${response.status} - ${errorText}`);
+      }
+      fecharModalExcluirVitima();
+      window.location.reload();
+    } catch (error) {
+      setErroExclusaoVitima(error.message);
+    } finally {
+      setExcluindoVitima(false);
+    }
+  };
+
   // Atualizar status do caso após criar relatório
   const handleCriarRelatorio = async (e) => {
     console.log("Iniciando criação de relatório...");
@@ -201,6 +281,8 @@ export default function CasoDetalhes() {
                   loadingVitimas={loadingVitimas}
                   errorVitimas={errorVitimas}
                   onAdicionarVitima={abrirModalVitima}
+                  onEditarVitima={abrirModalEditarVitima}
+                  onExcluirVitima={abrirModalExcluirVitima}
                 />
 
                 <EvidenciasLista
@@ -366,6 +448,27 @@ export default function CasoDetalhes() {
             onSalvar={salvarVitima}
             salvando={salvandoVitima}
             erro={erroSalvarVitima}
+          />
+        )}
+
+        {/* Modal de editar vítima */}
+        {vitimaParaEditar && (
+          <ModalEditarVitima
+            vitima={vitimaParaEditar}
+            onFechar={fecharModalEditarVitima}
+            onSalvar={salvarEdicaoVitima}
+            salvando={editandoVitima}
+            erro={erroEdicaoVitima}
+          />
+        )}
+        {/* Modal de excluir vítima */}
+        {vitimaParaExcluir && (
+          <ModalExcluirVitima
+            vitima={vitimaParaExcluir}
+            onFechar={fecharModalExcluirVitima}
+            onExcluir={excluirVitima}
+            excluindo={excluindoVitima}
+            erro={erroExclusaoVitima}
           />
         )}
       </div>
