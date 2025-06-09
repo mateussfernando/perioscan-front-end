@@ -177,7 +177,7 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
             maxLength={50}
           />
         </div>
-        <div className="form-group-row">
+        <div className="form-group-row" style={{ opacity: form.age ? 0.5 : 1 }}>
           <div className="form-group">
             <label htmlFor="estimatedAge.min">Idade Estimada (Mín)</label>
             <input
@@ -189,6 +189,7 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
               placeholder="Idade mínima"
               min="0"
               max="150"
+              disabled={!!form.age}
             />
           </div>
           <div className="form-group">
@@ -202,10 +203,11 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
               placeholder="Idade máxima"
               min="0"
               max="150"
+              disabled={!!form.age}
             />
           </div>
         </div>
-        <div className="form-group">
+        <div className="form-group" style={{ opacity: form.age ? 0.5 : 1 }}>
           <label htmlFor="estimatedAge.methodology">Metodologia da Idade Estimada</label>
           <textarea
             id="estimatedAge.methodology"
@@ -214,6 +216,7 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
             onChange={handleChange}
             placeholder="Descreva a metodologia utilizada para estimar a idade"
             rows={3}
+            disabled={!!form.age}
           />
         </div>
         {erro && (
@@ -390,7 +393,7 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
                 maxLength={50}
               />
             </div>
-            <div className="form-group-row">
+            <div className="form-group-row" style={{ opacity: form.age ? 0.5 : 1 }}>
               <div className="form-group">
                 <label htmlFor="estimatedAge.min">Idade Estimada (Mín)</label>
                 <input
@@ -402,6 +405,7 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
                   placeholder="Idade mínima"
                   min="0"
                   max="150"
+                  disabled={!!form.age}
                 />
               </div>
               <div className="form-group">
@@ -415,10 +419,11 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
                   placeholder="Idade máxima"
                   min="0"
                   max="150"
+                  disabled={!!form.age}
                 />
               </div>
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ opacity: form.age ? 0.5 : 1 }}>
               <label htmlFor="estimatedAge.methodology">Metodologia da Idade Estimada</label>
               <textarea
                 id="estimatedAge.methodology"
@@ -427,6 +432,7 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
                 onChange={handleChange}
                 placeholder="Descreva a metodologia utilizada para estimar a idade"
                 rows={3}
+                disabled={!!form.age}
               />
             </div>
             {erro && (
