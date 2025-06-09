@@ -2,79 +2,58 @@
 
 import { useState, useEffect } from "react";
 
+const API_BASE = "https://perioscan-back-end-fhhq.onrender.com";
+
 export default function useVitimas(casoId) {
   const [vitimas, setVitimas] = useState([]);
-  const [loadingVitimas, setLoadingVitimas] = useState(true);
-  const [errorVitimas, setErrorVitimas] = useState(null);
+  const [loadingVitimas, setLoadingVitimas] = useState(false);
+  const [errorVitimas, setErrorVitimas] = useState("");
 
-  // Buscar vítimas do caso
   useEffect(() => {
-    const fetchVitimas = async () => {
-      if (!casoId) {
-        setLoadingVitimas(false);
-        return;
-      }
-
-      try {
-        setLoadingVitimas(true);
-        setErrorVitimas(null);
-
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          throw new Error("Usuário não autenticado");
+    if (!casoId) return;
+    setLoadingVitimas(true);
+    setErrorVitimas("");
+    const token = localStorage.getItem("token");
+    console.log("[useVitimas] Iniciando busca de vítimas para o caso:", casoId);
+    console.log("[useVitimas] Token encontrado:", token);
+    if (!token) {
+      setErrorVitimas("Usuário não autenticado");
+      setVitimas([]);
+      setLoadingVitimas(false);
+      console.log("[useVitimas] Usuário não autenticado. Abortando fetch.");
+      return;
+    }
+    const url = `${API_BASE}/api/cases/${casoId}/victims`;
+    console.log("[useVitimas] URL do fetch:", url);
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then(async (res) => {
+        console.log("[useVitimas] Status da resposta:", res.status);
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          console.log("[useVitimas] Erro na resposta:", errorData);
+          throw new Error(errorData.message || "Erro ao buscar vítimas do caso.");
         }
-
-        console.log("Buscando vítimas para o caso:", casoId);
-
-        const response = await fetch(
-          `https://perioscan-back-end-fhhq.onrender.com/api/cases/${casoId}/victims`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        console.log("Resposta da API de vítimas:", response.status);
-
-        if (response.status === 401) {
-          throw new Error("Não autorizado");
-        }
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            `Erro ao carregar vítimas: ${response.status} - ${
-              errorData.message || "Erro desconhecido"
-            }`
-          );
-        }
-
-        const data = await response.json();
-        console.log("Dados das vítimas recebidos:", data);
-
-        if (data.success && Array.isArray(data.data)) {
-          setVitimas(data.data);
-        } else if (Array.isArray(data)) {
-          // Caso a API retorne diretamente um array
-          setVitimas(data);
-        } else {
-          console.warn("Formato de resposta inesperado:", data);
-          setVitimas([]);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar vítimas:", error);
-        setErrorVitimas(`Falha ao carregar vítimas: ${error.message}`);
+        return res.json();
+      })
+      .then((data) => {
+        console.log("[useVitimas] Dados recebidos:", data);
+        setVitimas(data?.data || []);
+      })
+      .catch((err) => {
+        console.log("[useVitimas] Erro no catch:", err);
+        setErrorVitimas(err.message || "Erro ao buscar vítimas do caso.");
         setVitimas([]);
-      } finally {
+      })
+      .finally(() => {
         setLoadingVitimas(false);
-      }
-    };
-
-    fetchVitimas();
+        console.log("[useVitimas] Finalizou busca de vítimas.");
+      });
   }, [casoId]);
 
   return {

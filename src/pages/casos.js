@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import AsideNavBar from "@/components/AsideNavBar"
 import "../styles/casos.css"
 import MobileHeader from "@/components/MobileHeader"
 
-import { Eye, Plus, X, Loader, MapPin, FileText, Search, Calendar } from "lucide-react"
+import { Eye, Plus, X, Loader, MapPin, FileText, Search, Calendar, User, UserPlus } from "lucide-react"
 import MobileBottomNav from "@/components/MobileBottomNav"
 import ControleDeRota from "@/components/ControleDeRota"
 
@@ -55,7 +55,12 @@ export default function MainCasos() {
     dataFim: "",
     criadoPor: "",
   })
+  const [abaAtiva, setAbaAtiva] = useState("caso")
+  const [adicionarVitima, setAdicionarVitima] = useState(false)
+  const [msgVitima, setMsgVitima] = useState("")
+  const [salvandoVitima, setSalvandoVitima] = useState(false)
   const router = useRouter()
+  const params = useParams()
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -143,10 +148,6 @@ export default function MainCasos() {
       return
     }
 
-    console.log("Aplicando filtros aos casos:", casos.length)
-    console.log("Filtro ativo:", filtroAtivo)
-    console.log("Filtros ativos:", filtrosAtivos)
-
     // Fazer uma cópia dos casos para não modificar o original
     let resultado = [...casos]
 
@@ -160,16 +161,26 @@ export default function MainCasos() {
       )
     }
 
-    // Filtrar por status - corrigir a comparação para ser case-insensitive
+    // Filtrar por status - aceitar variações comuns
     if (filtrosAtivos.status) {
-      console.log("Filtrando por status:", filtrosAtivos.status)
+      const statusFiltro = filtrosAtivos.status.toLowerCase().replace(/[^a-z]/g, '')
       resultado = resultado.filter((caso) => {
-        // Normalizar ambos os valores para comparação case-insensitive
-        const casoStatus = caso.status ? caso.status.toLowerCase() : ""
-        const filtroStatus = filtrosAtivos.status.toLowerCase()
-
-        console.log(`Comparando status do caso: "${casoStatus}" com filtro: "${filtroStatus}"`)
-        return casoStatus === filtroStatus
+        const casoStatus = (caso.status || '').toLowerCase().replace(/[^a-z]/g, '')
+        // Aceita variações como 'emandamento', 'em_andamento', 'andamento', etc.
+        if (statusFiltro === 'emandamento') {
+          return (
+            casoStatus === 'emandamento' ||
+            casoStatus === 'em_andamento' ||
+            casoStatus === 'andamento'
+          )
+        }
+        if (statusFiltro === 'finalizado') {
+          return casoStatus === 'finalizado'
+        }
+        if (statusFiltro === 'arquivado') {
+          return casoStatus === 'arquivado'
+        }
+        return casoStatus === statusFiltro
       })
     }
 
@@ -199,7 +210,6 @@ export default function MainCasos() {
       )
     }
 
-    console.log("Casos filtrados:", resultado.length)
     setCasosFiltrados(resultado)
   }
 
@@ -427,6 +437,59 @@ export default function MainCasos() {
     }
   }
 
+  // Função para submit da vítima
+  async function handleSubmitVitima(e) {
+    e.preventDefault();
+    setMsgVitima("");
+    setSalvandoVitima(true);
+    try {
+      const token = localStorage.getItem("token");
+      const payload = {
+        name: novoCaso.victim.name,
+        identificationType: novoCaso.victim.identificationType,
+        birthDate: novoCaso.victim.birthDate,
+      };
+      if (novoCaso.victim.identificationType === "não identificada") {
+        payload.referenceCode = novoCaso.victim.referenceCode;
+      }
+      // Adicionar o caseId se estiver disponível
+      if (params?.id) {
+        payload.caseId = params.id;
+      }
+      // Remove campos vazios
+      Object.keys(payload).forEach((k) => (payload[k] === "" || payload[k] == null) && delete payload[k]);
+      // Validação mínima
+      if (!payload.identificationType) throw new Error("Tipo de identificação é obrigatório");
+      if (payload.identificationType === "identificada" && !payload.name) throw new Error("Nome é obrigatório para identificada");
+      if (!payload.birthDate) throw new Error("Data de nascimento é obrigatória");
+      if (payload.identificationType === "não identificada" && !payload.referenceCode) throw new Error("Código de referência é obrigatório para não identificada");
+      // Envio
+      const response = await fetch("https://perioscan-back-end-fhhq.onrender.com/api/victims", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Erro ao criar vítima");
+      }
+      setMsgVitima("Vítima criada com sucesso!");
+      // Limpar formulário
+      setTimeout(() => {
+        setMsgVitima("");
+        fecharModalNovo();
+        window.location.reload();
+      }, 1200);
+    } catch (err) {
+      setMsgVitima(err.message || "Erro ao criar vítima");
+    } finally {
+      setSalvandoVitima(false);
+    }
+  }
+
   return (
     <ControleDeRota>
       <MobileHeader></MobileHeader>
@@ -590,336 +653,286 @@ export default function MainCasos() {
                 </button>
               </div>
 
+              {/* Navegação de abas */}
+              <div style={{ display: 'flex', gap: 8, margin: '16px 0' }}>
+                <button
+                  className="btn-adicionar-vitima"
+                  style={{
+                    background: abaAtiva === 'caso' ? '#000' : '#fff',
+                    color: abaAtiva === 'caso' ? '#fff' : '#000',
+                    border: abaAtiva === 'caso' ? 'none' : '1px solid #ccc',
+                    borderRadius: 4,
+                    padding: '10px 18px',
+                    fontWeight: 600,
+                    fontSize: 15,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    flex: 1,
+                    transition: 'background 0.2s, color 0.2s',
+                  }}
+                  onClick={() => setAbaAtiva('caso')}
+                >
+                  <FileText style={{ color: abaAtiva === 'caso' ? '#fff' : '#000' }} size={18} />
+                  Adicionar Caso
+                </button>
+                {adicionarVitima && (
+                  <button
+                    className="btn-adicionar-vitima"
+                    style={{
+                      background: abaAtiva === 'vitima' ? '#000' : '#fff',
+                      color: abaAtiva === 'vitima' ? '#fff' : '#000',
+                      border: abaAtiva === 'vitima' ? 'none' : '1px solid #ccc',
+                      borderRadius: 4,
+                      padding: '10px 18px',
+                      fontWeight: 600,
+                      fontSize: 15,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      flex: 1,
+                      transition: 'background 0.2s, color 0.2s',
+                    }}
+                    onClick={() => setAbaAtiva('vitima')}
+                  >
+                    <User style={{ color: abaAtiva === 'vitima' ? '#fff' : '#000' }} size={18} />
+                    Adicionar Vítima
+                  </button>
+                )}
+              </div>
+
               <div className="modal-body">
-                <form onSubmit={criarCaso} className="form-novo-caso">
-                  {/* Título do caso */}
-                  <div className="form-group">
-                    <label htmlFor="title">
-                      <FileText size={16} />
-                      <span>Título do Caso</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="title"
-                      name="title"
-                      value={novoCaso.title}
-                      onChange={handleCasoChange}
-                      placeholder="Ex: Identificação de Vítima em Incêndio"
-                      required
-                    />
-                  </div>
-
-                  {/* Tipo do caso */}
-                  <div className="form-group">
-                    <label htmlFor="type">Tipo do Caso</label>
-                    <select id="type" name="type" value={novoCaso.type} onChange={handleCasoChange}>
-                      <option value="acidente">Acidente</option>
-                      <option value="identificação de vítima">Identificação de Vítima</option>
-                      <option value="exame criminal">Exame Criminal</option>
-                      <option value="outro">Outro</option>
-                    </select>
-                  </div>
-
-                  {/* Campo para tipo personalizado - aparece apenas quando "outro" está selecionado */}
-                  {novoCaso.type === "outro" && (
+                {abaAtiva === 'caso' ? (
+                  <form onSubmit={criarCaso} className="form-novo-caso">
+                    {/* Seletor para adicionar vítima */}
                     <div className="form-group">
-                      <label htmlFor="tipoPersonalizado">Especifique o Tipo</label>
-                      <input
-                        type="text"
-                        id="tipoPersonalizado"
-                        name="tipoPersonalizado"
-                        value={novoCaso.tipoPersonalizado}
-                        onChange={handleCasoChange}
-                        placeholder="Digite o tipo específico do caso"
-                      />
-                    </div>
-                  )}
-
-                  {/* Local */}
-                  <div className="form-group">
-                    <label htmlFor="location">
-                      <MapPin size={16} />
-                      <span>Local</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="location"
-                      name="location"
-                      value={novoCaso.location}
-                      onChange={handleCasoChange}
-                      placeholder="Ex: Belo Horizonte, MG"
-                    />
-                  </div>
-
-                  {/* Data da Ocorrência */}
-                  <div className="form-group">
-                    <label htmlFor="occurrenceDate">
-                      <Calendar size={16} />
-                      <span>Data da Ocorrência</span>
-                    </label>
-                    <input
-                      type="date"
-                      id="occurrenceDate"
-                      name="occurrenceDate"
-                      value={novoCaso.occurrenceDate}
-                      onChange={handleCasoChange}
-                    />
-                  </div>
-
-                  {/* Status */}
-                  <div className="form-group">
-                    <label htmlFor="status">Status</label>
-                    <select id="status" name="status" value={novoCaso.status} onChange={handleCasoChange}>
-                      <option value="em andamento">Em Andamento</option>
-                      <option value="finalizado">Finalizado</option>
-                      <option value="arquivado">Arquivado</option>
-                    </select>
-                  </div>
-
-                  {/* Descrição */}
-                  <div className="form-group">
-                    <label htmlFor="description">Descrição</label>
-                    <textarea
-                      id="description"
-                      name="description"
-                      value={novoCaso.description}
-                      onChange={handleCasoChange}
-                      placeholder="Descreva os detalhes do caso..."
-                      rows={6}
-                    ></textarea>
-                  </div>
-
-                  {/* Seção da Vítima */}
-                  <div className="form-section">
-                    <h4>Informações da Vítima</h4>
-
-                    {/* Tipo de Identificação */}
-                    <div className="form-group">
-                      <label htmlFor="victim.identificationType">Tipo de Identificação</label>
+                      <label>Deseja adicionar vítima?</label>
                       <select
-                        id="victim.identificationType"
-                        name="victim.identificationType"
-                        value={novoCaso.victim.identificationType}
-                        onChange={handleCasoChange}
-                        required
+                        value={adicionarVitima ? 'sim' : 'nao'}
+                        onChange={e => {
+                          const val = e.target.value === 'sim';
+                          setAdicionarVitima(val);
+                          if (!val && abaAtiva === 'vitima') setAbaAtiva('caso');
+                        }}
                       >
-                        <option value="">Selecione...</option>
-                        <option value="identificada">Identificada</option>
-                        <option value="não_identificada">Não Identificada</option>
+                        <option value="nao">Não</option>
+                        <option value="sim">Sim</option>
                       </select>
                     </div>
-
-                    {/* Nome da Vítima */}
+                    {/* Título do caso */}
                     <div className="form-group">
-                      <label htmlFor="victim.name">Nome da Vítima</label>
+                      <label htmlFor="title">
+                        <FileText size={16} />
+                        <span>Título do Caso</span>
+                      </label>
                       <input
                         type="text"
-                        id="victim.name"
-                        name="victim.name"
-                        value={novoCaso.victim.name}
+                        id="title"
+                        name="title"
+                        value={novoCaso.title}
                         onChange={handleCasoChange}
-                        placeholder="Nome completo da vítima"
+                        placeholder="Ex: Identificação de Vítima em Incêndio"
                         required
-                        maxLength={200}
                       />
                     </div>
-
-                    {/* NIC */}
+                    {/* Tipo do caso */}
                     <div className="form-group">
-                      <label htmlFor="victim.nic">NIC (Número de Identificação Criminal)</label>
-                      <input
-                        type="text"
-                        id="victim.nic"
-                        name="victim.nic"
-                        value={novoCaso.victim.nic}
-                        onChange={handleCasoChange}
-                        placeholder="Número de identificação criminal"
-                      />
-                    </div>
-
-                    {/* Código de Referência - aparece apenas quando não identificada */}
-                    {novoCaso.victim.identificationType === "não_identificada" && (
-                      <div className="form-group">
-                        <label htmlFor="victim.referenceCode">Código de Referência</label>
-                        <input
-                          type="text"
-                          id="victim.referenceCode"
-                          name="victim.referenceCode"
-                          value={novoCaso.victim.referenceCode}
-                          onChange={handleCasoChange}
-                          placeholder="Código de referência para vítima não identificada"
-                          required
-                        />
-                      </div>
-                    )}
-
-                    {/* Gênero */}
-                    <div className="form-group">
-                      <label htmlFor="victim.gender">Gênero</label>
-                      <select
-                        id="victim.gender"
-                        name="victim.gender"
-                        value={novoCaso.victim.gender}
-                        onChange={handleCasoChange}
-                        required
-                      >
-                        <option value="">Selecione...</option>
-                        <option value="masculino">Masculino</option>
-                        <option value="feminino">Feminino</option>
-                        <option value="indeterminado">Indeterminado</option>
-                      </select>
-                    </div>
-
-                    {/* Idade */}
-                    <div className="form-group">
-                      <label htmlFor="victim.age">Idade</label>
-                      <input
-                        type="number"
-                        id="victim.age"
-                        name="victim.age"
-                        value={novoCaso.victim.age}
-                        onChange={handleCasoChange}
-                        placeholder="Idade da vítima"
-                        min="0"
-                        max="150"
-                      />
-                    </div>
-
-                    {/* Data de Nascimento */}
-                    <div className="form-group">
-                      <label htmlFor="victim.birthDate">Data de Nascimento</label>
-                      <input
-                        type="date"
-                        id="victim.birthDate"
-                        name="victim.birthDate"
-                        value={novoCaso.victim.birthDate}
-                        onChange={handleCasoChange}
-                      />
-                    </div>
-
-                    {/* Etnia */}
-                    <div className="form-group">
-                      <label htmlFor="victim.ethnicity">Etnia</label>
-                      <select
-                        id="victim.ethnicity"
-                        name="victim.ethnicity"
-                        value={novoCaso.victim.ethnicity}
-                        onChange={handleCasoChange}
-                      >
-                        <option value="não_declarada">Não Declarada</option>
-                        <option value="branca">Branca</option>
-                        <option value="preta">Preta</option>
-                        <option value="parda">Parda</option>
-                        <option value="amarela">Amarela</option>
-                        <option value="indígena">Indígena</option>
-                        <option value="não_identificada">Não Identificada</option>
-                      </select>
-                    </div>
-
-                    {/* Tipo de Documento */}
-                    <div className="form-group">
-                      <label htmlFor="victim.document.type">Tipo de Documento</label>
-                      <select
-                        id="victim.document.type"
-                        name="victim.document.type"
-                        value={novoCaso.victim.document.type}
-                        onChange={handleCasoChange}
-                      >
-                        <option value="">Selecione...</option>
-                        <option value="cpf">CPF</option>
-                        <option value="rg">RG</option>
-                        <option value="cnh">CNH</option>
-                        <option value="passaporte">Passaporte</option>
-                        <option value="certidao_nascimento">Certidão de Nascimento</option>
+                      <label htmlFor="type">Tipo do Caso</label>
+                      <select id="type" name="type" value={novoCaso.type} onChange={handleCasoChange}>
+                        <option value="acidente">Acidente</option>
+                        <option value="identificação de vítima">Identificação de Vítima</option>
+                        <option value="exame criminal">Exame Criminal</option>
                         <option value="outro">Outro</option>
                       </select>
                     </div>
-
-                    {/* Número do Documento */}
+                    {/* Campo para tipo personalizado - aparece apenas quando "outro" está selecionado */}
+                    {novoCaso.type === "outro" && (
+                      <div className="form-group">
+                        <label htmlFor="tipoPersonalizado">Especifique o Tipo</label>
+                        <input
+                          type="text"
+                          id="tipoPersonalizado"
+                          name="tipoPersonalizado"
+                          value={novoCaso.tipoPersonalizado}
+                          onChange={handleCasoChange}
+                          placeholder="Digite o tipo específico do caso"
+                        />
+                      </div>
+                    )}
+                    {/* Local */}
                     <div className="form-group">
-                      <label htmlFor="victim.document.number">Número do Documento</label>
+                      <label htmlFor="location">
+                        <MapPin size={16} />
+                        <span>Local</span>
+                      </label>
                       <input
                         type="text"
-                        id="victim.document.number"
-                        name="victim.document.number"
-                        value={novoCaso.victim.document.number}
+                        id="location"
+                        name="location"
+                        value={novoCaso.location}
                         onChange={handleCasoChange}
-                        placeholder="Número do documento"
-                        maxLength={50}
+                        placeholder="Ex: Belo Horizonte, MG"
                       />
                     </div>
-
-                    {/* Idade Estimada */}
-                    <div className="form-group-row">
-                      <div className="form-group">
-                        <label htmlFor="victim.estimatedAge.min">Idade Estimada (Mín)</label>
-                        <input
-                          type="number"
-                          id="victim.estimatedAge.min"
-                          name="victim.estimatedAge.min"
-                          value={novoCaso.victim.estimatedAge.min}
-                          onChange={handleCasoChange}
-                          placeholder="Idade mínima"
-                          min="0"
-                          max="150"
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label htmlFor="victim.estimatedAge.max">Idade Estimada (Máx)</label>
-                        <input
-                          type="number"
-                          id="victim.estimatedAge.max"
-                          name="victim.estimatedAge.max"
-                          value={novoCaso.victim.estimatedAge.max}
-                          onChange={handleCasoChange}
-                          placeholder="Idade máxima"
-                          min="0"
-                          max="150"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Metodologia da Idade Estimada */}
+                    {/* Data da Ocorrência */}
                     <div className="form-group">
-                      <label htmlFor="victim.estimatedAge.methodology">Metodologia da Idade Estimada</label>
-                      <textarea
-                        id="victim.estimatedAge.methodology"
-                        name="victim.estimatedAge.methodology"
-                        value={novoCaso.victim.estimatedAge.methodology}
+                      <label htmlFor="occurrenceDate">
+                        <Calendar size={16} />
+                        <span>Data da Ocorrência</span>
+                      </label>
+                      <input
+                        type="date"
+                        id="occurrenceDate"
+                        name="occurrenceDate"
+                        value={novoCaso.occurrenceDate}
                         onChange={handleCasoChange}
-                        placeholder="Descreva a metodologia utilizada para estimar a idade"
-                        rows={3}
                       />
                     </div>
-                  </div>
-
-                  {/* Mensagem de erro */}
-                  {erroCriacao && (
-                    <div className="form-error">
-                      <p>{erroCriacao}</p>
+                    {/* Status */}
+                    <div className="form-group">
+                      <label htmlFor="status">Status</label>
+                      <select id="status" name="status" value={novoCaso.status} onChange={handleCasoChange}>
+                        <option value="em andamento">Em Andamento</option>
+                        <option value="finalizado">Finalizado</option>
+                        <option value="arquivado">Arquivado</option>
+                      </select>
                     </div>
-                  )}
-
-                  {/* Botões de ação */}
-                  <div className="form-actions">
-                    <button type="button" className="btn-cancelar" onClick={fecharModalNovo} disabled={criandoCaso}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="btn-salvar" disabled={criandoCaso}>
-                      {criandoCaso ? (
-                        <>
-                          <Loader size={16} className="spinner" />
-                          <span>Criando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Plus size={16} />
-                          <span>Criar Caso</span>
-                        </>
-                      )}
-                    </button>
+                    {/* Descrição */}
+                    <div className="form-group">
+                      <label htmlFor="description">Descrição</label>
+                      <textarea
+                        id="description"
+                        name="description"
+                        value={novoCaso.description}
+                        onChange={handleCasoChange}
+                        placeholder="Descreva os detalhes do caso..."
+                        rows={6}
+                      ></textarea>
+                    </div>
+                    {/* Mensagem de erro */}
+                    {erroCriacao && (
+                      <div className="form-error">
+                        <p>{erroCriacao}</p>
+                      </div>
+                    )}
+                    {/* Botões de ação */}
+                    <div className="form-actions">
+                      <button type="button" className="btn-cancelar" style={{background: '#000', color: '#fff', border: 'none'}} onClick={fecharModalNovo} disabled={criandoCaso}>
+                        Cancelar
+                      </button>
+                      <button type="submit" className="btn-salvar" style={{background: '#000', color: '#fff', border: 'none'}} disabled={criandoCaso}>
+                        {criandoCaso ? (
+                          <>
+                            <Loader size={16} className="spinner" />
+                            <span>Criando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Plus size={16} />
+                            <span>Criar Caso</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div style={{ padding: 16 }}>
+                    {/* Formulário completo da vítima */}
+                    <div className="vitima-modal-overlay" style={{position: 'static', background: 'none', boxShadow: 'none', zIndex: 1, padding: 0, display: 'block'}}>
+                      <div className="vitima-modal-content" style={{margin: 0, position: 'static', boxShadow: 'none', maxWidth: '100%', width: '100%'}}>
+                        <div className="vitima-modal-header">
+                          <h3 style={{display: 'flex', alignItems: 'center'}}><UserPlus size={20} style={{marginRight: 8}}/>Adicionar Vítima</h3>
+                          <button className="btn-fechar-modal" onClick={fecharModalNovo}>
+                            <X size={20} />
+                          </button>
+                        </div>
+                        <div className="vitima-modal-body">
+                          <form className="form-adicionar-vitima" onSubmit={handleSubmitVitima}>
+                            <div className="form-section">
+                              <div className="form-group">
+                                <label htmlFor="victim.identificationType">Tipo de Identificação</label>
+                                <select
+                                  id="victim.identificationType"
+                                  name="victim.identificationType"
+                                  value={novoCaso.victim.identificationType}
+                                  onChange={handleCasoChange}
+                                  required
+                                >
+                                  <option value="">Selecione...</option>
+                                  <option value="identificada">Identificada</option>
+                                  <option value="não identificada">Não Identificada</option>
+                                </select>
+                              </div>
+                              {novoCaso.victim.identificationType === "identificada" && (
+                                <div className="form-group">
+                                  <label htmlFor="victim.name">Nome da Vítima</label>
+                                  <input
+                                    type="text"
+                                    id="victim.name"
+                                    name="victim.name"
+                                    value={novoCaso.victim.name}
+                                    onChange={handleCasoChange}
+                                    placeholder="Nome completo da vítima"
+                                    required
+                                    maxLength={200}
+                                  />
+                                </div>
+                              )}
+                              {novoCaso.victim.identificationType === "não identificada" && (
+                                <div className="form-group">
+                                  <label htmlFor="victim.referenceCode">Código de Referência</label>
+                                  <input
+                                    type="text"
+                                    id="victim.referenceCode"
+                                    name="victim.referenceCode"
+                                    value={novoCaso.victim.referenceCode}
+                                    onChange={handleCasoChange}
+                                    placeholder="Código de referência para vítima não identificada"
+                                    required
+                                  />
+                                </div>
+                              )}
+                              <div className="form-group">
+                                <label htmlFor="victim.birthDate">Data de Nascimento</label>
+                                <input
+                                  type="date"
+                                  id="victim.birthDate"
+                                  name="victim.birthDate"
+                                  value={novoCaso.victim.birthDate}
+                                  onChange={handleCasoChange}
+                                  required
+                                />
+                              </div>
+                              {msgVitima && (
+                                <div className="form-error" style={{marginTop: 10, textAlign: 'center'}}>{msgVitima}</div>
+                              )}
+                              <div className="form-actions">
+                                <button type="button" className="btn-cancelar" style={{background: '#000', color: '#fff', border: 'none'}} onClick={fecharModalNovo} disabled={salvandoVitima}>
+                                  Cancelar
+                                </button>
+                                <button type="submit" className="btn-salvar" style={{background: '#000', color: '#fff', border: 'none'}} disabled={salvandoVitima}>
+                                  {salvandoVitima ? (
+                                    <>
+                                      <Loader size={16} className="spinner" />
+                                      <span>Salvando...</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus size={16} />
+                                      <span>Salvar</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </form>
+                )}
               </div>
             </div>
           </div>

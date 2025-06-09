@@ -118,7 +118,9 @@ export default function VitimasLista({
                   <td>
                     <div className="evidencia-info-cell">
                       <div className="evidencia-titulo">
-                        {vitima.name || "Não identificada"}
+                        {vitima.identificationType === "identificada"
+                          ? vitima.name || "Não informado"
+                          : vitima.referenceCode || "Não identificada"}
                       </div>
                       <div className="evidencia-data">
                         NIC: {vitima.nic || "Não informado"}
