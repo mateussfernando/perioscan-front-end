@@ -9,6 +9,7 @@ import MobileHeader from "@/components/MobileHeader"
 import { Eye, Plus, X, Loader, MapPin, FileText, Search, Calendar, User, UserPlus } from "lucide-react"
 import MobileBottomNav from "@/components/MobileBottomNav"
 import ControleDeRota from "@/components/ControleDeRota"
+import ModalAdicionarVitima from "@/components/casos/ModalAdicionarVitima"
 
 export default function MainCasos() {
   const [casos, setCasos] = useState([])
@@ -645,7 +646,7 @@ export default function MainCasos() {
         {/* Modal para criar novo caso */}
         {modalNovoAberto && (
           <div className="modal-overlay" onClick={fecharModalNovo}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '90vh', overflowY: 'auto', padding: 0 }}>
               <div className="modal-header">
                 <h3>Criar Novo Caso</h3>
                 <button className="btn-fechar-modal" onClick={fecharModalNovo}>
@@ -653,8 +654,8 @@ export default function MainCasos() {
                 </button>
               </div>
 
-              {/* Navegação de abas */}
-              <div style={{ display: 'flex', gap: 8, margin: '16px 0' }}>
+              {/* Navegação de abas sempre visível */}
+              <div style={{ display: 'flex', gap: 8, margin: '0 0 16px 0', padding: '0 24px' }}>
                 <button
                   className="btn-adicionar-vitima"
                   style={{
@@ -677,34 +678,36 @@ export default function MainCasos() {
                   <FileText style={{ color: abaAtiva === 'caso' ? '#fff' : '#000' }} size={18} />
                   Adicionar Caso
                 </button>
-                {adicionarVitima && (
-                  <button
-                    className="btn-adicionar-vitima"
-                    style={{
-                      background: abaAtiva === 'vitima' ? '#000' : '#fff',
-                      color: abaAtiva === 'vitima' ? '#fff' : '#000',
-                      border: abaAtiva === 'vitima' ? 'none' : '1px solid #ccc',
-                      borderRadius: 4,
-                      padding: '10px 18px',
-                      fontWeight: 600,
-                      fontSize: 15,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      flex: 1,
-                      transition: 'background 0.2s, color 0.2s',
-                    }}
-                    onClick={() => setAbaAtiva('vitima')}
-                  >
-                    <User style={{ color: abaAtiva === 'vitima' ? '#fff' : '#000' }} size={18} />
-                    Adicionar Vítima
-                  </button>
-                )}
+                <button
+                  className="btn-adicionar-vitima"
+                  style={{
+                    background: abaAtiva === 'vitima' ? '#000' : '#fff',
+                    color: abaAtiva === 'vitima' ? '#fff' : '#000',
+                    border: abaAtiva === 'vitima' ? 'none' : '1px solid #ccc',
+                    borderRadius: 4,
+                    padding: '10px 18px',
+                    fontWeight: 600,
+                    fontSize: 15,
+                    cursor: adicionarVitima ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    flex: 1,
+                    opacity: adicionarVitima ? 1 : 0.5,
+                    pointerEvents: adicionarVitima ? 'auto' : 'none',
+                    transition: 'background 0.2s, color 0.2s, opacity 0.2s',
+                  }}
+                  onClick={() => { if (adicionarVitima) setAbaAtiva('vitima'); }}
+                  disabled={!adicionarVitima}
+                >
+                  <User style={{ color: abaAtiva === 'vitima' ? '#fff' : '#000' }} size={18} />
+                  Adicionar Vítima
+                </button>
               </div>
 
-              <div className="modal-body">
-                {abaAtiva === 'caso' ? (
+              {/* Conteúdo dinâmico das abas */}
+              <div style={{ padding: 24 }}>
+                {abaAtiva === 'caso' && (
                   <form onSubmit={criarCaso} className="form-novo-caso">
                     {/* Seletor para adicionar vítima */}
                     <div className="form-group">
@@ -837,100 +840,16 @@ export default function MainCasos() {
                       </button>
                     </div>
                   </form>
-                ) : (
-                  <div style={{ padding: 16 }}>
-                    {/* Formulário completo da vítima */}
-                    <div className="vitima-modal-overlay" style={{position: 'static', background: 'none', boxShadow: 'none', zIndex: 1, padding: 0, display: 'block'}}>
-                      <div className="vitima-modal-content" style={{margin: 0, position: 'static', boxShadow: 'none', maxWidth: '100%', width: '100%'}}>
-                        <div className="vitima-modal-header">
-                          <h3 style={{display: 'flex', alignItems: 'center'}}><UserPlus size={20} style={{marginRight: 8}}/>Adicionar Vítima</h3>
-                          <button className="btn-fechar-modal" onClick={fecharModalNovo}>
-                            <X size={20} />
-                          </button>
-                        </div>
-                        <div className="vitima-modal-body">
-                          <form className="form-adicionar-vitima" onSubmit={handleSubmitVitima}>
-                            <div className="form-section">
-                              <div className="form-group">
-                                <label htmlFor="victim.identificationType">Tipo de Identificação</label>
-                                <select
-                                  id="victim.identificationType"
-                                  name="victim.identificationType"
-                                  value={novoCaso.victim.identificationType}
-                                  onChange={handleCasoChange}
-                                  required
-                                >
-                                  <option value="">Selecione...</option>
-                                  <option value="identificada">Identificada</option>
-                                  <option value="não identificada">Não Identificada</option>
-                                </select>
-                              </div>
-                              {novoCaso.victim.identificationType === "identificada" && (
-                                <div className="form-group">
-                                  <label htmlFor="victim.name">Nome da Vítima</label>
-                                  <input
-                                    type="text"
-                                    id="victim.name"
-                                    name="victim.name"
-                                    value={novoCaso.victim.name}
-                                    onChange={handleCasoChange}
-                                    placeholder="Nome completo da vítima"
-                                    required
-                                    maxLength={200}
-                                  />
-                                </div>
-                              )}
-                              {novoCaso.victim.identificationType === "não identificada" && (
-                                <div className="form-group">
-                                  <label htmlFor="victim.referenceCode">Código de Referência</label>
-                                  <input
-                                    type="text"
-                                    id="victim.referenceCode"
-                                    name="victim.referenceCode"
-                                    value={novoCaso.victim.referenceCode}
-                                    onChange={handleCasoChange}
-                                    placeholder="Código de referência para vítima não identificada"
-                                    required
-                                  />
-                                </div>
-                              )}
-                              <div className="form-group">
-                                <label htmlFor="victim.birthDate">Data de Nascimento</label>
-                                <input
-                                  type="date"
-                                  id="victim.birthDate"
-                                  name="victim.birthDate"
-                                  value={novoCaso.victim.birthDate}
-                                  onChange={handleCasoChange}
-                                  required
-                                />
-                              </div>
-                              {msgVitima && (
-                                <div className="form-error" style={{marginTop: 10, textAlign: 'center'}}>{msgVitima}</div>
-                              )}
-                              <div className="form-actions">
-                                <button type="button" className="btn-cancelar" style={{background: '#000', color: '#fff', border: 'none'}} onClick={fecharModalNovo} disabled={salvandoVitima}>
-                                  Cancelar
-                                </button>
-                                <button type="submit" className="btn-salvar" style={{background: '#000', color: '#fff', border: 'none'}} disabled={salvandoVitima}>
-                                  {salvandoVitima ? (
-                                    <>
-                                      <Loader size={16} className="spinner" />
-                                      <span>Salvando...</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Plus size={16} />
-                                      <span>Salvar</span>
-                                    </>
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
+                )}
+                {abaAtiva === 'vitima' && adicionarVitima && (
+                  <div style={{ padding: 0 }}>
+                    <ModalAdicionarVitima
+                      onFechar={fecharModalNovo}
+                      onSalvar={handleSubmitVitima}
+                      salvando={salvandoVitima}
+                      erro={msgVitima}
+                      inline={true}
+                    />
                   </div>
                 )}
               </div>
