@@ -11,15 +11,14 @@ export default function ModalEditarVitima({ vitima, onFechar, onSalvar, salvando
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name.startsWith("document.")) {
+    if (name.includes(".")) {
+      const [parent, child] = name.split(".");
       setForm((prev) => ({
         ...prev,
-        document: { ...prev.document, [name.split(".")[1]]: value },
-      }));
-    } else if (name.startsWith("estimatedAge.")) {
-      setForm((prev) => ({
-        ...prev,
-        estimatedAge: { ...prev.estimatedAge, [name.split(".")[1]]: value },
+        [parent]: {
+          ...prev[parent],
+          [child]: value,
+        },
       }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -28,21 +27,7 @@ export default function ModalEditarVitima({ vitima, onFechar, onSalvar, salvando
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Montar payload conforme o guia
-    const payload = {
-      name: form.name,
-      referenceCode: form.referenceCode,
-      document: form.document,
-      nic: form.nic,
-      cases: form.cases, // se existir
-      gender: form.gender,
-      age: form.age,
-      birthDate: form.birthDate,
-      ethnicity: form.ethnicity,
-      estimatedAge: form.estimatedAge,
-      // outros campos customizados, se houver
-    };
-    // Remover campos undefined ou vazios
+    const payload = { ...form };
     Object.keys(payload).forEach((key) => {
       if (
         payload[key] === undefined ||
