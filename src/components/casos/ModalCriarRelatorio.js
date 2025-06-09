@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, FilePlus, Loader, Sparkles } from "lucide-react";
+import "../../styles/modal-criar-relatorio.css";
 
 export default function ModalCriarRelatorio({
   relatorioData,
