@@ -274,14 +274,13 @@ export default function ModalCriarRelatorio({
       if (atualizarRelatorioData) {
         console.log("Atualizando campos localmente:", novosDados);
         atualizarRelatorioData(novosDados);
-
-        // Marcar quais campos foram atualizados
         setCamposAtualizados({
           title: true,
           content: true,
           methodology: true,
           conclusion: true,
         });
+        setErroIA(null); // Limpa a mensagem de erro se o fallback local preencher os campos
       } else {
         console.error("Função atualizarRelatorioData não disponível!");
       }

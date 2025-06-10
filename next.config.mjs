@@ -90,6 +90,23 @@ const nextConfig = pwaConfig({
         path: false,
       };
     }
+    // Adiciona suporte ao @svgr/webpack para importar SVG como componente React
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: [
+        {
+          loader: '@svgr/webpack',
+          options: {
+            prettier: false,
+            svgo: true,
+            svgoConfig: {
+              plugins: [{ removeViewBox: false }],
+            },
+            titleProp: true,
+          },
+        },
+      ],
+    });
     return config;
   },
 });

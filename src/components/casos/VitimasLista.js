@@ -1,6 +1,9 @@
 "use client";
 
 import { User, Search, Filter, Edit, Trash } from "lucide-react";
+import Odontograma from "../Odontograma";
+import OdontogramaModal from "../Odontograma";
+import { useState } from "react";
 
 export default function VitimasLista({
   vitimas,
@@ -10,6 +13,18 @@ export default function VitimasLista({
   onEditarVitima,
   onExcluirVitima,
 }) {
+  const [modalOdontogramaAberto, setModalOdontogramaAberto] = useState(false);
+  const [vitimaSelecionada, setVitimaSelecionada] = useState(null);
+
+  const abrirOdontograma = (vitima) => {
+    setVitimaSelecionada(vitima);
+    setModalOdontogramaAberto(true);
+  };
+  const fecharOdontograma = () => {
+    setModalOdontogramaAberto(false);
+    setVitimaSelecionada(null);
+  };
+
   // Função para formatar o tipo de identificação
   const formatarTipoIdentificacao = (tipo) => {
     if (!tipo) return "Não informado";
@@ -104,8 +119,10 @@ export default function VitimasLista({
             <thead>
               <tr>
                 <th>Nome/Identificação</th>
+                <th>NIC</th>
+                <th>Idade</th>
+                <th>Gênero</th>
                 <th>Status</th>
-                <th>Registrado por</th>
                 <th>Ações</th>
               </tr>
             </thead>
@@ -122,11 +139,11 @@ export default function VitimasLista({
                           ? vitima.name || "Não informado"
                           : vitima.referenceCode || "Não identificada"}
                       </div>
-                      <div className="evidencia-data">
-                        NIC: {vitima.nic || "Não informado"}
-                      </div>
                     </div>
                   </td>
+                  <td>{vitima.nic || "Não informado"}</td>
+                  <td>{vitima.age || "-"}</td>
+                  <td>{vitima.gender ? vitima.gender.charAt(0).toUpperCase() + vitima.gender.slice(1) : "-"}</td>
                   <td>
                     <span
                       className={getIdentificacaoClassName(
@@ -136,7 +153,6 @@ export default function VitimasLista({
                       {formatarTipoIdentificacao(vitima.identificationType)}
                     </span>
                   </td>
-                  <td>{getRegistradoPor(vitima.registeredBy)}</td>
                   <td>
                     <div className="acoes-cell">
                       <button
@@ -155,6 +171,14 @@ export default function VitimasLista({
                       >
                         <Trash size={16} />
                       </button>
+                      <button
+                        className="btn-acao"
+                        title="Odontograma"
+                        onClick={() => abrirOdontograma(vitima)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: '#0070f3' }}
+                      >
+                        🦷
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -162,6 +186,10 @@ export default function VitimasLista({
             </tbody>
           </table>
         </div>
+      )}
+
+      {modalOdontogramaAberto && (
+        <OdontogramaModal aberto={modalOdontogramaAberto} onClose={fecharOdontograma} />
       )}
     </div>
   );
