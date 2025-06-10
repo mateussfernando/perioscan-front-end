@@ -1,8 +1,18 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { X, Save, Loader, UserPlus } from "lucide-react";
 import "../../styles/modal-adicionar-vitima.css";
 
-export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, erro, inline }) {
+export default function ModalAdicionarVitima({
+  onFechar,
+  onSalvar,
+  salvando,
+  erro,
+  inline,
+  formData,
+  onFormChange,
+}) {
   const [form, setForm] = useState({
     name: "",
     identificationType: "",
@@ -16,20 +26,36 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
     estimatedAge: { min: "", max: "", methodology: "" },
   });
 
+  // Se estiver no modo inline, usar os dados externos
+  useEffect(() => {
+    if (inline && formData) {
+      setForm(formData);
+    }
+  }, [inline, formData]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let newForm;
+
     if (name.startsWith("document.")) {
-      setForm((prev) => ({
-        ...prev,
-        document: { ...prev.document, [name.split(".")[1]]: value },
-      }));
+      newForm = {
+        ...form,
+        document: { ...form.document, [name.split(".")[1]]: value },
+      };
     } else if (name.startsWith("estimatedAge.")) {
-      setForm((prev) => ({
-        ...prev,
-        estimatedAge: { ...prev.estimatedAge, [name.split(".")[1]]: value },
-      }));
+      newForm = {
+        ...form,
+        estimatedAge: { ...form.estimatedAge, [name.split(".")[1]]: value },
+      };
     } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
+      newForm = { ...form, [name]: value };
+    }
+
+    setForm(newForm);
+
+    // Se estiver no modo inline, propagar as mudanças para o componente pai
+    if (inline && onFormChange) {
+      onFormChange(newForm);
     }
   };
 
@@ -40,7 +66,7 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
 
   if (inline) {
     return (
-      <form className="form-adicionar-vitima" onSubmit={handleSubmit}>
+      <div className="form-adicionar-vitima">
         <div className="form-group">
           <label htmlFor="identificationType">Tipo de Identificação</label>
           <select
@@ -208,7 +234,9 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
           </div>
         </div>
         <div className="form-group" style={{ opacity: form.age ? 0.5 : 1 }}>
-          <label htmlFor="estimatedAge.methodology">Metodologia da Idade Estimada</label>
+          <label htmlFor="estimatedAge.methodology">
+            Metodologia da Idade Estimada
+          </label>
           <textarea
             id="estimatedAge.methodology"
             name="estimatedAge.methodology"
@@ -224,33 +252,22 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
             <p>{erro}</p>
           </div>
         )}
-        <div className="form-actions">
-          <button type="button" className="btn-cancelar" onClick={onFechar} disabled={salvando}>
-            Cancelar
-          </button>
-          <button type="submit" className="btn-salvar" disabled={salvando}>
-            {salvando ? (
-              <>
-                <Loader size={16} className="spinner" />
-                <span>Salvando...</span>
-              </>
-            ) : (
-              <>
-                <Save size={16} />
-                <span>Salvar Vítima</span>
-              </>
-            )}
-          </button>
-        </div>
-      </form>
+        {/* Não mostrar botões no modo inline - será controlado pelo componente pai */}
+      </div>
     );
   }
 
   return (
     <div className="vitima-modal-overlay" onClick={onFechar}>
-      <div className="vitima-modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="vitima-modal-content"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="vitima-modal-header">
-          <h3><UserPlus size={20} style={{marginRight: 8}}/>Adicionar Vítima</h3>
+          <h3>
+            <UserPlus size={20} style={{ marginRight: 8 }} />
+            Adicionar Vítima
+          </h3>
           <button className="btn-fechar-modal" onClick={onFechar}>
             <X size={20} />
           </button>
@@ -285,7 +302,9 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
               />
             </div>
             <div className="form-group">
-              <label htmlFor="nic">NIC (Número de Identificação Criminal)</label>
+              <label htmlFor="nic">
+                NIC (Número de Identificação Criminal)
+              </label>
               <input
                 type="text"
                 id="nic"
@@ -377,7 +396,9 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
                 <option value="rg">RG</option>
                 <option value="cnh">CNH</option>
                 <option value="passaporte">Passaporte</option>
-                <option value="certidao_nascimento">Certidão de Nascimento</option>
+                <option value="certidao_nascimento">
+                  Certidão de Nascimento
+                </option>
                 <option value="outro">Outro</option>
               </select>
             </div>
@@ -393,7 +414,10 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
                 maxLength={50}
               />
             </div>
-            <div className="form-group-row" style={{ opacity: form.age ? 0.5 : 1 }}>
+            <div
+              className="form-group-row"
+              style={{ opacity: form.age ? 0.5 : 1 }}
+            >
               <div className="form-group">
                 <label htmlFor="estimatedAge.min">Idade Estimada (Mín)</label>
                 <input
@@ -424,7 +448,9 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
               </div>
             </div>
             <div className="form-group" style={{ opacity: form.age ? 0.5 : 1 }}>
-              <label htmlFor="estimatedAge.methodology">Metodologia da Idade Estimada</label>
+              <label htmlFor="estimatedAge.methodology">
+                Metodologia da Idade Estimada
+              </label>
               <textarea
                 id="estimatedAge.methodology"
                 name="estimatedAge.methodology"
@@ -441,7 +467,12 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
               </div>
             )}
             <div className="form-actions">
-              <button type="button" className="btn-cancelar" onClick={onFechar} disabled={salvando}>
+              <button
+                type="button"
+                className="btn-cancelar"
+                onClick={onFechar}
+                disabled={salvando}
+              >
                 Cancelar
               </button>
               <button type="submit" className="btn-salvar" disabled={salvando}>
@@ -463,4 +494,4 @@ export default function ModalAdicionarVitima({ onFechar, onSalvar, salvando, err
       </div>
     </div>
   );
-} 
+}
