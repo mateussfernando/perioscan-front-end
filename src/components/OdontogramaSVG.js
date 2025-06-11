@@ -37,11 +37,15 @@ const teethIds = [
   "tooth48",
 ];
 
-export default function OdontogramaSVG({ onDenteClick, style }) {
+export default function OdontogramaSVG({
+  onDenteClick,
+  onDenteHover,
+  dentesComDados,
+  style,
+}) {
   const svgRef = useRef(null);
 
   useEffect(() => {
-    // Carrega o SVG diretamente
     const loadSVG = async () => {
       try {
         const response = await fetch("/assets/odontograma.svg");
@@ -50,7 +54,6 @@ export default function OdontogramaSVG({ onDenteClick, style }) {
         if (svgRef.current) {
           svgRef.current.innerHTML = svgText;
 
-          // Dentro do useEffect, após svgRef.current.innerHTML = svgText
           const svgElement = svgRef.current.querySelector("svg");
           if (svgElement) {
             svgElement.style.width = "100%";
@@ -63,25 +66,65 @@ export default function OdontogramaSVG({ onDenteClick, style }) {
             svgElement.style.minHeight = "500px";
           }
 
-          // Adiciona event listeners aos dentes
+          // Adiciona event listeners e estilos visuais aos dentes
           teethIds.forEach((id) => {
             const dente = svgRef.current.querySelector(`#${id}`);
             if (dente) {
               dente.style.cursor = "pointer";
               dente.style.pointerEvents = "all";
+              dente.style.transition = "fill 0.2s ease, stroke 0.2s ease";
 
-              // Remove listener anterior se existir
+              // Aplicar estilo visual se o dente tem dados
+              const numeroTooth = id.replace("tooth", "");
+              if (dentesComDados && dentesComDados.has(numeroTooth)) {
+                // Dente com dados - cor azul
+                dente.style.fill = "#3B82F6";
+                dente.style.stroke = "#1E40AF";
+                dente.style.strokeWidth = "2";
+
+                // Adicionar um pequeno indicador visual
+                const rect = dente.getBoundingClientRect();
+                if (rect.width > 0) {
+                  // Criar um pequeno círculo indicador
+                  const indicator = document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "circle"
+                  );
+                  indicator.setAttribute("cx", "0");
+                  indicator.setAttribute("cy", "0");
+                  indicator.setAttribute("r", "3");
+                  indicator.setAttribute("fill", "#10B981");
+                  indicator.setAttribute("stroke", "#fff");
+                  indicator.setAttribute("stroke-width", "1");
+                  indicator.style.pointerEvents = "none";
+
+                  // Posicionar o indicador no canto superior direito do dente
+                  const bbox = dente.getBBox();
+                  indicator.setAttribute("cx", bbox.x + bbox.width - 5);
+                  indicator.setAttribute("cy", bbox.y + 5);
+
+                  // Adicionar ao SVG
+                  const svg = dente.closest("svg");
+                  if (svg) {
+                    svg.appendChild(indicator);
+                  }
+                }
+              } else {
+                // Dente sem dados - cor padrão
+                dente.style.fill = "#F3F4F6";
+                dente.style.stroke = "#D1D5DB";
+                dente.style.strokeWidth = "1";
+              }
+
+              // Remove listeners anteriores
               dente.removeEventListener("click", handleToothClick);
+              dente.removeEventListener("mouseenter", handleToothMouseEnter);
+              dente.removeEventListener("mouseleave", handleToothMouseLeave);
+
+              // Adiciona novos listeners
               dente.addEventListener("click", handleToothClick);
-
-              // Adiciona hover effect
-              dente.addEventListener("mouseenter", () => {
-                dente.style.opacity = "0.7";
-              });
-
-              dente.addEventListener("mouseleave", () => {
-                dente.style.opacity = "1";
-              });
+              dente.addEventListener("mouseenter", handleToothMouseEnter);
+              dente.addEventListener("mouseleave", handleToothMouseLeave);
             }
           });
         }
@@ -91,7 +134,20 @@ export default function OdontogramaSVG({ onDenteClick, style }) {
     };
 
     loadSVG();
-  }, []);
+
+    return () => {
+      if (svgRef.current) {
+        teethIds.forEach((id) => {
+          const dente = svgRef.current.querySelector(`#${id}`);
+          if (dente) {
+            dente.removeEventListener("click", handleToothClick);
+            dente.removeEventListener("mouseenter", handleToothMouseEnter);
+            dente.removeEventListener("mouseleave", handleToothMouseLeave);
+          }
+        });
+      }
+    };
+  }, [dentesComDados]);
 
   function handleToothClick(e) {
     e.preventDefault();
@@ -99,6 +155,48 @@ export default function OdontogramaSVG({ onDenteClick, style }) {
 
     if (onDenteClick) {
       onDenteClick(e, e.currentTarget);
+    }
+  }
+
+  function handleToothMouseEnter(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (onDenteHover) {
+      onDenteHover(e, e.currentTarget, true);
+    }
+
+    // Efeito visual de hover muito sutil
+    const numeroTooth = e.currentTarget.id.replace("tooth", "");
+    if (dentesComDados && dentesComDados.has(numeroTooth)) {
+      // Dente com dados - hover mais escuro sutil
+      e.currentTarget.style.fill = "#2563EB";
+      e.currentTarget.style.stroke = "#1D4ED8";
+    } else {
+      // Dente sem dados - hover cinza muito sutil
+      e.currentTarget.style.fill = "#E5E7EB";
+      e.currentTarget.style.stroke = "#9CA3AF";
+    }
+  }
+
+  function handleToothMouseLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (onDenteHover) {
+      onDenteHover(e, e.currentTarget, false);
+    }
+
+    // Restaurar estilo original
+    const numeroTooth = e.currentTarget.id.replace("tooth", "");
+    if (dentesComDados && dentesComDados.has(numeroTooth)) {
+      // Dente com dados - cor original
+      e.currentTarget.style.fill = "#3B82F6";
+      e.currentTarget.style.stroke = "#1E40AF";
+    } else {
+      // Dente sem dados - cor original
+      e.currentTarget.style.fill = "#F3F4F6";
+      e.currentTarget.style.stroke = "#D1D5DB";
     }
   }
 

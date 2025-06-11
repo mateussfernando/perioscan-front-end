@@ -1,7 +1,6 @@
 "use client";
 
 import { User, Search, Filter, Edit, Trash } from "lucide-react";
-import Odontograma from "../Odontograma";
 import OdontogramaModal from "../Odontograma";
 import { useState } from "react";
 
@@ -80,9 +79,22 @@ export default function VitimasLista({
       <button
         className="btn-adicionar-vitima"
         onClick={onAdicionarVitima}
-        style={{ marginBottom: 16, background: '#000', color: '#fff', borderRadius: 4, padding: '10px 18px', fontWeight: 600, fontSize: 15, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+        style={{
+          marginBottom: 16,
+          background: "#000",
+          color: "#fff",
+          borderRadius: 4,
+          padding: "10px 18px",
+          fontWeight: 600,
+          fontSize: 15,
+          border: "none",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
       >
-        <User style={{ color: '#fff' }} size={18} />
+        <User style={{ color: "#fff" }} size={18} />
         Adicionar Vítima
       </button>
 
@@ -123,7 +135,7 @@ export default function VitimasLista({
                 <th>Idade</th>
                 <th>Gênero</th>
                 <th>Status</th>
-                <th>Ações</th>
+                <th style={{ textAlign: "center" }}>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -143,7 +155,12 @@ export default function VitimasLista({
                   </td>
                   <td>{vitima.nic || "Não informado"}</td>
                   <td>{vitima.age || "-"}</td>
-                  <td>{vitima.gender ? vitima.gender.charAt(0).toUpperCase() + vitima.gender.slice(1) : "-"}</td>
+                  <td>
+                    {vitima.gender
+                      ? vitima.gender.charAt(0).toUpperCase() +
+                        vitima.gender.slice(1)
+                      : "-"}
+                  </td>
                   <td>
                     <span
                       className={getIdentificacaoClassName(
@@ -154,30 +171,69 @@ export default function VitimasLista({
                     </span>
                   </td>
                   <td>
-                    <div className="acoes-cell">
+                    <div
+                      className="acoes-cell"
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <button
+                        className="btn-acao"
+                        title="Odontograma"
+                        onClick={() => abrirOdontograma(vitima)}
+                        style={{
+                          background: "#0070f3",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: "8px",
+                          borderRadius: "4px",
+                          color: "#fff",
+                          fontSize: "16px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        🦷
+                      </button>
                       <button
                         className="btn-acao"
                         title="Editar Vítima"
                         onClick={() => onEditarVitima && onEditarVitima(vitima)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, marginRight: 4 }}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: "6px",
+                          color: "#666",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                       >
                         <Edit size={16} />
                       </button>
                       <button
                         className="btn-acao"
                         title="Excluir Vítima"
-                        onClick={() => onExcluirVitima && onExcluirVitima(vitima)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: '#a52e40' }}
+                        onClick={() =>
+                          onExcluirVitima && onExcluirVitima(vitima)
+                        }
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: "6px",
+                          color: "#a52e40",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                       >
                         <Trash size={16} />
-                      </button>
-                      <button
-                        className="btn-acao"
-                        title="Odontograma"
-                        onClick={() => abrirOdontograma(vitima)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: '#0070f3' }}
-                      >
-                        🦷
                       </button>
                     </div>
                   </td>
@@ -189,7 +245,11 @@ export default function VitimasLista({
       )}
 
       {modalOdontogramaAberto && (
-        <OdontogramaModal aberto={modalOdontogramaAberto} onClose={fecharOdontograma} />
+        <OdontogramaModal
+          aberto={modalOdontogramaAberto}
+          onClose={fecharOdontograma}
+          vitima={vitimaSelecionada}
+        />
       )}
     </div>
   );
