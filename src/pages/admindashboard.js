@@ -58,6 +58,8 @@ export default function AdminDashboard() {
   // Estados para armazenar dados do dashboard
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [todosOsCasos, setTodosOsCasos] = useState([]); // Dados originais dos casos
+  const [todosOsUsuarios, setTodosOsUsuarios] = useState([]); // Dados originais dos usuários
   const [dashboardData, setDashboardData] = useState({
     totalCasos: 0,
     casosEmAndamento: 0,
@@ -77,7 +79,7 @@ export default function AdminDashboard() {
   // Estado para controlar a visualização de período
   const [periodoAtivo, setPeriodoAtivo] = useState("mes");
 
-  // Adicione estados para o filtro de período
+  // Estados para o filtro de período personalizado
   const [periodoInicio, setPeriodoInicio] = useState("");
   const [periodoFim, setPeriodoFim] = useState("");
 
@@ -88,7 +90,7 @@ export default function AdminDashboard() {
       datasets: [
         {
           data: [0, 0, 0],
-          backgroundColor: ["#fffff", "#62725c", "#969696"],
+          backgroundColor: ["#b99f81", "#62725c", "#969696"],
         },
       ],
     },
@@ -97,7 +99,7 @@ export default function AdminDashboard() {
       datasets: [
         {
           data: [0, 0, 0],
-          backgroundColor: ["#fff", "#ffff", "#9b59b6"],
+          backgroundColor: ["#706C61", "#0C1618", "#EAD2AC"],
         },
       ],
     },
@@ -134,7 +136,204 @@ export default function AdminDashboard() {
 
   const router = useRouter();
 
-  // Buscar dados do dashboard
+  // Função para filtrar dados por período
+  const filtrarDadosPorPeriodo = (
+    casos,
+    usuarios,
+    periodo,
+    dataInicio = null,
+    dataFim = null
+  ) => {
+    const hoje = new Date();
+    let dataInicialFiltro, dataFinalFiltro;
+
+    if (dataInicio && dataFim) {
+      // Período personalizado
+      dataInicialFiltro = new Date(dataInicio);
+      dataFinalFiltro = new Date(dataFim);
+      dataFinalFiltro.setHours(23, 59, 59, 999); // Incluir todo o dia final
+    } else {
+      // Período predefinido
+      switch (periodo) {
+        case "semana":
+          dataInicialFiltro = new Date(hoje);
+          dataInicialFiltro.setDate(hoje.getDate() - 7);
+          dataFinalFiltro = hoje;
+          break;
+        case "mes":
+          dataInicialFiltro = new Date(hoje);
+          dataInicialFiltro.setDate(hoje.getDate() - 30);
+          dataFinalFiltro = hoje;
+          break;
+        case "ano":
+          dataInicialFiltro = new Date(hoje);
+          dataInicialFiltro.setFullYear(hoje.getFullYear() - 1);
+          dataFinalFiltro = hoje;
+          break;
+        default:
+          dataInicialFiltro = new Date(hoje);
+          dataInicialFiltro.setDate(hoje.getDate() - 30);
+          dataFinalFiltro = hoje;
+      }
+    }
+
+    // Filtrar casos por período
+    const casosFiltrados = casos.filter((caso) => {
+      const dataCaso = new Date(caso.openDate || caso.createdAt);
+      return dataCaso >= dataInicialFiltro && dataCaso <= dataFinalFiltro;
+    });
+
+    // Filtrar usuários por período (se necessário)
+    const usuariosFiltrados = usuarios.filter((usuario) => {
+      const dataUsuario = new Date(usuario.createdAt);
+      return dataUsuario >= dataInicialFiltro && dataUsuario <= dataFinalFiltro;
+    });
+
+    return {
+      casosFiltrados,
+      usuariosFiltrados,
+      dataInicialFiltro,
+      dataFinalFiltro,
+    };
+  };
+
+  // Função para processar dados do dashboard com base no filtro
+  const processarDadosDashboard = (casos, usuarios) => {
+    // Processar dados dos casos
+    const casosEmAndamento = casos.filter(
+      (caso) => caso.status?.toLowerCase() === "em andamento"
+    ).length;
+    const casosFinalizados = casos.filter(
+      (caso) => caso.status?.toLowerCase() === "finalizado"
+    ).length;
+    const casosArquivados = casos.filter(
+      (caso) => caso.status?.toLowerCase() === "arquivado"
+    ).length;
+    const casosPendentes = casos.filter(
+      (caso) => caso.status?.toLowerCase() === "pendente"
+    ).length;
+    const casosCancelados = casos.filter(
+      (caso) => caso.status?.toLowerCase() === "cancelado"
+    ).length;
+
+    // Processar dados dos usuários
+    const usuariosAtivos = usuarios.filter(
+      (usuario) => usuario.active !== false
+    ).length;
+    const usuariosPeritos = usuarios.filter(
+      (usuario) => usuario.role === "perito"
+    ).length;
+    const usuariosAssistentes = usuarios.filter(
+      (usuario) => usuario.role === "assistente"
+    ).length;
+    const usuariosAdmin = usuarios.filter(
+      (usuario) => usuario.role === "admin"
+    ).length;
+
+    // Ordenar casos por data de criação (mais recentes primeiro)
+    const casosOrdenados = [...casos].sort((a, b) => {
+      return (
+        new Date(b.createdAt || b.openDate) -
+        new Date(a.createdAt || a.openDate)
+      );
+    });
+
+    // Casos recentes (últimos 5)
+    const casosRecentes = casosOrdenados.slice(0, 5);
+
+    // Gerar dados para gráfico de distribuição de status
+    const distribuicaoStatus = {
+      labels: ["Em Andamento", "Finalizados", "Arquivados"],
+      datasets: [
+        {
+          data: [casosEmAndamento, casosFinalizados, casosArquivados],
+          backgroundColor: ["#b99f81", "#62725c", "#969696"],
+        },
+      ],
+    };
+
+    // Gerar dados para gráfico de distribuição de usuários
+    const distribuicaoUsuarios = {
+      labels: ["Peritos", "Assistentes", "Administradores"],
+      datasets: [
+        {
+          data: [usuariosPeritos, usuariosAssistentes, usuariosAdmin],
+          backgroundColor: ["#706C61", "#0C1618", "#EAD2AC"],
+        },
+      ],
+    };
+
+    // Gerar dados para gráfico de tendência de casos
+    const tendenciaCasos = gerarDadosTendencia(casos, periodoAtivo);
+
+    // Gerar dados para gráfico de desempenho mensal
+    const desempenhoMensal = gerarDadosDesempenho(casos);
+
+    // Gerar atividades recentes
+    const atividadesRecentes = gerarAtividadesRecentes(casos, usuarios);
+
+    return {
+      dashboardData: {
+        totalCasos: casos.length,
+        casosEmAndamento,
+        casosFinalizados,
+        casosArquivados,
+        casosPendentes,
+        casosCancelados,
+        totalUsuarios: usuarios.length,
+        usuariosAtivos,
+        usuariosPeritos,
+        usuariosAssistentes,
+        usuariosAdmin,
+        casosRecentes,
+        atividadesRecentes,
+      },
+      chartData: {
+        distribuicaoStatus,
+        distribuicaoUsuarios,
+        tendenciaCasos,
+        desempenhoMensal,
+      },
+    };
+  };
+
+  // Função para aplicar filtro
+  const aplicarFiltro = () => {
+    if (!todosOsCasos.length && !todosOsUsuarios.length) return;
+
+    let casosFiltrados, usuariosFiltrados;
+
+    if (periodoInicio && periodoFim) {
+      // Filtro personalizado
+      const resultado = filtrarDadosPorPeriodo(
+        todosOsCasos,
+        todosOsUsuarios,
+        null,
+        periodoInicio,
+        periodoFim
+      );
+      casosFiltrados = resultado.casosFiltrados;
+      usuariosFiltrados = resultado.usuariosFiltrados;
+    } else {
+      // Filtro predefinido
+      const resultado = filtrarDadosPorPeriodo(
+        todosOsCasos,
+        todosOsUsuarios,
+        periodoAtivo
+      );
+      casosFiltrados = resultado.casosFiltrados;
+      usuariosFiltrados = resultado.usuariosFiltrados;
+    }
+
+    const dadosProcessados = processarDadosDashboard(
+      casosFiltrados,
+      usuariosFiltrados
+    );
+    setDashboardData(dadosProcessados.dashboardData);
+    setChartData(dadosProcessados.chartData);
+  };
+
+  // Buscar dados iniciais do dashboard
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
@@ -156,10 +355,9 @@ export default function AdminDashboard() {
           }
         );
 
-        // Verificar se o token expirou (401 Unauthorized)
         if (casosResponse.status === 401) {
-          localStorage.removeItem("token"); // Limpar o token inválido
-          router.push("/"); // Redirecionar para a página de login
+          localStorage.removeItem("token");
+          router.push("/");
           throw new Error("Sessão expirada. Por favor, faça login novamente.");
         }
 
@@ -184,10 +382,9 @@ export default function AdminDashboard() {
           }
         );
 
-        // Verificar se o token expirou (401 Unauthorized)
         if (usuariosResponse.status === 401) {
-          localStorage.removeItem("token"); // Limpar o token inválido
-          router.push("/"); // Redirecionar para a página de login
+          localStorage.removeItem("token");
+          router.push("/");
           throw new Error("Sessão expirada. Por favor, faça login novamente.");
         }
 
@@ -200,7 +397,6 @@ export default function AdminDashboard() {
         const usuariosData = await usuariosResponse.json();
         let usuarios = [];
 
-        // Verificar a estrutura da resposta de usuários
         if (Array.isArray(usuariosData)) {
           usuarios = usuariosData;
         } else if (usuariosData.data && Array.isArray(usuariosData.data)) {
@@ -215,103 +411,14 @@ export default function AdminDashboard() {
           usuarios = [];
         }
 
-        // Processar dados dos casos
-        const casosEmAndamento = casos.filter(
-          (caso) => caso.status?.toLowerCase() === "em andamento"
-        ).length;
-        const casosFinalizados = casos.filter(
-          (caso) => caso.status?.toLowerCase() === "finalizado"
-        ).length;
-        const casosArquivados = casos.filter(
-          (caso) => caso.status?.toLowerCase() === "arquivado"
-        ).length;
-        const casosPendentes = casos.filter(
-          (caso) => caso.status?.toLowerCase() === "pendente"
-        ).length;
-        const casosCancelados = casos.filter(
-          (caso) => caso.status?.toLowerCase() === "cancelado"
-        ).length;
+        // Armazenar dados originais
+        setTodosOsCasos(casos);
+        setTodosOsUsuarios(usuarios);
 
-        // Processar dados dos usuários
-        const usuariosAtivos = usuarios.filter(
-          (usuario) => usuario.active !== false
-        ).length;
-        const usuariosPeritos = usuarios.filter(
-          (usuario) => usuario.role === "perito"
-        ).length;
-        const usuariosAssistentes = usuarios.filter(
-          (usuario) => usuario.role === "assistente"
-        ).length;
-        const usuariosAdmin = usuarios.filter(
-          (usuario) => usuario.role === "admin"
-        ).length;
-
-        // Ordenar casos por data de criação (mais recentes primeiro)
-        const casosOrdenados = [...casos].sort((a, b) => {
-          return (
-            new Date(b.createdAt || b.openDate) -
-            new Date(a.createdAt || a.openDate)
-          );
-        });
-
-        // Casos recentes (últimos 5)
-        const casosRecentes = casosOrdenados.slice(0, 5);
-
-        // Gerar dados para gráfico de distribuição de status (apenas Em Andamento, Finalizados e Arquivados)
-        const distribuicaoStatus = {
-          labels: ["Em Andamento", "Finalizados", "Arquivados"],
-          datasets: [
-            {
-              data: [casosEmAndamento, casosFinalizados, casosArquivados],
-              backgroundColor: ["#b99f81", "#62725c", "#969696"],
-            },
-          ],
-        };
-
-        // Gerar dados para gráfico de distribuição de usuários
-        const distribuicaoUsuarios = {
-          labels: ["Peritos", "Assistentes", "Administradores"],
-          datasets: [
-            {
-              data: [usuariosPeritos, usuariosAssistentes, usuariosAdmin],
-              backgroundColor: ["#706C61", "#0C1618", "#EAD2AC"],
-            },
-          ],
-        };
-
-        // Gerar dados para gráfico de tendência de casos
-        const tendenciaCasos = gerarDadosTendencia(casos, periodoAtivo);
-
-        // Gerar dados para gráfico de desempenho mensal
-        const desempenhoMensal = gerarDadosDesempenho(casos);
-
-        // Gerar atividades recentes (combinação de casos e outras atividades)
-        const atividadesRecentes = gerarAtividadesRecentes(casos, usuarios);
-
-        // Atualizar estado do dashboard
-        setDashboardData({
-          totalCasos: casos.length,
-          casosEmAndamento,
-          casosFinalizados,
-          casosArquivados,
-          casosPendentes,
-          casosCancelados,
-          totalUsuarios: usuarios.length,
-          usuariosAtivos,
-          usuariosPeritos,
-          usuariosAssistentes,
-          usuariosAdmin,
-          casosRecentes,
-          atividadesRecentes,
-        });
-
-        // Atualizar dados dos gráficos
-        setChartData({
-          distribuicaoStatus,
-          distribuicaoUsuarios,
-          tendenciaCasos,
-          desempenhoMensal,
-        });
+        // Processar dados iniciais (período padrão)
+        const dadosProcessados = processarDadosDashboard(casos, usuarios);
+        setDashboardData(dadosProcessados.dashboardData);
+        setChartData(dadosProcessados.chartData);
       } catch (error) {
         console.error("Erro ao buscar dados do dashboard:", error);
         setError(error.message);
@@ -321,7 +428,29 @@ export default function AdminDashboard() {
     };
 
     fetchDashboardData();
-  }, [periodoAtivo, router]);
+  }, [router]);
+
+  // Aplicar filtro quando período ativo mudar
+  useEffect(() => {
+    if (todosOsCasos.length > 0 || todosOsUsuarios.length > 0) {
+      aplicarFiltro();
+    }
+  }, [periodoAtivo, todosOsCasos, todosOsUsuarios]);
+
+  // Função para lidar com o botão de filtrar período personalizado
+  const handleFiltrarPeriodo = () => {
+    if (periodoInicio && periodoFim) {
+      setPeriodoAtivo(""); // Limpar filtro rápido
+      aplicarFiltro();
+    }
+  };
+
+  // Função para resetar filtros
+  const resetarFiltros = () => {
+    setPeriodoInicio("");
+    setPeriodoFim("");
+    setPeriodoAtivo("mes");
+  };
 
   // Função para gerar dados de tendência com base no período selecionado
   const gerarDadosTendencia = (casos, periodo) => {
@@ -395,26 +524,21 @@ export default function AdminDashboard() {
       let indice = 0;
 
       if (intervalo === "dia") {
-        // Calcular dias desde o início do período
         const diasDesdeInicio = Math.floor(
           (dataCaso - dataInicial) / (1000 * 60 * 60 * 24)
         );
         indice = Math.min(Math.max(diasDesdeInicio, 0), 6);
       } else if (intervalo === "semana") {
-        // Calcular semanas desde o início do período
         const diasDesdeInicio = Math.floor(
           (dataCaso - dataInicial) / (1000 * 60 * 60 * 24)
         );
         indice = Math.min(Math.floor(diasDesdeInicio / 7), 3);
       } else if (intervalo === "mes") {
-        // Usar o mês do ano
         indice = dataCaso.getMonth();
       }
 
-      // Incrementar contadores
       casosAbertos[indice]++;
 
-      // Se o caso está finalizado, incrementar o contador de finalizados
       if (caso.status?.toLowerCase() === "finalizado") {
         casosFinalizados[indice]++;
       }
@@ -487,7 +611,6 @@ export default function AdminDashboard() {
 
     // Adicionar casos recentes como atividades
     casos.slice(0, 10).forEach((caso) => {
-      // Atividade de criação de caso
       atividades.push({
         tipo: "caso_criado",
         titulo: caso.title || "Caso sem título",
@@ -501,7 +624,6 @@ export default function AdminDashboard() {
         icone: "FileText",
       });
 
-      // Se o caso foi finalizado, adicionar como atividade separada
       if (caso.status?.toLowerCase() === "finalizado" && caso.closeDate) {
         atividades.push({
           tipo: "caso_finalizado",
@@ -521,53 +643,6 @@ export default function AdminDashboard() {
           icone: "CheckCircle",
         });
       }
-
-      // Se o caso foi arquivado, adicionar como atividade separada
-      if (caso.status?.toLowerCase() === "arquivado" && caso.updatedAt) {
-        atividades.push({
-          tipo: "caso_arquivado",
-          titulo: caso.title || "Caso sem título",
-          data: caso.updatedAt,
-          status: "arquivado",
-          usuario:
-            caso.updatedBy?.name ||
-            caso.createdBy?.name ||
-            "Usuário desconhecido",
-          id: caso._id || caso.id,
-          descricao: `Caso arquivado por ${
-            caso.updatedBy?.name ||
-            caso.createdBy?.name ||
-            "Usuário desconhecido"
-          }`,
-          icone: "Archive",
-        });
-      }
-
-      // Se o caso tem evidências, adicionar como atividade
-      if (
-        caso.evidenceCount > 0 ||
-        (caso.evidences && caso.evidences.length > 0)
-      ) {
-        atividades.push({
-          tipo: "evidencia_adicionada",
-          titulo: `Evidência adicionada ao caso: ${
-            caso.title || "Caso sem título"
-          }`,
-          data: caso.updatedAt || caso.createdAt || caso.openDate,
-          status: caso.status,
-          usuario:
-            caso.updatedBy?.name ||
-            caso.createdBy?.name ||
-            "Usuário desconhecido",
-          id: caso._id || caso.id,
-          descricao: `Nova evidência adicionada por ${
-            caso.updatedBy?.name ||
-            caso.createdBy?.name ||
-            "Usuário desconhecido"
-          }`,
-          icone: "ImageIcon",
-        });
-      }
     });
 
     // Adicionar usuários recentes como atividades
@@ -585,7 +660,6 @@ export default function AdminDashboard() {
       });
     });
 
-    // Ordenar por data (mais recentes primeiro) e limitar a 10
     return atividades
       .sort((a, b) => new Date(b.data) - new Date(a.data))
       .slice(0, 10);
@@ -594,13 +668,11 @@ export default function AdminDashboard() {
   // Função para formatar papel do usuário
   const formatarPapel = (role) => {
     if (!role) return "Desconhecido";
-
     const mapeamento = {
       admin: "Administrador",
       perito: "Perito",
       assistente: "Assistente",
     };
-
     return mapeamento[role.toLowerCase()] || role;
   };
 
@@ -608,12 +680,9 @@ export default function AdminDashboard() {
   const formatarData = (dataISO) => {
     if (!dataISO) return "--";
     const data = new Date(dataISO);
-
-    // Ajustar para o fuso horário local para evitar o problema de -1 dia
     const dataAjustada = new Date(
       data.getTime() + data.getTimezoneOffset() * 60000
     );
-
     return dataAjustada.toLocaleDateString("pt-BR", {
       day: "2-digit",
       month: "2-digit",
@@ -624,10 +693,7 @@ export default function AdminDashboard() {
   // Função para obter classe CSS baseada no status
   const getStatusClassName = (status) => {
     if (!status) return "status-desconhecido";
-
-    // Normalize o status para minúsculas e sem espaços
     const normalizedStatus = status.toLowerCase().replace(/\s+/g, "-");
-
     switch (normalizedStatus) {
       case "em-andamento":
         return "status-em-andamento";
@@ -741,6 +807,7 @@ export default function AdminDashboard() {
               justifyContent: "center",
               gap: 12,
               margin: "0 0 24px 0",
+              flexWrap: "wrap",
             }}
           >
             <label htmlFor="periodoInicio" style={{ fontWeight: 500 }}>
@@ -780,15 +847,26 @@ export default function AdminDashboard() {
                 color: "#fff",
                 fontWeight: 600,
                 cursor: "pointer",
+                opacity: !periodoInicio || !periodoFim ? 0.6 : 1,
               }}
-              onClick={() => {
-                setPeriodoAtivo(""); // Limpa o filtro rápido
-                // Aqui você pode disparar um fetch com o novo período
-                // Exemplo: fetchDashboardDataComPeriodo(periodoInicio, periodoFim)
-              }}
+              onClick={handleFiltrarPeriodo}
               disabled={!periodoInicio || !periodoFim}
             >
               Filtrar
+            </button>
+            <button
+              style={{
+                padding: "6px 16px",
+                borderRadius: 4,
+                border: "1px solid #ccc",
+                background: "#fff",
+                color: "#333",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+              onClick={resetarFiltros}
+            >
+              Limpar
             </button>
           </div>
 
@@ -811,6 +889,23 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <>
+              {/* Indicador de filtro ativo */}
+              {periodoInicio && periodoFim && (
+                <div
+                  style={{
+                    background: "#f5f5f5",
+                    padding: "8px 12px",
+                    marginBottom: "16px",
+                    textAlign: "center",
+                    fontSize: "14px",
+                    color: "black",
+                  }}
+                >
+                  📅 Filtro ativo: {formatarData(periodoInicio)} até{" "}
+                  {formatarData(periodoFim)}
+                </div>
+              )}
+
               {/* Resumo de estatísticas */}
               <div className="admin-dashboard-stats-summary">
                 <div className="admin-dashboard-stat-card">
@@ -923,19 +1018,31 @@ export default function AdminDashboard() {
                     <div className="admin-dashboard-chart-period-selector">
                       <button
                         className={periodoAtivo === "semana" ? "active" : ""}
-                        onClick={() => setPeriodoAtivo("semana")}
+                        onClick={() => {
+                          setPeriodoAtivo("semana");
+                          setPeriodoInicio("");
+                          setPeriodoFim("");
+                        }}
                       >
                         Semana
                       </button>
                       <button
                         className={periodoAtivo === "mes" ? "active" : ""}
-                        onClick={() => setPeriodoAtivo("mes")}
+                        onClick={() => {
+                          setPeriodoAtivo("mes");
+                          setPeriodoInicio("");
+                          setPeriodoFim("");
+                        }}
                       >
                         Mês
                       </button>
                       <button
                         className={periodoAtivo === "ano" ? "active" : ""}
-                        onClick={() => setPeriodoAtivo("ano")}
+                        onClick={() => {
+                          setPeriodoAtivo("ano");
+                          setPeriodoInicio("");
+                          setPeriodoFim("");
+                        }}
                       >
                         Ano
                       </button>
@@ -1058,11 +1165,11 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                   <div className="admin-dashboard-list-content">
-                    {dashboardData.atividadesRecentes.length > 0 ? (
+                    {dashboardData.atividadesRecentes &&
+                    dashboardData.atividadesRecentes.length > 0 ? (
                       <ul className="admin-dashboard-list">
                         {dashboardData.atividadesRecentes.map(
                           (atividade, index) => {
-                            // Determinar qual ícone usar com base no tipo de atividade
                             let AtividadeIcone = FileText;
                             if (atividade.icone === "CheckCircle")
                               AtividadeIcone = CheckCircle;
