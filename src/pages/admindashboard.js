@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import AsideNavbar from "@/components/AsideNavBar";
-import MobileBottomNav from "@/components/MobileBottomNav"
-import MobileHeader from "@/components/MobileHeader"
+import MobileBottomNav from "@/components/MobileBottomNav";
+import MobileHeader from "@/components/MobileHeader";
 
 import {
   Bell,
@@ -76,6 +76,10 @@ export default function AdminDashboard() {
 
   // Estado para controlar a visualização de período
   const [periodoAtivo, setPeriodoAtivo] = useState("mes");
+
+  // Adicione estados para o filtro de período
+  const [periodoInicio, setPeriodoInicio] = useState("");
+  const [periodoFim, setPeriodoFim] = useState("");
 
   // Dados para gráficos
   const [chartData, setChartData] = useState({
@@ -727,6 +731,65 @@ export default function AdminDashboard() {
             <div className="admin-dashboard-header-icons-dashboard">
               {/* <Bell size={24} className="admin-dashboard-header-icon" /> */}
             </div>
+          </div>
+
+          {/* Filtro de período */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 12,
+              margin: "0 0 24px 0",
+            }}
+          >
+            <label htmlFor="periodoInicio" style={{ fontWeight: 500 }}>
+              Período de:
+            </label>
+            <input
+              type="date"
+              id="periodoInicio"
+              value={periodoInicio}
+              onChange={(e) => setPeriodoInicio(e.target.value)}
+              style={{
+                padding: "6px 10px",
+                borderRadius: 4,
+                border: "1px solid #ccc",
+              }}
+            />
+            <label htmlFor="periodoFim" style={{ fontWeight: 500 }}>
+              até:
+            </label>
+            <input
+              type="date"
+              id="periodoFim"
+              value={periodoFim}
+              onChange={(e) => setPeriodoFim(e.target.value)}
+              style={{
+                padding: "6px 10px",
+                borderRadius: 4,
+                border: "1px solid #ccc",
+              }}
+            />
+            <button
+              style={{
+                padding: "6px 16px",
+                borderRadius: 4,
+                border: "none",
+                background: "#000",
+                color: "#fff",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                setPeriodoAtivo(""); // Limpa o filtro rápido
+                // Aqui você pode disparar um fetch com o novo período
+                // Exemplo: fetchDashboardDataComPeriodo(periodoInicio, periodoFim)
+              }}
+              disabled={!periodoInicio || !periodoFim}
+            >
+              Filtrar
+            </button>
           </div>
 
           {loading ? (
